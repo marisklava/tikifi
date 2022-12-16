@@ -1,0 +1,287 @@
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@500&display=swap');
+
+html {
+    height: 100%;
+    font-family: 'Work Sans', sans-serif;
+}
+
+body {
+    background-color: white;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    margin: 0px;
+    height: 100%;
+}
+
+a {
+    cursor: pointer;
+}
+
+/* Logo Styling - header area - site identity */
+
+.HLogo {
+    color: rgb(33, 156, 140);
+    font-size: 26px;
+    padding: 16px;
+}
+
+.HRMenu {
+    display: flex;
+    align-items: center;
+}
+
+.HLogin {
+    color: white;
+    background-color: rgb(33, 156, 140); 
+    border-radius: 10%; 
+    font-size: 14px;
+    padding: 10px;
+    margin-right: 10px;
+    display: flex;
+    align-content: center;
+    white-space: nowrap; 
+}
+
+.HLogin img {
+    width: 14px;
+    margin-right: 5px;
+    background-color: white;
+    padding: 2px;
+    border-radius: 10px;
+}
+
+header {
+    position: fixed;
+    display: flex;
+    top: 0;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.elFavoritesMenu {
+    display: none;
+    position: fixed;
+    top: 72px;
+    right: 10px;
+    width: 240px;
+    min-height: 250px;
+    background-color: white;
+    border-radius: 5px;
+}
+
+.elFavoritesToggle input:focus ~ .elFavoritesMenu { display: block; }
+/* Search Toolbar Styling */
+
+.searchToolbar {
+    justify-self: center;
+    border-radius: 0px 0px 5px 5px;
+    display: flex;
+    align-items: center;
+}
+
+.searchToolbar input {
+    border: none;
+    background-color:rgb(215, 255, 250);
+    padding: 12px;
+    min-width: 180px;
+    width: 290px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+}
+
+.HSort {
+    color: white;
+    font-size: 16px;
+}
+
+@media only screen and (max-width: 560px) { 
+    .searchToolbar { 
+        display: none; 
+    } 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.eventCarousel {
+    display: flex;
+    width: 100%;
+    height: 174px;
+}
+
+/* event listing */
+
+.eventListing:first-of-type {
+    margin-left: 32px;
+}
+
+.eventListing {
+    position: relative;
+    height: 172px;
+    width: 256px;
+    margin-left: 8px;
+}
+
+.elThumb {
+    height: 160px;
+    width: 256px;
+    border-radius: 10px;
+}
+
+.elInfo {
+    background-image: linear-gradient(#00000000, #00000042, #000000);
+    background-size: 256px 160px;
+    border-radius: 50px;
+    background-repeat: no-repeat;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    padding-left: 5px;
+    color:white;
+}
+
+.material-icons {user-select: none;}
+.material-icons.HFavoritesI {color: rgb(33, 156, 140); font-size: 32px; vertical-align: middle; margin-right: 8px; margin-left: 8px; content: "favorite"; cursor: pointer}
+.material-icons.HSearchI { margin-left: -40px; background-color: rgb(49, 233, 208); border-radius: 12.5%; padding: 6px; cursor: pointer}
+.material-icons.HSortI { vertical-align: middle; color: rgb(33, 156, 140); }
+.material-icons.HSortI::before { content: "sort"; }
+.material-icons.HSortI:hover::before { content: "menu"; }
+.material-icons.eLTag { font-size: 18px; vertical-align: middle; margin-top: -4px; margin-right: 3px;}
+.material-icons.elFavorite { font-size: 32px; cursor: pointer; }
+.material-icons.elFavorite:before { content: "favorite_border"; }
+.elFavoriteToggle input:checked ~ .material-icons.elFavorite::before { content: "favorite"; color:red; }
+
+.elFavorite {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+.elFavoriteToggle input, .elFavoritesToggle input {
+    position: absolute;
+    height: 28px;
+    width: 28px;
+    opacity: 0;
+}
+
+.elFavoritesToggle input {
+    margin-left: -38px;
+}
+
+.elTitle, .esTitle {
+    font-size: 18px;
+    position: absolute;
+    bottom: 58px;
+    left: 8px;
+}
+
+.elLocation, .esLocation {
+    font-size: 14px;
+    position: absolute;
+    bottom: 36px;
+    left: 8px;
+    vertical-align: middle;
+}
+
+.elBRow, .esBRow {
+    position: absolute;
+    bottom: 0px;
+    left: 8px;
+    display: flex;
+    justify-content: left;
+    flex-direction: row;
+}
+
+.elPrice, .elDate, .esPrice, .esDate {
+    background-color: rgb(33, 156, 140);
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 14px;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+/* Category Divider */
+
+.categoryDivider {
+    color: rgb(33, 156, 140);
+    font-size: 26px;
+    margin-left: 34px;
+    display: flex;
+    padding: 16px 0px;
+}
+
+/* Event Showcase - presentation */
+
+.eventShowcase {
+    width: 100%;
+    height: 520px;
+    margin-bottom: 8px;
+}
+
+.esThumb {
+    height: 100%;
+    width: 100%;
+} 
+
+.esInfo {
+    background-image: linear-gradient(#00000000, #00000042, #000000);
+    background-repeat: no-repeat;
+    bottom: 0px;
+    left: 0px;
+    top: 0px;
+    right: 0px;
+    height: 530px;
+    position: absolute;
+    background-size: 100% 520px;
+    color:white;
+}
+
+.esTitle {
+    font-size: 22px;
+    bottom: 70px;
+    left: 32px;
+}
+
+.esLocation {
+    font-size: 18px;
+    bottom: 44px;
+    left: 32px;
+}
+
+.esBRow {
+    left: 32px;
+}
+
+.esPrice, .esDate {
+    padding: 7px;
+    border-radius: 5px;
+    font-size: 18px;
+}
+
+/* Login Form Css - authorization */

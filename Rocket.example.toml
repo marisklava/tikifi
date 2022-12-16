@@ -1,0 +1,8 @@
+[default.databases.tikifi]
+url = "postgres://username:password@host:post/database"
+
+[default.oauth.google]
+provider = "Google"
+client_id = "client_id"
+client_secret = "client_secret"
+redirect_uri = "http://localhost:8000/auth/google"
