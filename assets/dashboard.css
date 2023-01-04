@@ -1,0 +1,88 @@
+/* Sidebar */
+
+#sidebar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    width: 160px;
+    height: 100%;
+    left: 0;
+    font-size: 22px;
+    background-color: rgb(151, 253, 205);
+    padding-top: 16px;
+    padding-left: 16px;
+    z-index: 1;
+}
+
+#sidebar:first-child {
+    margin-top: 64px;
+}
+
+#sidebar a {
+    display: flex;
+    align-items: center;
+    color: black;
+    margin-bottom: 6px;
+    border-bottom: 4px solid transparent;
+    margin-right: auto;
+}
+
+#sidebar .material-icons {
+    vertical-align: middle;
+    font-size: 36px;
+    margin-right: 6px;
+}
+
+#sidebar a:hover {
+    color: rgb(39, 147, 161);
+    border-bottom: 4px solid;
+}
+
+#content {
+    position: absolute;
+    padding-top: 64px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding-left: 192px;
+    background-color: rgb(207, 250, 230);
+}
+
+/* listing */
+
+.listing {
+    display: flex;
+
+}
+
+.lThumbWrapper {
+    position: relative;
+    height: 172px;
+    width: 256px;
+    margin-left: 8px;
+}
+
+.lTitle {
+    font-size: 24px;
+}
+
+.lLocation {
+    font-size: 14px;
+    bottom: 36px;
+    left: 8px;
+    vertical-align: middle;
+}
+
+.lInfo {
+    padding-top: auto;
+    display: flex;
+    flex-direction: column-reverse;
+    vertical-align: bottom;
+    padding-bottom: 16px;
+    padding-left: 8px;
+}
+
+.lBRow {
+  margin-bottom: 8px;
+}

@@ -6,27 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="assets/style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script src="assets/home.js"></script>
     <title>Tikifi</title>
 </head>
 <body>
-    <header>
-        <a class="HLogo">Tikifi</a>
-        <div class="searchToolbar">
-            <input type="text" placeholder="Search for events and venues">
-            <i class="material-icons HSearchI">search</i>
-            <!--<a class="HSort"><i class="material-icons HSortI"></i></a>-->
-        </div>
-        <div class="HRMenu">
-            <label class="elFavoritesToggle">
-                <i class="material-icons HFavoritesI">favorite</i>
-                <input type="checkbox"/>
-                <div class="elFavoritesMenu"></div>
-            </label>
-            <a class="HLogin"><img src="assets/btn_google.png"/>Log in</a>
-        </div>
-    </header>
+
+    <header include-html="components/header.html"></header>
+
     <div class="eventShowcase">
-        <img class="esThumb" src="https://preview.redd.it/qm7musm3gnh51.jpg?width=832&format=pjpg&auto=webp&s=ef1ebd8a931a1a9cd77a81f25ed905701611d443"/>
+        <img class="esThumb" src="https://media.discordapp.net/attachments/664256783086518273/1032849281033437184/Screen_Shot_2022-10-20_at_7.54.21_PM.png?width=1240&height=676"/>
         <div class="esInfo">
             <i class="material-icons md-64 elFavorite"></i>
             <a class="esTitle">Sāns no undertāles</a>
@@ -37,6 +25,7 @@
             </div>
         </div>
     </div>
+
     <div class="categoryDivider">Featured events</div>
 
     <div class="eventCarousel" id="junk">
@@ -63,7 +52,8 @@
                 <label class="elFavoriteToggle">
                     <input type="checkbox"/>
                     <i class="material-icons elFavorite"></i>
-                </label>                <a class="elTitle">Penale Baballe</a>
+                </label>                
+                <a class="elTitle">Penale Baballe</a>
                 <a class="elLocation"><i class="material-icons eLTag">near_me</i>Anallium Riga</a>
                 <div class="elBRow">
                     <a class="elPrice"><i class="material-icons eLTag">euro</i>69</a>
@@ -75,3 +65,7 @@
     </div>
 </body>
 </html>
+
+<!-- Code for importing components, a server side approach would be better in this case -->
+<script src="assets/include_html.js"></script>
+<script src="components/header.js"></script>

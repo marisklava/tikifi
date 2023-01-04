@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="assets/dashboard.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <title>Tikifi</title>
+</head>
+<body>
+    <header include-html="components/header.html"></header>
+    <div include-html="components/sidebar.html"></div>
+    <script src="components/header.js"></script>
+    <!-- Code for importing components, a server side approach would be better in this case -->
+    <script src="assets/include_html.js"></script>
+
+    <div id="content">
+        <div class="categoryDivider" style="color: black; margin-left: 0px;">Your venues</div>
+
+        <div class="listing">
+            <div class="lThumbWrapper">
+                <img class="elThumb" src="https://preview.redd.it/qm7musm3gnh51.jpg?width=832&format=pjpg&auto=webp&s=ef1ebd8a931a1a9cd77a81f25ed905701611d443">
+            </div>
+            <div class="lInfo">
+                <i class="material-icons elFavorite"></i>
+                <a class="lTitle">Sāns no undertāles</a>
+                <div class="lBRow">
+                    <a class="elPrice"><i class="material-icons eLTag">near_me</i>Origo laukums</a>
+                    <a class="elPrice"><i class="material-icons eLTag">euro</i>420</a>
+                    <a class="elDate"><i class="material-icons eLTag">schedule</i>69. Okt. 2069</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
+
+

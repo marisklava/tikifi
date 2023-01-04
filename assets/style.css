@@ -16,6 +16,7 @@ body {
 
 a {
     cursor: pointer;
+    text-decoration: none;
 }
 
 /* Logo Styling - header area - site identity */
@@ -31,7 +32,7 @@ a {
     align-items: center;
 }
 
-.HLogin {
+#HLogin {
     color: white;
     background-color: rgb(33, 156, 140); 
     border-radius: 10%; 
@@ -41,9 +42,10 @@ a {
     display: flex;
     align-content: center;
     white-space: nowrap; 
+    text-decoration: none;
 }
 
-.HLogin img {
+#HLogin img {
     width: 14px;
     margin-right: 5px;
     background-color: white;
@@ -56,6 +58,7 @@ header {
     display: flex;
     top: 0;
     width: 100%;
+    height: 64px;
     justify-content: space-between;
     align-items: center;
     background-color: white;
@@ -63,18 +66,21 @@ header {
     overflow: hidden;
 }
 
-.elFavoritesMenu {
+#elFavoritesMenu {
     display: none;
     position: fixed;
     top: 72px;
     right: 10px;
     width: 240px;
     min-height: 250px;
-    background-color: white;
+    background-color: rgb(200, 235, 250);
     border-radius: 5px;
 }
 
-.elFavoritesToggle input:focus ~ .elFavoritesMenu { display: block; }
+#elFavoritesMenu.show {
+    display: block;
+}
+
 /* Search Toolbar Styling */
 
 .searchToolbar {
@@ -86,11 +92,14 @@ header {
 
 .searchToolbar input {
     border: none;
-    background-color:rgb(215, 255, 250);
-    padding: 12px;
+    background: rgba(49, 233, 208, 0.69);
+    backdrop-filter: blur(6.2px);
+    -webkit-backdrop-filter: blur(6.2px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    padding: 24px;
     min-width: 180px;
-    width: 290px;
-    border-radius: 4px;
+    width: 240px;
+    height: 64px;
     font-size: 14px;
 }
 
@@ -167,7 +176,7 @@ input:focus, textarea:focus {
 
 .material-icons {user-select: none;}
 .material-icons.HFavoritesI {color: rgb(33, 156, 140); font-size: 32px; vertical-align: middle; margin-right: 8px; margin-left: 8px; content: "favorite"; cursor: pointer}
-.material-icons.HSearchI { margin-left: -40px; background-color: rgb(49, 233, 208); border-radius: 12.5%; padding: 6px; cursor: pointer}
+.material-icons.HSearchI { line-height: 64px; z-index: 1; height: 64px; width: 64px; text-align: center; vertical-align: middle; background-color: rgb(49, 233, 208); cursor: pointer;}
 .material-icons.HSortI { vertical-align: middle; color: rgb(33, 156, 140); }
 .material-icons.HSortI::before { content: "sort"; }
 .material-icons.HSortI:hover::before { content: "menu"; }
@@ -182,15 +191,11 @@ input:focus, textarea:focus {
     right: 8px;
 }
 
-.elFavoriteToggle input, .elFavoritesToggle input {
+.elFavoriteToggle input {
     position: absolute;
     height: 28px;
     width: 28px;
     opacity: 0;
-}
-
-.elFavoritesToggle input {
-    margin-left: -38px;
 }
 
 .elTitle, .esTitle {
@@ -283,5 +288,3 @@ input:focus, textarea:focus {
     border-radius: 5px;
     font-size: 18px;
 }
-
-/* Login Form Css - authorization */
