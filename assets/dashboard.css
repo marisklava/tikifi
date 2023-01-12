@@ -7,7 +7,7 @@
     width: 160px;
     height: 100%;
     left: 0;
-    font-size: 22px;
+    font-size: 20px;
     background-color: rgb(151, 253, 205);
     padding-top: 16px;
     padding-left: 16px;
@@ -15,27 +15,26 @@
 }
 
 #sidebar:first-child {
-    margin-top: 64px;
+    margin-top: 54px;
 }
 
 #sidebar a {
     display: flex;
     align-items: center;
     color: black;
-    margin-bottom: 6px;
-    border-bottom: 4px solid transparent;
+    margin-bottom: 10px;
     margin-right: auto;
 }
 
 #sidebar .material-icons {
     vertical-align: middle;
-    font-size: 36px;
+    font-size: 24px;
     margin-right: 6px;
 }
 
 #sidebar a:hover {
-    color: rgb(39, 147, 161);
-    border-bottom: 4px solid;
+    color: rgb(132, 142, 143);
+    /*border-right: 4px solid;*/
 }
 
 #content {
@@ -65,11 +64,23 @@
 
 .lTitle {
     font-size: 24px;
+    margin-bottom: 12px;
 }
 
 .lDesc {
     font-size: 18px;
     margin-bottom: 8px;
+    max-width: 512px;
+    max-lines: 3;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* number of lines to show */
+            line-clamp: 3; 
+    -webkit-box-orient: vertical;
+
+    margin-bottom: 24px;
 }
 
 .lLocation {
@@ -85,7 +96,7 @@
     flex-direction: column-reverse;
     vertical-align: bottom;
     padding-bottom: 8px;
-    padding-left: 8px;
+    padding-left: 16px;
 }
 
 .lBRow {
@@ -98,4 +109,102 @@
     border-radius: 5px;
     font-size: 18px;
     vertical-align: middle;
+}
+
+#add_venue {
+    margin-left: 12px;
+    background-color: rgb(114, 216, 182);
+    font-size: 14px;
+    padding: 8px;
+    align-self: center;
+    border-radius: 3px;
+}
+
+.avm_save {
+    background-color: rgb(114, 216, 182);
+    font-size: 14px;
+    padding: 8px;
+    align-self: center;
+    border-radius: 3px;
+}
+
+.avm_save.draft {
+    background-color: inherit;
+    
+}
+
+.avm_footer {
+    margin-top: auto;
+    margin-left: auto;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+  
+/* Modal Content */
+.modalContent {
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(207, 250, 230);
+    margin: auto auto; 
+    padding: 20px;
+    min-width: 60%;
+    min-height: 50%;
+    border-radius: 12px;
+}
+
+/* */
+.modalHeaderText {
+    color: black;
+    font-size: 22px;
+}
+  
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 22px;
+    font-weight: bold;
+}
+  
+.close:hover, .close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.avm_title, .avm_location {
+    text-decoration: none;
+    background-color: inherit;
+    border:none;
+    padding-bottom: 6px;
+    display: block;
+    color: #494949;
+    font-size: 22px;
+    border-bottom: 4px dashed grey;
+    width: 512px;
+    margin-top: 20px;
+}
+
+.avm_description {
+    text-decoration: none;
+    background-color: inherit;
+    border:none;
+    display: block;
+    color: #494949;
+    font-size: 22px;
+    border-bottom: 4px dashed grey;
+    width: 512px;
+    max-width: 512px;
+    margin-top: 10px;
 }

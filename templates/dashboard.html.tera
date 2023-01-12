@@ -17,7 +17,21 @@
     <script src="assets/include_html.js"></script>
 
     <div id="content">
-        <div class="categoryDivider" style="color: black; margin-left: 0px;">Your venues</div>
+        <div class="blockDivider" style="color: black; margin-left: 0px;">Your venues <a id="add_venue">add new</a></div>
+        
+        <div id="add_venue_modal" class="modal">
+            <div class="modalContent">
+              <div class="modalHeaderText">Create a new venue<span class="close">&times;</span></div>
+              <input class="avm_title" placeholder="Venue Name"></input>
+              <textarea class="avm_description" placeholder="Venue Description"></textarea>
+              <input class="avm_location" placeholder="Venue Address"></input> 
+              <input type="file" name="myImage" accept="image/png, image/gif, image/jpeg" />
+              <div class="avm_footer">
+                <a class="avm_save draft">Save as draft</a>
+                <a class="avm_save">Save and publish</a>
+              </div>
+            </div>
+        </div>
 
         <div class="listing">
             <div class="lThumbWrapper">
@@ -46,4 +60,19 @@
 </body>
 </html>
 
+<script>
 
+var modal = document.getElementById("add_venue_modal");
+var add_venue = document.getElementById("add_venue");
+var close_modal = document.getElementsByClassName("close")[0];
+
+add_venue.onclick = () => modal.style.display = "flex";
+close_modal.onclick = () => modal.style.display = "none";
+
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+</script>

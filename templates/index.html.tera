@@ -11,7 +11,7 @@
 </head>
 <body>
 
-    <header include-html="components/header.html"></header>
+    {% include "header" ignore missing %}
 
     <div class="eventShowcase">
         <img class="esThumb" src="https://media.discordapp.net/attachments/664256783086518273/1032849281033437184/Screen_Shot_2022-10-20_at_7.54.21_PM.png?width=1240&height=676"/>
@@ -69,7 +69,3 @@
     
 </body>
 </html>
-
-<!-- Code for importing components, a server side approach would be better in this case -->
-<script src="assets/include_html.js"></script>
-<script src="components/header.js"></script>

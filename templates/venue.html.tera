@@ -14,21 +14,29 @@
     <header include-html="components/header.html"></header>
 
     <div class="eventShowcase">
-        <img class="esThumb" src="https://media.discordapp.net/attachments/664256783086518273/1032849281033437184/Screen_Shot_2022-10-20_at_7.54.21_PM.png?width=1240&height=676"/>
+        <img class="esThumb" src="http://www.saulespulkstenis.lv/wp-content/uploads/2012/11/5-UNIVERSI_kopsk.jpg"/>
         <div class="esInfo">
             <i class="material-icons md-64 elFavorite"></i>
-            <a class="esTitle">Sāns no undertāles</a>
-            <a class="esLocation"><i class="material-icons eLTag">near_me</i>Origo laukums</a>
+            <a class="esTitle">Origo Laukums</a>
+            <a class="esLocation"><i class="material-icons eLTag">near_me</i> Centra Laukuma iela 420</a>
             <div class="esBRow">
                 <a class="esPrice"><i class="material-icons eLTag">euro</i>420</a>
                 <a class="esDate"><i class="material-icons eLTag">schedule</i>69. Okt. 2069</a>
             </div>
         </div>
     </div>
-    
+
     <div class="contentWrapper">
+
     <div class="blockWrapper">
-        <div class="blockDivider">Featured events</div>
+        <a class="blockDivider">Venue description</a>
+        <p class="infoParagraph">
+            "Origo" ir tirdzniecības centrs Rīgā, Latvijā. Tā ir viena no lielākajām tirdzniecības vietām valstī un tā atrodas Rīgas centrā. Tirdzniecības centrs "Origo" ir divstāvu ēka ar plašu preču un pakalpojumu klāstu, tostarp apģērbu, apavu, aksesuāru, sporta preču, dāvanu un dekoratīvo preču, kā arī ēdināšanas un izklaides iespējām. Tā ir vieta, kur varēsiet atrast daudz dažādu preču un pakalpojumu vienuviet.
+        </p>
+    </div>
+
+    <div class="blockWrapper">
+        <a class="blockDivider">Upcoming events</a>
         <div class="eventCarousel" id="junk">
             <div class="eventListing" id="junk1">
                 <img class="elThumb" src="https://preview.redd.it/qm7musm3gnh51.jpg?width=832&format=pjpg&auto=webp&s=ef1ebd8a931a1a9cd77a81f25ed905701611d443">
@@ -66,7 +74,7 @@
     </div>
 
     </div>
-    
+
 </body>
 </html>
 

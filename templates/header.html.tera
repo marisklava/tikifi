@@ -14,3 +14,8 @@
     </div>
 </header>
 
+<script>
+    function showFavorites() {
+        document.getElementById("elFavoritesMenu").classList.toggle("show");
+    }
+</script>
