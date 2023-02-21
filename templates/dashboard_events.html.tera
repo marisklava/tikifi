@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/assets/style.css">
+    <link rel="stylesheet" href="/assets/dashboard.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <title>Tikifi</title>
+</head>
+<body>
+    {% include "header" ignore missing %}
+    {% include "sidebar" ignore missing %}
+
+    <div id="content">
+        <div class="blockDivider" style="color: black; margin-left: 0px;">Your events <a id="add_venue">add new</a></div>
+        
+        <div id="add_venue_modal" class="modal">
+            <form class="modalContent" action="/venues" method="post" enctype="multipart/form-data">
+              <div class="modalHeaderText">Add a new event<span class="close">&times;</span></div>
+              <input name="name" class="avm_title" placeholder="Venue name"/>
+              <textarea name="description" class="avm_description" placeholder="Venue description"></textarea>
+              <input name="location" class="avm_location" placeholder="Venue address"/>
+              <input name="thumbnail" type="file" accept="image/png, image/gif, image/jpeg" />
+              <div class="avm_footer">
+                <input type="submit" class="avm_save draft" value="Save as draft" data-draft="1">
+                <input type="submit" class="avm_save" value="Save and publish">
+              </div>
+            </form>
+        </div>
+
+        {% for event in events %}
+        <div class="listing">
+            <div class="lThumbWrapper">
+                <img class="elThumb" src="https://preview.redd.it/qm7musm3gnh51.jpg?width=832&format=pjpg&auto=webp&s=ef1ebd8a931a1a9cd77a81f25ed905701611d443">
+            </div>
+            <div class="lInfo">
+                <div class="lBRow">
+                    <a class="lTag"  href="/venues/{{ event.venue_id }}"><i class="material-icons eLTag">near_me</i>{{ event.venue_name }}</a>
+                    <a class="lTag"><i class="material-icons eLTag">euro</i>P R I C E</a>
+                    <a class="lTag"><i class="material-icons eLTag">schedule</i>{{event.event_date}}</a>
+                </div>
+                <a class="lDesc">D E S C R I P T I O N</a>
+                <a class="lTitle">{{ event.name }}</a>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+
+</body>
+</html>
+
+<script>
+
+var modal = document.getElementById("add_venue_modal");
+var add_venue = document.getElementById("add_venue");
+var close_modal = document.getElementsByClassName("close")[0];
+
+add_venue.onclick = () => modal.style.display = "flex";
+close_modal.onclick = () => modal.style.display = "none";
+
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+</script>

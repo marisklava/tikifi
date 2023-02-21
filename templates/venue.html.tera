@@ -4,24 +4,24 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="/assets/style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <script src="assets/home.js"></script>
+    <script src="/assets/home.js"></script>
     <title>Tikifi</title>
 </head>
 <body>
 
-    <header include-html="components/header.html"></header>
+    {% include "header" ignore missing %}
 
     <div class="eventShowcase">
         <img class="esThumb" src="http://www.saulespulkstenis.lv/wp-content/uploads/2012/11/5-UNIVERSI_kopsk.jpg"/>
         <div class="esInfo">
             <i class="material-icons md-64 elFavorite"></i>
-            <a class="esTitle">Origo Laukums</a>
-            <a class="esLocation"><i class="material-icons eLTag">near_me</i> Centra Laukuma iela 420</a>
+            <a class="esTitle">{{ venue.name }}</a>
+            <a class="esLocation"><i class="material-icons eLTag">near_me</i>{{ venue.address }}</a>
             <div class="esBRow">
-                <a class="esPrice"><i class="material-icons eLTag">euro</i>420</a>
-                <a class="esDate"><i class="material-icons eLTag">schedule</i>69. Okt. 2069</a>
+                <a class="esPrice"><i class="material-icons eLTag">person</i>{{ venue.capacity }}</a>
+                <a class="esDate"><i class="material-icons eLTag">favorite</i>99999</a>
             </div>
         </div>
     </div>
@@ -31,7 +31,7 @@
     <div class="blockWrapper">
         <a class="blockDivider">Venue description</a>
         <p class="infoParagraph">
-            "Origo" ir tirdzniecības centrs Rīgā, Latvijā. Tā ir viena no lielākajām tirdzniecības vietām valstī un tā atrodas Rīgas centrā. Tirdzniecības centrs "Origo" ir divstāvu ēka ar plašu preču un pakalpojumu klāstu, tostarp apģērbu, apavu, aksesuāru, sporta preču, dāvanu un dekoratīvo preču, kā arī ēdināšanas un izklaides iespējām. Tā ir vieta, kur varēsiet atrast daudz dažādu preču un pakalpojumu vienuviet.
+            {{ venue.description }}
         </p>
     </div>
 

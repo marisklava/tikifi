@@ -5,5 +5,5 @@ function Get(uri){
     return req.responseText;          
 }
 
-events = Get("http://127.0.0.1:8000/events")
+events = Get("/events")
 console.log(events)
