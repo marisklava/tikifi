@@ -1,3 +1,5 @@
+{% import "macros" as macros %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,8 +12,7 @@
     <title>Tikifi</title>
 </head>
 <body>
-
-    {% include "header" ignore missing %}
+    {{ macros::header(avatar="Name") }}
 
     <div class="eventShowcase">
         <img class="esThumb" src="https://media.discordapp.net/attachments/664256783086518273/1032849281033437184/Screen_Shot_2022-10-20_at_7.54.21_PM.png?width=1240&height=676"/>

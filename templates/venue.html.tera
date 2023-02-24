@@ -1,3 +1,5 @@
+{% import "macros" as macros %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,8 +12,7 @@
     <title>Tikifi</title>
 </head>
 <body>
-
-    {% include "header" ignore missing %}
+    {{ macros::header(avatar="Name") }}
 
     <div class="eventShowcase">
         <img class="esThumb" src="http://www.saulespulkstenis.lv/wp-content/uploads/2012/11/5-UNIVERSI_kopsk.jpg"/>
