@@ -1,4 +1,4 @@
-{% macro header(avatar) %}
+{% macro header(user) %}
 <header>
     <a class="HLogo" href="/">Tikifi</a>
     <div class="searchToolbar">
@@ -11,17 +11,16 @@
             <i class="material-icons HFavoritesI">favorite</i>
         </label>
         <div id="elFavoritesMenu"></div>
-        {% if not token %}
+        {% if not user %}
             <a id="HLogin" href="/login/google"><img src="/assets/btn_google.png"/>Log in</a>
         {% else %}
         <label class="toggle" onclick="showProfile()">
-            <i class="material-icons HFavoritesI" style="margin-left: 0">favorite</i>
+            <img class="material-icons HFavoritesI" style="margin-left: 0; height: 32px; width: 32px; border-radius:16px" src="{{user.avatar}}"/>
         </label>
         <div id="elProfileMenu">
-            <a class="menuLink" href="/dashboard">{{avatar}}</a>
+            <a class="menuLink" href="/dashboard">{{user.avatar}}</a>
         </div>
         {% endif %}
-        <!--HIDE WHEN LOGGED IN-->
     </div>
 </header>
 
@@ -33,4 +32,71 @@
         document.getElementById("elProfileMenu").classList.toggle("show");
     }
 </script>
-{% endmacro input %}
+{% endmacro header %}
+
+{% macro event(event) %}
+<div class="eventListing">
+    <img class="elThumb" src="{{ event.thumbnail_url }}">
+    <div class="elThumbOverlay"></div>
+    <div class="elInfo">
+        <label class="elFavoriteToggle">
+            <input data-id="{{ event.uid }}" type="checkbox"/>
+            <i class="material-icons elFavorite"></i>
+        </label>
+        <a class="elTitle" href="/events/{{ event.uid }}">{{ event.name }}</a>
+        <a class="elLocation" href="/venues/{{ event.venue_id }}"><i class="material-icons eLTag">near_me</i>{{ event.venue_name }}</a>
+        <div class="elBRow">
+            {% if event.price %}<a class="elPrice"><i class="material-icons eLTag">euro</i>{% if event.price==0 %}Free{% else %}{{event.price}}{% endif %}</a>{% endif %}
+            {% if event.event_date %}<a class="elDate"><i class="material-icons eLTag">schedule</i>{{ event.event_date | date(format="%d. %b. %Y")}}</a>{% endif %}
+        </div>
+    </div>
+</div> 
+{% endmacro event %}
+
+{% macro venue(venue) %}
+<div class="eventListing">
+    <img class="elThumb" src="{{ venue.thumbnail_url }}">
+    <div class="elThumbOverlay"></div>
+    <div class="elInfo">
+        <label class="elFavoriteToggle">
+            <input data-id="{{ venue.uid }}" type="checkbox"/>
+            <i class="material-icons elFavorite"></i>
+        </label>
+        <a class="elTitle" href="/venues/{{ venue.uid }}" style="bottom: 50px">{{ venue.name }}</a>
+        <a class="elLocation" style="bottom: 26px"><i class="material-icons eLTag">near_me</i>{{ venue.address }}</a>
+        <!--<div class="elBRow">
+            {% if event.price %}<a class="elPrice"><i class="material-icons eLTag">euro</i>{% if venue.price==0 %}Free{% else %}{{venue.price}}{% endif %}</a>{% endif %}
+            {% if event.event_date %}<a class="elDate"><i class="material-icons eLTag">schedule</i>{{ venue.event_date | date(format="%d. %b. %Y")}}</a>{% endif %}
+        </div>-->
+    </div>
+</div> 
+{% endmacro event %}
+
+{% macro dash_listing(listing) %}
+<div class="listing" data-id="{{ listing.uid }}">
+    <div class="lThumbWrapper">
+        <img class="elThumb" src="{{ listing.thumbnail_url }}">
+    </div>
+    <div class="lInfo">
+        <div class="lBRow">
+            <a class="lTag"><i class="material-icons eLTag">near_me</i>{{ listing.address }}</a>
+        </div>
+        <a class="lDesc">{{ listing.description }}</a>
+        <a class="lTitle">{{ listing.name }}</a>
+    </div>
+</div>
+{% endmacro dash_listing %}
+
+{% macro featured(listing) %}
+<div class="eventShowcase">
+    <img class="esThumb" src="{{ listing.thumbnail_url }}"/>
+    <div class="esInfo">
+        <a class="esTitle" href="/events/{{ listing.uid }}">{{ listing.name }}</a>
+        <a class="esLocation" href="/venues/{{ listing.venue_id }}"><i class="material-icons eLTag">near_me</i>{{ listing.venue_name }}</a>
+        <div class="esBRow">
+            {% if listing.price %}<a class="esPrice"><i class="material-icons eLTag">euro</i>{% if listing.price==0 %}Free{% else %}{{listing.price}}{% endif %}</a>{% endif %}
+            {% if listing.event_date %}<a class="esDate"><i class="material-icons eLTag">schedule</i>{{ listing.event_date | date(format="%d. %b. %Y")}}</a>{% endif %}
+        </div>
+    </div>
+</div>
+{% endmacro featured %}

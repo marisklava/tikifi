@@ -1,24 +1,28 @@
+{% import "macros" as macros %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="/assets/style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <title>Tikifi</title>
 </head>
 <body>
-    <header>
-        <a class="HLogo">Tikifi</a>
-        <div class="searchToolbar">
-            <input type="text" placeholder="Search..">
-            <i class="material-icons HSearchI">search</i>
-            <a class="HSort"><i class="material-icons HSortI"></i> Sort</a>
+    {{ macros::header(user=user) }}
+
+    {{ macros::featured(listing=event) }}
+
+    <div class="contentWrapper">
+        <div class="blockWrapper">
+            <a class="blockDivider">Venue description</a>
+            <p class="infoParagraph">
+                {{ event.description }}
+            </p>
         </div>
-        <div class="HAuth">
-            <a>Log in</a>
-        </div>
-    </header>
+    </div>
+    
 </body>
 </html>

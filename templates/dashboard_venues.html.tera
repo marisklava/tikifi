@@ -1,3 +1,5 @@
+{% import "macros" as macros %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +12,7 @@
     <title>Tikifi</title>
 </head>
 <body>
-    {% include "header" ignore missing %}
+    {{ macros::header(user=user) }}
     {% include "sidebar" ignore missing %}
 
     <div id="content">
@@ -21,36 +23,21 @@
               <div class="modalHeaderText">Create a new venue<span class="close">&times;</span></div>
               <input name="name" class="avm_title" placeholder="Venue name"/>
               <textarea name="description" class="avm_description" placeholder="Venue description"></textarea>
-              <input name="location" class="avm_location" placeholder="Venue address"/>
-              <input name="thumbnail" type="file" accept="image/png, image/gif, image/jpeg" />
+              <input name="capacity" class="avm_location" placeholder="Venue capacity"/>
+              <input name="address" class="avm_location" placeholder="Venue address"/>
+              <input name="thumbnail_url" class="avm_location" placeholder="Thumbnail url"/>
               <div class="avm_footer">
-                <input type="submit" class="avm_save draft" value="Save as draft" data-draft="1">
+                <!--<input type="submit" class="avm_save draft" value="Save as draft" data-draft="1">-->
                 <input type="submit" class="avm_save" value="Save and publish">
               </div>
             </form>
         </div>
 
-        <div class="listing">
-            <div class="lThumbWrapper">
-                <img class="elThumb" src="https://preview.redd.it/qm7musm3gnh51.jpg?width=832&format=pjpg&auto=webp&s=ef1ebd8a931a1a9cd77a81f25ed905701611d443">
-            </div>
-            <div class="lInfo">
-                <div class="lBRow">
-                    <a class="lTag"><i class="material-icons eLTag">near_me</i>Origo laukuma iela 420</a>
-                    <a class="lTag"><i class="material-icons eLTag">euro</i>420</a>
-                    <a class="lTag"><i class="material-icons eLTag">schedule</i>69. Okt. 2069</a>
-                </div>
-                <a class="lDesc">I'm never gonna dance again
-                    Guilty feet have got no rhythm
-                    Though it's easy to pretend
-                    I know you're not a fool
-                    I should've known better than to cheat a friend
-                    And waste the chance that I'd been given
-                    So I'm never gonna dance again
-                    The way I danced with you, oh</a>
-                <a class="lTitle">Lastādija 2: cyberpunkkkkkkk</a>
-            </div>
-        </div>
+        {% if venues %}
+            {% for venue in venues %}
+                {{ macros::dash_listing(listing=venue) }}
+            {% endfor %}
+        {% endif %}
 
     </div>
 

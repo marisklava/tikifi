@@ -12,45 +12,27 @@
     <title>Tikifi</title>
 </head>
 <body>
-    {{ macros::header(avatar="Name") }}
 
-    <div class="eventShowcase">
-        <img class="esThumb" src="https://media.discordapp.net/attachments/664256783086518273/1032849281033437184/Screen_Shot_2022-10-20_at_7.54.21_PM.png?width=1240&height=676"/>
-        <div class="esInfo">
-            <i class="material-icons md-64 elFavorite"></i>
-            <a class="esTitle">Sāns no undertāles</a>
-            <a class="esLocation"><i class="material-icons eLTag">near_me</i>Origo laukums</a>
-            <div class="esBRow">
-                <a class="esPrice"><i class="material-icons eLTag">euro</i>420</a>
-                <a class="esDate"><i class="material-icons eLTag">schedule</i>69. Okt. 2069</a>
-            </div>
-        </div>
-    </div>
+    {{ macros::header(user=user) }}
+    {{ macros::featured(listing=featured[0]) }}
     
     <div class="contentWrapper">
-    <div class="blockWrapper">
-        <div class="blockDivider">Featured events</div>
-        <div class="eventCarousel">
-            {% for event in events %}
-                <div class="eventListing" id="{{ event.uid }}">
-                    <img class="elThumb" src="https://preview.redd.it/qm7musm3gnh51.jpg?width=832&format=pjpg&auto=webp&s=ef1ebd8a931a1a9cd77a81f25ed905701611d443">
-                    <div class="elInfo">
-                        <label class="elFavoriteToggle">
-                            <input type="checkbox"/>
-                            <i class="material-icons elFavorite"></i>
-                        </label>
-                        <a class="elTitle">{{ event.name }}</a>
-                        <a class="elLocation" href="/venues/{{ event.venue_id }}"><i class="material-icons eLTag">near_me</i>{{ event.venue_name }}</a>
-                        <div class="elBRow">
-                            <a class="elPrice"><i class="material-icons eLTag">euro</i>420</a>
-                            <a class="elDate"><i class="material-icons eLTag">schedule</i>69. Okt. 2069</a>
-                        </div>
-                    </div>
-                </div> 
-            {% endfor %}
+        <div class="blockWrapper">
+            <div class="blockDivider">Featured events</div>
+            <div class="eventCarousel">
+                {% for event in events %}
+                    {{ macros::event(event=event) }}
+                {% endfor %}
+            </div>
         </div>
-    </div>
-
+        <div class="blockWrapper">
+            <div class="blockDivider">Featured venues</div>
+            <div class="eventCarousel">
+                {% for venue in venues %}
+                    {{ macros::venue(venue=venue) }}
+                {% endfor %}
+            </div>
+        </div>
     </div>
     
 </body>

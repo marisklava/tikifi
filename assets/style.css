@@ -170,10 +170,6 @@ input:focus, textarea:focus {
 }
 
 .elInfo {
-    background-image: linear-gradient(#00000000, #00000042, #000000);
-    background-size: 256px 160px;
-    border-radius: 50px;
-    background-repeat: no-repeat;
     position: absolute;
     bottom: 0px;
     left: 0px;
@@ -181,6 +177,17 @@ input:focus, textarea:focus {
     right: 0px;
     padding-left: 5px;
     color:white;
+}
+
+.elThumbOverlay {
+    background-image: linear-gradient(#00000000, #00000042, #000000);
+    background-size: 256px 160px;
+    position: absolute;
+    top: 0;
+    bottom: 12px;
+    right: 0;
+    left: 0;
+    border-radius: 10px;
 }
 
 .material-icons {user-select: none;}
@@ -266,6 +273,7 @@ input:focus, textarea:focus {
     height: 100%;
     width: 100%;
     max-height: 530px;
+    object-fit: cover;
 } 
 
 .esInfo {

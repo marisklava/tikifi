@@ -12,10 +12,10 @@
     <title>Tikifi</title>
 </head>
 <body>
-    {{ macros::header(avatar="Name") }}
+    {{ macros::header(user=user) }}
 
     <div class="eventShowcase">
-        <img class="esThumb" src="http://www.saulespulkstenis.lv/wp-content/uploads/2012/11/5-UNIVERSI_kopsk.jpg"/>
+        <img class="esThumb" src="{{ venue.thumbnail_url }}"/>
         <div class="esInfo">
             <i class="material-icons md-64 elFavorite"></i>
             <a class="esTitle">{{ venue.name }}</a>
@@ -28,57 +28,21 @@
     </div>
 
     <div class="contentWrapper">
-
-    <div class="blockWrapper">
-        <a class="blockDivider">Venue description</a>
-        <p class="infoParagraph">
-            {{ venue.description }}
-        </p>
-    </div>
-
-    <div class="blockWrapper">
-        <a class="blockDivider">Upcoming events</a>
-        <div class="eventCarousel" id="junk">
-            <div class="eventListing" id="junk1">
-                <img class="elThumb" src="https://preview.redd.it/qm7musm3gnh51.jpg?width=832&format=pjpg&auto=webp&s=ef1ebd8a931a1a9cd77a81f25ed905701611d443">
-                <div class="elInfo">
-                    
-                    <label class="elFavoriteToggle">
-                        <input type="checkbox"/>
-                        <i class="material-icons elFavorite"></i>
-                    </label>
-                    <a class="elTitle">Sāns no undertāles</a>
-                    <a class="elLocation"><i class="material-icons eLTag">near_me</i>Origo laukums</a>
-                    <div class="elBRow">
-                        <a class="elPrice"><i class="material-icons eLTag">euro</i>420</a>
-                        <a class="elDate"><i class="material-icons eLTag">schedule</i>69. Okt. 2069</a>
-                    </div>
-                </div>
-            </div> 
-
-            <div class="eventListing" id="junk2">
-                <img class="elThumb" src="https://img2.cgtrader.com/items/1892626/edb059b62d/large/cat-boy-3d-model-low-poly-rigged-obj-mtl-fbx-stl-dae-3dxml.jpg">
-                <div class="elInfo">
-                    <label class="elFavoriteToggle">
-                        <input type="checkbox"/>
-                        <i class="material-icons elFavorite"></i>
-                    </label>                
-                    <a class="elTitle">Penale Baballe</a>
-                    <a class="elLocation"><i class="material-icons eLTag">near_me</i>Anallium Riga</a>
-                    <div class="elBRow">
-                        <a class="elPrice"><i class="material-icons eLTag">euro</i>69</a>
-                        <a class="elDate"><i class="material-icons eLTag">schedule</i>69. Okt. 2069</a>
-                    </div>
-                </div>
-            </div> 
+        <div class="blockWrapper">
+            <a class="blockDivider">Venue description</a>
+            <p class="infoParagraph">
+                {{ venue.description }}
+            </p>
         </div>
-    </div>
-
+        <div class="blockWrapper">
+            <a class="blockDivider">Upcoming events</a>
+            <div class="eventCarousel" id="junk">
+                {% for event in events %}
+                    {{ macros::event(event=event) }}
+                {% endfor %}
+            </div>
+        </div>
     </div>
 
 </body>
 </html>
-
-<!-- Code for importing components, a server side approach would be better in this case -->
-<script src="assets/include_html.js"></script>
-<script src="components/header.js"></script>

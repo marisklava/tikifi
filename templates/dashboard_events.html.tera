@@ -1,3 +1,5 @@
+{% import "macros" as macros %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +12,7 @@
     <title>Tikifi</title>
 </head>
 <body>
-    {% include "header" ignore missing %}
+    {{ macros::header(user=user) }}
     {% include "sidebar" ignore missing %}
 
     <div id="content">
