@@ -16,7 +16,7 @@
     {{ macros::featured(listing=event) }}
 
     <div class="contentWrapper">
-        <div class="blockWrapper">
+        <div class="block-wrapper">
             <a class="blockDivider">Venue description</a>
             <p class="infoParagraph">
                 {{ event.description }}

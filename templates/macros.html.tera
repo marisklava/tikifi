@@ -2,9 +2,17 @@
 <header>
     <a class="HLogo" href="/">Tikifi</a>
     <div class="searchToolbar">
-        <input type="text" placeholder="Search for events and venues">
+        <input type="text" placeholder="Search for events and venues" id="searchBar" onfocus="showSearch()" oninput="search(this.value)">
         <i class="material-icons HSearchI">search</i>
         <!--<a class="HSort"><i class="material-icons HSortI"></i></a>-->
+        <div id="search-menu">
+            <div id="search-menu-filters">
+                <a class="elDate"><i class="material-icons eLTag">schedule</i><input class="custom_input" placeholder="Event date" name="date" type="date"></a>
+                <a class="elDate"><i class="material-icons eLTag">euro</i><input class="custom_input" value=0.00 name="price" type="number" step="any" style="width: 32px"></a>
+            </div>
+            <div id="search-results" style="flex-direction:column">
+            </div>
+        </div>
     </div>
     <div class="HRMenu">
         <label class="toggle" onclick="showFavorites()">
@@ -18,7 +26,13 @@
             <img class="material-icons HFavoritesI" style="margin-left: 0; height: 32px; width: 32px; border-radius:16px" src="{{user.avatar}}"/>
         </label>
         <div id="elProfileMenu">
-            <a class="menuLink" href="/dashboard">{{user.avatar}}</a>
+            <div id="elProfileMenu-header" style="background-image: url({{user.avatar}})"></div>
+            <img id="elProfileMenu-header-pfp" src="{{user.avatar}}"/>
+            <div id="elProfileMenu-links">
+                <a class="menuLink" href="/dashboard"><i class="material-icons">home</i>Dashboard</a>
+                <a class="menuLink" href="/dashboard/events"><i class="material-icons">celebration</i>Events</a>
+                <a class="menuLink" href="/dashboard/venues"><i class="material-icons">fort</i>Venues</a>
+            </div>
         </div>
         {% endif %}
     </div>
@@ -31,6 +45,36 @@
     function showProfile() {
         document.getElementById("elProfileMenu").classList.toggle("show");
     }
+    function showSearch() {
+        document.getElementById("search-menu").classList.toggle("show");
+    }
+
+    let search_bar = document.getElementById("searchBar");
+
+    //Search function might need a rework in my opinion
+    function search(value) {
+        let sm = document.getElementById("search-menu");
+        let sr = document.getElementById("search-results");
+        fetch('/search?query='+value)
+        .then(function (response) {
+            switch (response.status) {
+                case 200:
+                    sm.style.display = "inherit";
+                    return response.text();
+                case 404:
+                    sm.style.display = "none";
+                    return;
+                default:
+                    throw response;
+            }
+        })
+        .then(function (template) {
+            sr.innerHTML=template;
+        })
+        .catch(function (response) {
+            console.log(response.statusText);
+        });
+    }
 </script>
 {% endmacro header %}
 
@@ -39,6 +83,7 @@
     <img class="elThumb" src="{{ event.thumbnail_url }}">
     <div class="elThumbOverlay"></div>
     <div class="elInfo">
+        <a class="elCTag">Party</a>
         <label class="elFavoriteToggle">
             <input data-id="{{ event.uid }}" type="checkbox"/>
             <i class="material-icons elFavorite"></i>
@@ -46,7 +91,7 @@
         <a class="elTitle" href="/events/{{ event.uid }}">{{ event.name }}</a>
         <a class="elLocation" href="/venues/{{ event.venue_id }}"><i class="material-icons eLTag">near_me</i>{{ event.venue_name }}</a>
         <div class="elBRow">
-            {% if event.price %}<a class="elPrice"><i class="material-icons eLTag">euro</i>{% if event.price==0 %}Free{% else %}{{event.price}}{% endif %}</a>{% endif %}
+            <a class="elPrice"><i class="material-icons eLTag">euro</i>{% if not event.price %}Free{% else %}{{event.price}}{% endif %}</a>
             {% if event.event_date %}<a class="elDate"><i class="material-icons eLTag">schedule</i>{{ event.event_date | date(format="%d. %b. %Y")}}</a>{% endif %}
         </div>
     </div>
@@ -72,20 +117,52 @@
 </div> 
 {% endmacro event %}
 
-{% macro dash_listing(listing) %}
-<div class="listing" data-id="{{ listing.uid }}">
-    <div class="lThumbWrapper">
-        <img class="elThumb" src="{{ listing.thumbnail_url }}">
+{% macro mini_listing(listing, type) %}
+<span href="/" class="listing mini">
+    <div class="lThumbWrapper mini">
+        <img class="elThumb mini" src="{% if listing %}{{ listing.thumbnail_url }}{% else %}https://media.istockphoto.com/id/1296521436/vector/abstract-geometric-vector-pattern-in-scandinavian-style-green-agriculture-harvest-symbol.jpg?s=612x612&w=0&k=20&c=9qFmXI2T-el0oBD9rwc-ZG5pykoKu_ZVYD2FZw6-xQc={% endif %}">
     </div>
-    <div class="lInfo">
-        <div class="lBRow">
-            <a class="lTag"><i class="material-icons eLTag">near_me</i>{{ listing.address }}</a>
+    <div class="lInfo mini">
+        <a class="lTitle mini">{{ listing.name }}</a>
+        <div>
+            <!--<a class="lDesc">{{ listing.description }}</a>-->
+            <div class="lBRow">
+                {% if type == 1 %}<a class="lTag"><i class="material-icons eLTag">near_me</i>{{ listing.address }}</a>{% endif %}
+            </div>
         </div>
-        <a class="lDesc">{{ listing.description }}</a>
-        <a class="lTitle">{{ listing.name }}</a>
     </div>
-</div>
-{% endmacro dash_listing %}
+</span>
+{% endmacro mini_listing %}
+
+{% macro dash_listing_editable(listing, type) %} <!-- type 1 - venue, type 2 - event -->
+{% if type == 1 %}{% set typestr = "venue" %}
+{% elif type == 2 %}{% set typestr = "event" %}{% endif %}
+
+<form class="listing" action="/{{typestr}}s{% if listing %}/{{ listing.uid }}{% endif %}" method="post" enctype="multipart/form-data">
+    <label class="lThumbWrapper">
+        <i class="material-icons uplImg">add_a_photo</i>
+        <input name="thumbnail" type="file" accept="image/*" style="display:none" onchange="document.getElementById('d_l_e{% if listing %}-{{ listing.uid }}{% endif %}').src = window.URL.createObjectURL(this.files[0])">
+        <img id='d_l_e{% if listing %}-{{ listing.uid }}{% endif %}' class="elThumb" src="{% if listing %}{{ listing.thumbnail_url }}{% else %}https://media.istockphoto.com/id/1296521436/vector/abstract-geometric-vector-pattern-in-scandinavian-style-green-agriculture-harvest-symbol.jpg?s=612x612&w=0&k=20&c=9qFmXI2T-el0oBD9rwc-ZG5pykoKu_ZVYD2FZw6-xQc={% endif %}">
+    </label>
+    <div class="lInfo">
+        <div style="display: flex">
+            <input class="lTitle custom_input" placeholder="Venue name" name="name" {% if listing %} value="{{ listing.name }}" {% endif %} required>
+            {% if listing %}<a style="vertical-align: middle; margin-left: 3px; align-self: center" href="/{{typestr}}s/{{ listing.uid }}/delete"><i class="material-icons lAction">delete</i></a>{% endif %}
+            <!--<i class="material-icons lAction">edit</i>-->
+            <button class="save_venue" style="border: 0px; align-self: center; margin-bottom: 0" type="submit">save</button>
+        </div>
+        <div>
+            <input class="lDesc custom_input" placeholder="Venue description" name="description" {% if listing %} value="{{ listing.description }}" {% endif %} required>
+            <!--<input class="lDesc custom_input" placeholder="Venue thumbnail url" name="thumbnail_url" type="url" {% if listing %} value="{{ listing.thumbnail_url }}" {% endif %} required>-->
+                {% if type==1 %}<a class="lDesc lTag"><i class="material-icons eLTag">near_me</i><input class="custom_input" placeholder="Venue address" name="address" {% if listing %} value="{{ listing.address }}" {% endif %} required></a>{% endif %}
+                {% if type==2 %}
+                    <a class="lDesc lTag"><i class="material-icons eLTag">euro</i><input class="custom_input" placeholder="Event price" name="price" {% if listing %} value="{{ listing.price }}" {% endif %} required></a>
+                    <a class="lDesc lTag"><i class="material-icons eLTag">schedule</i><input class="custom_input" placeholder="Event date" name="date" type="date" {% if listing %} value='{{ listing.event_date | date(format="%Y-%m-%d")}}' {% endif %} required></a>
+                {% endif %}
+        </div>
+    </div>
+</form>
+{% endmacro dash_listing_editable %}
 
 {% macro featured(listing) %}
 <div class="eventShowcase">

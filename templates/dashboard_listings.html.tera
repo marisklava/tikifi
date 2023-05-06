@@ -13,32 +13,45 @@
 </head>
 <body>
     {{ macros::header(user=user) }}
-    {% include "sidebar" ignore missing %}
+
+    {% if venues %}{% set typestr = "venue" %}{% set type = 1 %}
+    {% elif events %}{% set typestr = "event" %}{% set type = 2 %}{% endif %}
 
     <div id="content">
-        <div class="blockDivider" style="color: black; margin-left: 0px;">Your venues <a id="add_venue">add new</a></div>
+        <div class="blockDivider" style="color: black; margin-left: 0px;">Your {{typestr}}s <a id="add_venue">add new</a></div>
         
-        <div id="add_venue_modal" class="modal">
+        <div id="add_venue_dropdown" class="dropdown">
+          {{ macros::dash_listing_editable(listing=false, type=type) }}
+        </div>
+
+        <!-- repurpose for adding multiple images -->
+        <div id="add_venue_modal" class="modal" style="display: none">
             <form class="modalContent" action="/venues" method="post" enctype="multipart/form-data">
               <div class="modalHeaderText">Create a new venue<span class="close">&times;</span></div>
-              <input name="name" class="avm_title" placeholder="Venue name"/>
-              <textarea name="description" class="avm_description" placeholder="Venue description"></textarea>
-              <input name="capacity" class="avm_location" placeholder="Venue capacity"/>
-              <input name="address" class="avm_location" placeholder="Venue address"/>
-              <input name="thumbnail_url" class="avm_location" placeholder="Thumbnail url"/>
-              <div class="avm_footer">
-                <!--<input type="submit" class="avm_save draft" value="Save as draft" data-draft="1">-->
-                <input type="submit" class="avm_save" value="Save and publish">
+              <i class="material-icons">add_a_photo</i>
+              <a>drag and drop image or click anywhere to upload</a>
+              <div class="eventCarousel">
+                {% if venues %}
+                  {% for venue in venues %}
+                      {{ macros::venue(venue=venue) }}
+                  {% endfor %}
+                {% endif %}
               </div>
             </form>
         </div>
 
         {% if venues %}
             {% for venue in venues %}
-                {{ macros::dash_listing(listing=venue) }}
+                {{ macros::dash_listing_editable(listing=venue, type=1) }}
             {% endfor %}
         {% endif %}
 
+        {% if events %}
+          {% for event in events %}
+              {{ macros::dash_listing_editable(listing=event, type=2) }}
+          {% endfor %}
+        {% endif %}
+        
     </div>
 
 </body>
@@ -46,14 +59,14 @@
 
 <script>
 
-var modal = document.getElementById("add_venue_modal");
+var modal = document.getElementById("add_venue_dropdown");
 var add_venue = document.getElementById("add_venue");
 var close_modal = document.getElementsByClassName("close")[0];
 
 add_venue.onclick = () => modal.style.display = "flex";
 close_modal.onclick = () => modal.style.display = "none";
 
-window.onclick = function(event) {
+window.onclisck = function(event) {
   if (event.target == modal) {
     modal.style.display = "none";
   }

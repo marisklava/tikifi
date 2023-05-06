@@ -28,13 +28,13 @@
     </div>
 
     <div class="contentWrapper">
-        <div class="blockWrapper">
+        <div class="block-wrapper">
             <a class="blockDivider">Venue description</a>
             <p class="infoParagraph">
                 {{ venue.description }}
             </p>
         </div>
-        <div class="blockWrapper">
+        <div class="block-wrapper">
             <a class="blockDivider">Upcoming events</a>
             <div class="eventCarousel" id="junk">
                 {% for event in events %}

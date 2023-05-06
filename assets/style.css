@@ -21,10 +21,28 @@ a, a:link, a:visited {
     text-decoration: none;
 }
 
-/* Logo Styling - header area - site identity */
+.custom_input {
+    outline: none;
+    background-color: inherit;
+    color: inherit;
+    border: 0px;
+}
+
+::placeholder { 
+    color: inherit;
+    opacity: 1; 
+}
+  
+:-ms-input-placeholder {
+    color: inherit;
+}
+  
+::-ms-input-placeholder { 
+    color: inherit;
+}
 
 .HLogo {
-    color: rgb(33, 156, 140);
+    color: rgb(33, 156, 140) !important;
     font-size: 26px;
     padding: 16px;
 }
@@ -37,9 +55,10 @@ a, a:link, a:visited {
 #HLogin {
     color: white;
     background-color: rgb(33, 156, 140); 
-    border-radius: 10%; 
+    border-radius: 20px; 
     font-size: 14px;
     padding: 10px;
+    padding-right: 15px;
     margin-right: 10px;
     display: flex;
     align-content: center;
@@ -70,24 +89,83 @@ header {
 
 #elFavoritesMenu, #elProfileMenu {
     display: none;
+    flex-direction: column;
+    position: fixed;
+    top: 62px;
+    right: 8px;
+    width: 240px;
+    background-color: white;
+    border-radius: 10px;
+}
+
+#elProfileMenu .material-icons {
+    margin-bottom: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+    font-size: 24px;
+}
+
+#elProfileMenu a {
+    margin-bottom: 5px;
+    font-size: 18px;
+    color: black;
+}
+
+#elProfileMenu a:last-of-type {
+    margin-bottom: 0;
+}
+
+#elProfileMenu-links {
+    display: flex;
+    flex-direction: column;
+    padding: 10px
+
+}
+
+#elProfileMenu-header {
+    width: 100%;
+    height: 128px;
+    border-radius: 10px 10px 0px 0px;
+    filter: blur(5px);
+    -webkit-filter: blur(5px);
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 5px;
+    overflow: hidden;
+}
+
+#elProfileMenu-header-pfp {
+    position: absolute;
+    top: 64px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 96px;
+    width: 96px;
+    border-radius: 64px;
+}
+
+#search-menu {
+    display: none;
     position: fixed;
     top: 54px;
-    right: 0px;
-    width: 240px;
-    min-height: 250px;
-    background-color: rgb(200, 235, 250);
-    border-radius: 0 0 0 5px;
+    padding: 10px;
+    padding-right: 0;
+    padding-bottom: 0;
+    border-radius: 0px 0px 15px 15px;
+    width: 342px;
+    max-width: 100%;
+    flex-direction: column;
+    background-color: white;
 }
 
-#elFavoritesMenu.show, #elProfileMenu.show {
-    display: block;
+#search-menu-filters {
+    flex-direction: column;
+    width: 90%;
+    padding-bottom: 12px;
 }
 
-.menuLink {
-    color: red;
-    width: 100%;
-    height: 10px;
-    z-index: 10;
+#elFavoritesMenu.show, #elProfileMenu.show, #search-menu.show {
+    display: flex;
 }
 
 /* Search Toolbar Styling */
@@ -99,14 +177,13 @@ header {
     align-items: center;
 }
 
-.searchToolbar input {
+.searchToolbar>input {
     border: none;
     background: rgba(49, 233, 208, 0.69);
     backdrop-filter: blur(6.2px);
     -webkit-backdrop-filter: blur(6.2px);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     padding: 24px;
-    min-width: 180px;
     width: 240px;
     height: 64px;
     font-size: 14px;
@@ -148,6 +225,17 @@ input:focus, textarea:focus {
     display: flex;
     width: 100%;
     height: 174px;
+    overflow: scroll;
+    max-width: 100%;
+}
+
+.eventCarousel::-webkit-scrollbar {
+    display: none;
+}
+
+.eventCarousel {
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
 }
 
 /* event listing */
@@ -167,6 +255,11 @@ input:focus, textarea:focus {
     height: 160px;
     width: 256px;
     border-radius: 10px;
+}
+
+.elThumb.mini {
+    height: 60px;
+    width: 96px;
 }
 
 .elInfo {
@@ -196,9 +289,10 @@ input:focus, textarea:focus {
 .material-icons.HSortI { vertical-align: middle; color: rgb(33, 156, 140); }
 .material-icons.HSortI::before { content: "sort"; }
 .material-icons.HSortI:hover::before { content: "menu"; }
-.material-icons.eLTag { font-size: 18px; vertical-align: middle; margin-top: -4px; margin-right: 3px;}
+.material-icons.eLTag { font-size: 18px; vertical-align: middle; margin-top: -2px; margin-right: 3px;}
 .material-icons.elFavorite { font-size: 32px; cursor: pointer; }
 .material-icons.elFavorite:before { content: "favorite_border"; }
+.material-icons.uplImg { display: none; font-size: 64px; color: white; z-index: 2; position:absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);}
 .elFavoriteToggle input:checked ~ .material-icons.elFavorite::before { content: "favorite"; color:red; }
 
 .elFavorite {
@@ -237,22 +331,39 @@ input:focus, textarea:focus {
     bottom: 0px;
     left: 8px;
     display: flex;
+    gap: 6px;
     justify-content: left;
     flex-direction: row;
     color: white;
 }
 
 .elPrice, .elDate, .esPrice, .esDate {
+    color: white;
     background-color: rgb(33, 156, 140);
     padding: 5px;
     border-radius: 5px;
     font-size: 14px;
-    margin-right: 6px;
     vertical-align: middle;
-    color: inherit;
 }
 
-/* Category Divider */
+/* Category tag */
+
+.elCTag {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background-color: rgb(47, 207, 228); /* variable */
+    padding: 6px;
+    padding-right: 10px;
+    padding-left: 10px;
+    border-radius: 16px;
+    font-size: 12px;
+    color: black; /* variable */
+    cursor: pointer;
+    z-index: 1;
+}
+
+/* Featured Category Divider */
 
 .blockDivider {
     color: rgb(33, 156, 140);
@@ -270,9 +381,9 @@ input:focus, textarea:focus {
 }
 
 .esThumb {
-    height: 100%;
+    height: 530px;
     width: 100%;
-    max-height: 530px;
+    max-height: 520px;
     object-fit: cover;
 } 
 
@@ -285,7 +396,7 @@ input:focus, textarea:focus {
     right: 0px;
     max-height: 530px;
     position: absolute;
-    background-size: 100% calc(100% - 10px);;
+    background-size: 100% calc(100% - 10px);
     color:white;
 }
 
@@ -317,8 +428,9 @@ input:focus, textarea:focus {
     flex-wrap: wrap;
 }
 
-.blockWrapper {
+.block-wrapper {
     padding-right: 16px;
+    max-width: 100%;
 }
 
 .infoParagraph {
@@ -336,6 +448,120 @@ input:focus, textarea:focus {
     vertical-align: top;
     margin-top: -6px;
 }
+
+
+/* listing */
+
+.listing {
+    display: flex;
+    margin-bottom: 12px;
+}
+
+.listing.mini {
+    width: auto;
+}
+
+.lThumbWrapper {
+    position: relative;
+    height: 172px;
+    width: 256px;
+    cursor: pointer;
+}
+
+.lThumbWrapper:not(.mini):hover img {
+    filter: brightness(75%);
+}
+
+.lThumbWrapper:not(.mini):hover .material-icons.uplImg {
+    display: inline;
+}
+
+.lThumbWrapper.mini {
+    height: 60px;
+    width: 96px;
+}
+
+.lTitle {
+    font-size: 24px;
+    margin-bottom: 4px;
+}
+
+.lTitle.mini {
+    font-size: 18px;
+    margin-left: 4px;
+}
+
+.lDesc {
+    font-size: 18px;
+    margin-bottom: 8px;
+    max-lines: 3;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* number of lines to show */
+            line-clamp: 3; 
+    -webkit-box-orient: vertical;
+}
+
+.lLocation {
+    font-size: 14px;
+    left: 8px;
+    vertical-align: middle;
+}
+
+.lInfo {
+    padding-top: auto;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 8px;
+    padding-left: 16px;
+    justify-content: space-between;
+}
+
+.lInfo.mini {
+    padding-left: 10px;
+    justify-content: start;
+}
+
+.lBRow {
+  margin-bottom: 8px;
+}
+
+.lTag {
+    padding-left: 0px;
+    border-radius: 5px;
+    font-size: 18px;
+    vertical-align: middle;
+    flex-basis: 100%;
+}
+
+/* hover selection logic */
+input.lTag:hover, input.lDesc:hover, input.lTitle:hover,
+input.lTag:focus, input.lDesc:focus, input.lTitle:focus {
+    background-color: rgba(0,0,0,0.1);
+    box-shadow: 0px 0px 0px 2px rgba(0,0,0,0.1);
+    -webkit-box-shadow: 0px 0px 0px 2px rgba(0,0,0,0.1);
+    -moz-box-shadow: 0px 0px 0px 2px rgba(0,0,0,0.1);
+    border-radius: 2.5px;
+}
+
+.listing.mini:hover {
+    background-color: rgba(0,0,0,0.1);
+    box-shadow: 0px 0px 0px 5px rgba(0,0,0,0.1);
+    -webkit-box-shadow: 0px 0px 0px 5px rgba(0,0,0,0.1);
+    -moz-box-shadow: 0px 0px 0px 5px rgba(0,0,0,0.1);
+    border-radius: 3.5px;
+    cursor: pointer;
+}
+/* end hover selection logic */
+
+.lTag input {
+    font-size: 18px;
+    background-color: none !important;
+}
+
+.material-icons.lAction { font-size: 22px; fill:0; vertical-align: middle; margin-left: 3px; align-self: center}
 
 /*
 

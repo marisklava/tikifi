@@ -1,8 +1,8 @@
 #[macro_use] extern crate rocket;
 extern crate chrono;
 
-use rocket::{post, response::content, routes, serde::{Deserialize, Serialize, json::*}};
-use rocket::http::{Cookie, CookieJar, SameSite};
+use rocket::{post, response::content, routes, form::{self, Form}, serde::{Deserialize, Serialize, json::*}};
+use rocket::http::{Cookie, CookieJar, SameSite, ContentType};
 use rocket::Request;
 use rocket::fs::FileServer;
 use rocket::response::Redirect;
@@ -18,23 +18,21 @@ use rocket_dyn_templates::{Template, context, tera::Context};
 use jwksclient2::{error::Error, jwt::Payload};
 use jwksclient2::keyset::KeyStore;
 
-use bevy_reflect::Reflect;
+use uuid::Uuid; 
 
 #[derive(Database)]
 #[database("tikifi")]
 struct Logs(sqlx::PgPool);
 
-#[serde(crate = "rocket::serde")]
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct EventSubmission {
+#[derive(FromForm)]
+pub struct EventSubmission<'r> {
     name: String,
     description: String,
-    start_date: DateTime<Utc>,
-    end_date: DateTime<Utc>,
-    event_date: DateTime<Utc>,
-    is_draft: bool,
+    event_date: String,
+    //is_draft: bool,
     venue: i64,
-    author: i64,
+    #[field(validate = validate_image())]
+    thumbnail: rocket::fs::TempFile<'r>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -53,10 +51,12 @@ pub struct Event {
 #[derive(Default, Debug)]
 struct EventFilterCriteria {
     uid: Option<i64>,
-    venue_name: Option<String>,
+    author: Option<String>,
+    text: Option<String>,
+    venue_name: Option<String>, //UNIMPLEMENTED
     event_date: Option<DateTime<Utc>>,
     venue_id: Option<i64>,
-    is_draft: bool,
+    is_draft: bool, //UNIMPLEMENTED
     is_active: bool, //UNIMPLEMENTED
     limit: Option<i32>,
 }
@@ -76,13 +76,15 @@ impl EventFilterCriteria {
         
         if(self.uid.is_some()) { q.push(" AND ev.uid = "); q.push_bind(self.uid.unwrap());};
         if(self.venue_id.is_some()) { q.push(" AND ev.venue = "); q.push_bind(self.venue_id.unwrap());};
+        if(self.text.is_some()) { q.push(" AND lower(ev.name) LIKE '%' || "); q.push_bind(self.text.unwrap().to_lowercase()); q.push(" || '%'");};
+        if(self.author.is_some()) { q.push(" AND ev.author = "); q.push_bind(self.author.unwrap());};
         if(self.limit.is_some()) { q.push(" LIMIT "); q.push_bind(self.limit.unwrap());};
 
         q.build().map(|row: PgRow| Event {
             uid: row.get("uid"),
             name: row.get("name"),
             description: row.get("description"),
-            event_date: row.get("event_date"), //need to figure out datetime formatting
+            event_date: row.get("event_date"),
             venue_id: row.get("venue_id"),
             venue_name: row.get("venue_name"),
             thumbnail_url: row.get("thumbnail_url"),
@@ -103,19 +105,33 @@ pub struct Venue {
 }
 
 #[derive(FromForm)]
-pub struct VenueSubmission<> {
+pub struct VenueSubmission<'r> {
     name: String,
     description: String,
-    capacity: i64,
+    //capacity: i64,
     address: String,
-    thumbnail_url: String,
+    //thumbnail_url: String,
+    #[field(validate = validate_image())] //ContentType::new("image", "*")
+    thumbnail: rocket::fs::TempFile<'r>,
 }
+
 //thumbnail: rocket::fs::TempFile<'r>,
+fn validate_image<'v>(file: &rocket::fs::TempFile<'_>) -> form::Result<'v, ()> {
+    let ctt = file.content_type().unwrap();
+    match ctt == &ContentType::JPEG || ctt == &ContentType::PNG || ctt == &ContentType::WEBP
+    {
+        true => Ok(()),
+        false => Err(form::Errors::from(form::Error::validation(
+            "Unsupported image",
+        ))),
+    }
+}
 
 #[derive(Default, Debug)]
 struct VenueFilterCriteria {
     uid: Option<i64>,
     owner: Option<String>,
+    text: Option<String>,
     name: Option<String>,
     description: Option<String>,
     capacity: Option<i64>,
@@ -132,10 +148,11 @@ impl VenueFilterCriteria {
             else { return " AND ".to_string() }
         }
 
-        let mut q = QueryBuilder::new("SELECT ven.uid, ven.name, ven.description, ven.capacity, ven.address, ven.thumbnail_url FROM venues AS ven WHERE true=true");
+        let mut q = QueryBuilder::new("SELECT ven.uid, ven.name, ven.description, ven.capacity, ven.address, ven.thumbnail_url FROM venues AS ven WHERE true");
         
         if(self.uid.is_some()) { q.push(" AND uid = "); q.push_bind(self.uid.unwrap());};
         if(self.owner.is_some()) { q.push(" AND owner = "); q.push_bind(self.owner.unwrap());};
+        if(self.text.is_some()) { q.push(" AND ven.name LIKE %"); q.push_bind(self.text.unwrap()); q.push("%");};
 
         q.build().map(|row: PgRow| Venue {
             uid: row.get("uid"),
@@ -145,7 +162,6 @@ impl VenueFilterCriteria {
             address: row.get("address"),
             thumbnail_url: row.get("thumbnail_url"),
         }).fetch_all(&mut *conn).await
-
     }
 }
 
@@ -163,6 +179,18 @@ async fn get_current_user(cookies: &CookieJar<'_>) -> Option<UserInfo> {
         },
         None => return None,
     }
+}
+
+async fn check_event_author(mut conn: &mut PoolConnection<Postgres>, user_id: i64, venue_id: i64) -> bool {
+    let a = sqlx::query("SELECT exists(SELECT FROM events WHERE author = $1 AND uid = $2)").bind(user_id).bind(venue_id)
+    .fetch_one(&mut *conn).await.unwrap();
+    a.get("exists")
+}
+
+async fn check_venue_author(mut conn: &mut PoolConnection<Postgres>, user_id: i64, venue_id: i64) -> bool {
+    let a = sqlx::query("SELECT exists(SELECT FROM venues WHERE owner = $1 AND uid = $2)").bind(user_id).bind(venue_id)
+    .fetch_one(&mut *conn).await.unwrap();
+    a.get("exists")
 }
 
 async fn jwks_verify_token(token: String) -> Option<UserInfo> {
@@ -224,21 +252,80 @@ async fn add_event(data: rocket::serde::json::Json<EventSubmission>, mut conn: C
     Ok(format!("Hello!"))
 }*/
 
-#[post("/venues", data = "<data>")]
-async fn add_venue(data: rocket::form::Form<VenueSubmission<>>, mut conn: Connection<Logs>, cookies: &CookieJar<'_>) -> Option<String> {
+#[post("/events", data = "<data>")]
+async fn add_event(mut data: rocket::form::Form<EventSubmission<'_>>, mut conn: Connection<Logs>, cookies: &CookieJar<'_>) -> Option<Redirect> {
     match get_current_user(cookies).await {
         Some(c) => {
-            let a = sqlx::query("INSERT INTO public.venues(
-                name, description, capacity, address, thumbnail_url, owner)
-                VALUES ($1, $2, $3, $4, $5)")
+            let thumb_dir = format!("images/{}", &Uuid::new_v4().to_string());
+            data.thumbnail.persist_to(&thumb_dir).await.unwrap(); //todo: upload to cdn
+            let a = sqlx::query("INSERT INTO public.events(
+                name, description, event_date, venue, author, thumbnail_url)
+                VALUES ($1, $2, $3, $4, $5, $6)")
             .bind(&data.name)
             .bind(&data.description)
-            .bind(&data.capacity)
+            .bind(&data.event_date)
+            .bind(&data.venue)
+            .bind(&c.id)
+            .bind(&format!("/{}",&thumb_dir))
+            .execute(&mut *conn).await.ok()?;
+            Some(Redirect::to("/dashboard/venues"))
+        },
+        None => None
+    }
+}
+
+#[post("/venues", data = "<data>")]
+async fn add_venue(mut data: rocket::form::Form<VenueSubmission<'_>>, mut conn: Connection<Logs>, cookies: &CookieJar<'_>) -> Option<Redirect> {
+    match get_current_user(cookies).await {
+        Some(c) => {
+            let thumb_dir = format!("images/{}", &Uuid::new_v4().to_string());
+            data.thumbnail.persist_to(&thumb_dir).await.unwrap(); //todo: upload to cdn
+            let a = sqlx::query("INSERT INTO public.venues(
+                name, description, capacity, address, thumbnail_url, owner)
+                VALUES ($1, $2, $3, $4, $5, $6)")
+            .bind(&data.name)
+            .bind(&data.description)
+            .bind(&500)
             .bind(&data.address)
-            .bind(&data.thumbnail_url)
+            .bind(&format!("/{}",&thumb_dir))
             .bind(&c.id)
             .execute(&mut *conn).await.ok()?;
-            Some(format!("Hello!"))
+            Some(Redirect::to("/dashboard/venues"))
+        },
+        None => None
+    }
+}
+
+#[post("/venues/<id>", data = "<data>")]
+async fn edit_venue(mut data: rocket::form::Form<VenueSubmission<'_>>, id: i64, mut conn: Connection<Logs>, cookies: &CookieJar<'_>) -> Option<Redirect> {
+    let thumb_dir = format!("images/{}", &Uuid::new_v4().to_string());
+    data.thumbnail.persist_to(&thumb_dir).await.unwrap(); //todo: upload to cdn
+    match get_current_user(cookies).await {
+        Some(c) => {
+            let a = sqlx::query("UPDATE venues SET name=$1, description=$2, capacity=$3, address=$4, thumbnail_url=$5 WHERE uid=$6 AND owner=$7")
+            .bind(&data.name)
+            .bind(&data.description)
+            .bind(&500)
+            .bind(&data.address)
+            .bind(&format!("/{}",&thumb_dir))
+            .bind(id)
+            .bind(&c.id)
+            .execute(&mut *conn).await.ok()?;
+            Some(Redirect::to("/dashboard/venues"))
+        },
+        None => None
+    }
+}
+
+#[get("/venues/<id>/delete")]
+async fn delete_venue( id: i64, mut conn: Connection<Logs>, cookies: &CookieJar<'_>) -> Option<Redirect> {
+    match get_current_user(cookies).await {
+        Some(c) => {
+            let a = sqlx::query("DELETE FROM venues WHERE uid=$1 AND owner=$2")
+            .bind(id)
+            .bind(&c.id)
+            .execute(&mut *conn).await.ok()?;
+            Some(Redirect::to("/dashboard/venues"))
         },
         None => None
     }
@@ -246,8 +333,30 @@ async fn add_venue(data: rocket::form::Form<VenueSubmission<>>, mut conn: Connec
 
 async fn get_featured_events(mut conn: &mut PoolConnection<Postgres>, limit: i32) -> Option<Vec<Event>> {
     let mut criteria = EventFilterCriteria::new();
-    criteria.limit = Some(1); 
+    criteria.limit = Some(limit); 
     criteria.exec_query(&mut *conn).await.ok()
+}
+
+async fn render_listings(events: Vec<Event>) -> Option<Template> {
+    let mut ctx = Context::new();
+    ctx.insert("events", &events);
+    Some(Template::render("results", ctx.into_json()))
+}
+
+#[get("/search?<query>")]
+async fn search_listings(mut conn: Connection<Logs>, query: String, cookies: &CookieJar<'_>) -> Option<Template> {
+    let mut ctx = Context::new();
+
+    match get_current_user(cookies).await {
+        Some(c) => ctx.insert("user", &c),
+        None => ctx.insert("user", &false),
+    };
+    
+    let mut criteria = EventFilterCriteria::new();
+    criteria.text = Some(query); 
+    let events = criteria.exec_query(&mut *conn).await.ok()?;
+    if(events.len() == 0) { return None }
+    render_listings(events).await
 }
 
 #[get("/events/<id>")]
@@ -385,30 +494,165 @@ async fn dashboard_venues(mut conn: Connection<Logs>, cookies: &CookieJar<'_>) -
         }
     }
 
-    Some(Template::render("dashboard_venues", ctx.into_json()))
+    Some(Template::render("dashboard_listings", ctx.into_json()))
 }
 
 #[get("/dashboard/events")]
 async fn dashboard_events(mut conn: Connection<Logs>, cookies: &CookieJar<'_>) -> Option<Template> {
     let mut ctx = Context::new();
-    
+    let mut criteria = EventFilterCriteria::new();
+
     match get_current_user(cookies).await {
-        Some(c) => ctx.insert("user", &c),
+        Some(c) => {
+            ctx.insert("user", &c);
+            criteria.author = Some(c.id.clone());
+        },
         None => {Redirect::to("/");},
     };
-    
-    //let events: Vec<Event> = get_event_listings(conn).await?; 
-    //ctx.insert("events", &events);
+    print!("{:?}", criteria);
 
-    Some(Template::render("dashboard_events", ctx.into_json()))
+    let events = criteria.exec_query(&mut *conn).await.ok(); 
+
+    match events {
+        Some(e) => {
+            ctx.insert("events", &e);
+        }
+        None => {
+            ctx.insert("events", &false);
+        }
+    }
+
+    Some(Template::render("dashboard_listings", ctx.into_json()))
+}
+
+use fast_qr::convert::ConvertError;
+use fast_qr::convert::{image::ImageBuilder, Builder, Shape};
+use fast_qr::qr::QRBuilder;
+use std::io::Read;
+use std::io::Cursor;
+use std::io::BufWriter;
+
+use image::{ColorType, GenericImageView, ImageFormat};
+use miniz_oxide::deflate::{compress_to_vec_zlib, CompressionLevel};
+use pdf_writer::{Content, Filter, Finish, Name, PdfWriter, Rect, Ref, Str};
+
+#[get("/sample_ticket")]
+async fn sample_ticket(mut conn: Connection<Logs>, cookies: &CookieJar<'_>) -> Option<String> {
+    let qrtext = "required_qr";
+
+    //let default_font = fonts::from_files(".\\fonts\\WorkSans", "WorkSans", None)
+    //let image = elements::Image::from_path(".\\assets\\logo.jpg")
+
+    let qrcode = QRBuilder::new(qrtext)
+        .build()
+        .unwrap();
+
+    let dimensions = 600;
+    let mut img_rgb: Vec<u8> = Vec::new();
+    let mut img_rgb_out: Vec<u8> = vec![0u8; dimensions * dimensions * 3];
+    let mut img = ImageBuilder::default()
+        .shape(Shape::Square)
+        .fit_width(dimensions as u32)
+        .to_pixmap(&qrcode)
+        .encode_png().unwrap();
+
+    /* PDF DOCUMENT MANIPULATION */
+
+    let mut writer = PdfWriter::new();
+
+    // Define reference ids
+    let catalog_id = Ref::new(1);
+    let page_tree_id = Ref::new(2);
+    let page_id = Ref::new(3);
+    let image_id = Ref::new(4);
+    let s_mask_id = Ref::new(5);
+    let content_id = Ref::new(6);
+    let image_name = Name(b"Qr1");
+
+    // Set up the page tree
+    writer.catalog(catalog_id).pages(page_tree_id);
+    writer.pages(page_tree_id).kids([page_id]).count(1);
+
+    // Create a4 page
+    let mut page = writer.page(page_id);
+    let a4 = Rect::new(0.0, 0.0, 595.0, 842.0);
+    page.media_box(a4);
+    page.parent(page_tree_id);
+    page.contents(content_id);
+    page.resources().x_objects().pair(image_name, image_id);
+    page.finish();
+
+    // Load image from memory
+    let dynamic = image::load_from_memory(&img).unwrap();
+
+    // Process image
+    let (filter, encoded, mask) = {
+        let level = CompressionLevel::DefaultLevel as u8;
+        let encoded = compress_to_vec_zlib(dynamic.to_rgb8().as_raw(), level);
+
+        let mask = dynamic.color().has_alpha().then(|| {
+            let alphas: Vec<_> = dynamic.pixels().map(|p| (p.2).0[3]).collect();
+            compress_to_vec_zlib(&alphas, level)
+        });
+
+        (Filter::FlateDecode, encoded, mask)
+    };
+
+    let mut image = writer.image_xobject(image_id, &encoded);
+    image.filter(filter);
+    image.width(dynamic.width() as i32);
+    image.height(dynamic.height() as i32);
+    image.color_space().device_rgb();
+    image.bits_per_component(8);
+    if mask.is_some() {
+        image.s_mask(s_mask_id);
+    }
+    image.finish();
+
+    if let Some(encoded) = &mask {
+        let mut s_mask = writer.image_xobject(s_mask_id, &encoded);
+        s_mask.filter(filter);
+        s_mask.width(dynamic.width() as i32);
+        s_mask.height(dynamic.height() as i32);
+        s_mask.color_space().device_gray();
+        s_mask.bits_per_component(8);
+    }
+
+    // Size the image at 1pt per pixel.
+    let w = dynamic.width() as f32;
+    let h = dynamic.height() as f32;
+
+    // Center the image on the page.
+    let x = (a4.x2 - w) / 2.0;
+    let y = (a4.y2 - h) / 2.0; 
+ 
+    // [scale_x, skew_x, skew_y, scale_y, translate_x, translate_y]
+    // PDF coordinate system starts at bottom left
+    let mut content = Content::new();
+    content.save_state();
+    content.transform([w, 0.0, 0.0, h, x, y]);
+    content.x_object(image_name);
+    content.restore_state();
+    content.begin_text();
+    content.set_font(Name(b"Helvetica"), 14.0);
+    content.next_line(a4.x2/2.0 - 50.0, a4.y2-50.0); //figure out way to center
+    content.show(Str(b"Hello World from Rust!"));
+    content.end_text();
+    writer.stream(content_id, &content.finish());
+
+    // Write the thing to a file.
+    std::fs::write("image.pdf", writer.finish());
+
+    Some("yes".to_string())
 }
 
 #[launch]
 fn rocket() -> _ {
     rocket::build()
         .attach(Logs::init())
-        .mount("/", routes![google_callback, google_login, index, dashboard_venues, dashboard_events, get_venue, get_event, /*add_event,*/ add_venue, dashboard])
+        .mount("/", routes![sample_ticket, google_callback, google_login, index, dashboard_venues, dashboard_events, get_venue, get_event, search_listings, edit_venue, delete_venue, /*add_event,*/ add_venue, dashboard])
         .mount("/assets", FileServer::from("./assets"))
+        .mount("/images", FileServer::from("./images"))
         .attach(OAuth2::<Google>::fairing("google"))
         .attach(Template::fairing())
 }

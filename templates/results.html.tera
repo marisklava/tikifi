@@ -1,0 +1,5 @@
+{% import "macros" as macros %}
+
+{% for event in events %}
+    {{ macros::mini_listing(listing=event, type=2) }}
+{% endfor %}

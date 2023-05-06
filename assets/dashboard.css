@@ -1,3 +1,7 @@
+body {
+    background-color: rgb(196, 254, 226);
+}
+
 /* Sidebar */
 
 #sidebar {
@@ -8,7 +12,6 @@
     height: 100%;
     left: 0;
     font-size: 20px;
-    background-color: rgb(151, 253, 205);
     padding-top: 16px;
     padding-left: 16px;
     z-index: 1;
@@ -39,81 +42,25 @@
     /*border-right: 4px solid;*/
 }
 
+/* sidebar (deprecated) */
+
 #content {
     position: absolute;
     padding-top: 64px;
-    left: 0px;
-    width: 100%;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
     height: 100%;
     box-sizing: border-box;
-    padding-left: 192px;
-    background-color: rgb(207, 250, 230);
+    padding-left: 32px;
 }
 
-/* listing */
-
-.listing {
-    display: flex;
-
+a, a:link, a:visited {
+    text-decoration: none;
+    color: inherit; 
 }
 
-.lThumbWrapper {
-    position: relative;
-    height: 172px;
-    width: 256px;
-    margin-left: 8px;
-}
-
-.lTitle {
-    font-size: 24px;
-    margin-bottom: 12px;
-}
-
-.lDesc {
-    font-size: 18px;
-    margin-bottom: 8px;
-    max-width: 512px;
-    max-lines: 3;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 3; /* number of lines to show */
-            line-clamp: 3; 
-    -webkit-box-orient: vertical;
-
-    margin-bottom: 24px;
-}
-
-.lLocation {
-    font-size: 14px;
-    bottom: 36px;
-    left: 8px;
-    vertical-align: middle;
-}
-
-.lInfo {
-    padding-top: auto;
-    display: flex;
-    flex-direction: column-reverse;
-    vertical-align: bottom;
-    padding-bottom: 8px;
-    padding-left: 16px;
-}
-
-.lBRow {
-  margin-bottom: 8px;
-}
-
-.lTag {
-    padding: 5px;
-    padding-left: 0px;
-    border-radius: 5px;
-    font-size: 18px;
-    vertical-align: middle;
-}
-
-#add_venue {
+#add_venue, .save_venue {
     margin-left: 12px;
     background-color: rgb(114, 216, 182);
     font-size: 14px;
@@ -121,6 +68,12 @@
     align-self: center;
     border-radius: 3px;
     cursor: pointer;
+}
+
+.save_venue {
+    align-self: flex-end;
+    justify-self: flex-end;
+    margin-bottom: 16px;
 }
 
 .avm_save {
@@ -142,7 +95,7 @@
 }
 
 .modal {
-    display: none;
+    display: flex;
     position: fixed;
     z-index: 1; 
     left: 0;
@@ -154,6 +107,15 @@
     background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
 }
   
+.dropdown {
+    display: none;
+    width: 560px;  
+    /*background-color: red; */
+    margin-left: -16px; /*temporary*/
+    padding-left: 16px;
+    /*margin-top: -16px; temporary*/
+}
+
 /* Modal Content */
 .modalContent {
     display: flex;
@@ -161,8 +123,8 @@
     background-color: rgb(207, 250, 230);
     margin: auto auto; 
     padding: 20px;
-    min-width: 60%;
-    min-height: 50%;
+    min-width: 40%;
+    min-height: 30%;
     border-radius: 12px;
 }
 

@@ -14,7 +14,11 @@ chrono = { version = "*", features = [ "serde" ] }
 sqlx = { version = "*", features = [ "chrono" ] }
 rocket_oauth2 = "0.5.0-rc.1"
 oauth2 = "*"
-bevy_reflect = "0.9.1"
+uuid = { version = "*", features = ["v4"] }
+pdf-writer = "0.7"
+fast_qr = { version = "*", features = ["image"] }
+image = "*"
+miniz_oxide = "*"
 
 [dependencies.rocket_dyn_templates]
 version = "0.1.0-rc.2"

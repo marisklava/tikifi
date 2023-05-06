@@ -1,5 +1,5 @@
 <div id="sidebar">
     <a><i class="material-icons">home</i> Home</a>
-    <a><i class="material-icons">celebration</i> Events</a>
-    <a><i class="material-icons">fort</i> Venues</a>
+    <a href="events"><i class="material-icons">celebration</i> Events</a>
+    <a href="venues"><i class="material-icons">fort</i> Venues</a>
 </div>

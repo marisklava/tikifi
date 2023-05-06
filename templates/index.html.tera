@@ -17,15 +17,15 @@
     {{ macros::featured(listing=featured[0]) }}
     
     <div class="contentWrapper">
-        <div class="blockWrapper">
-            <div class="blockDivider">Featured events</div>
+        <div class="block-wrapper">
+            <div class="blockDivider" id="featuredEvents">Featured events</div>
             <div class="eventCarousel">
                 {% for event in events %}
                     {{ macros::event(event=event) }}
                 {% endfor %}
             </div>
         </div>
-        <div class="blockWrapper">
+        <div class="block-wrapper" id="featuredVenues">
             <div class="blockDivider">Featured venues</div>
             <div class="eventCarousel">
                 {% for venue in venues %}
