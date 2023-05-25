@@ -17,7 +17,8 @@ body {
     height: 100%;
 }
 
-a, a:link, a:visited {
+a, a:link, a:visited,
+p, p:link, p:visited {
     text-decoration: none;
 }
 
@@ -119,7 +120,6 @@ header {
     display: flex;
     flex-direction: column;
     padding: 10px
-
 }
 
 #elProfileMenu-header {
@@ -148,20 +148,43 @@ header {
     display: none;
     position: fixed;
     top: 54px;
-    padding: 10px;
-    padding-right: 0;
-    padding-bottom: 0;
-    border-radius: 0px 0px 15px 15px;
-    width: 342px;
+    border-radius: 0px 0px 5px 5px;
+    width: 352px;
     max-width: 100%;
     flex-direction: column;
     background-color: white;
 }
 
+#search-results {
+    display: flex;
+    gap: 10px;
+}
+
 #search-menu-filters {
+    background-color: white;
+    /*background-image: linear-gradient(0deg, rgba(255, 255, 255, 0.5) 0%, rgba(111, 161, 154, 0.65) 100%);*/
+    background-size: calc(100%) calc(100%);
+    background-repeat: no-repeat;
+    background-position: center;
     flex-direction: column;
-    width: 90%;
-    padding-bottom: 12px;
+    padding: 15px;
+    padding-left: 10px;
+    border-radius: 20px;
+}
+
+#event_filter_price {
+    width: 45px;
+    text-align: center;
+}
+
+#event_filter_date {
+    width: 130px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.material-icons.filter_icon {
+    margin-top: -4px !important;
 }
 
 #elFavoritesMenu.show, #elProfileMenu.show, #search-menu.show {
@@ -171,7 +194,9 @@ header {
 /* Search Toolbar Styling */
 
 .searchToolbar {
-    justify-self: center;
+    /*position: fixed;
+    left: 50%;
+    transform: translate(-50%, -50%);*/
     border-radius: 0px 0px 5px 5px;
     display: flex;
     align-items: center;
@@ -179,7 +204,7 @@ header {
 
 .searchToolbar>input {
     border: none;
-    background: rgba(49, 233, 208, 0.69);
+    background: rgb(142, 248, 234);
     backdrop-filter: blur(6.2px);
     -webkit-backdrop-filter: blur(6.2px);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
@@ -247,7 +272,7 @@ input:focus, textarea:focus {
 .eventListing {
     position: relative;
     height: 172px;
-    width: 256px;
+    width: 268px;
     margin-left: 8px;
 }
 
@@ -260,6 +285,7 @@ input:focus, textarea:focus {
 .elThumb.mini {
     height: 60px;
     width: 96px;
+    margin-left: 5px;
 }
 
 .elInfo {
@@ -272,24 +298,37 @@ input:focus, textarea:focus {
     color:white;
 }
 
+.elInfo.mini {
+    width: 268px;
+}
+
 .elThumbOverlay {
     background-image: linear-gradient(#00000000, #00000042, #000000);
-    background-size: 256px 160px;
+    width: 256px;
+    background-size: 268px 160px;
     position: absolute;
     top: 0;
     bottom: 12px;
-    right: 0;
+    right: 24px;
     left: 0;
     border-radius: 10px;
 }
 
+.material-icons.outline {
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 100,
+    'GRAD' 0,
+    'opsz' 48
+}
 .material-icons {user-select: none;}
 .material-icons.HFavoritesI {color: rgb(33, 156, 140); font-size: 32px; vertical-align: middle; margin-right: 8px; margin-left: 8px; content: "favorite"; cursor: pointer}
 .material-icons.HSearchI { line-height: 64px; z-index: 1; height: 64px; width: 64px; text-align: center; vertical-align: middle; background-color: rgb(49, 233, 208); cursor: pointer;}
 .material-icons.HSortI { vertical-align: middle; color: rgb(33, 156, 140); }
 .material-icons.HSortI::before { content: "sort"; }
 .material-icons.HSortI:hover::before { content: "menu"; }
-.material-icons.eLTag { font-size: 18px; vertical-align: middle; margin-top: -2px; margin-right: 3px;}
+.material-icons.eLTag, .material-icons.filter_icon { font-size: 18px; vertical-align: middle; margin-top: -2px; margin-right: 3px;}
+.material-icons.elBuy { font-size: 28px }
 .material-icons.elFavorite { font-size: 32px; cursor: pointer; }
 .material-icons.elFavorite:before { content: "favorite_border"; }
 .material-icons.uplImg { display: none; font-size: 64px; color: white; z-index: 2; position:absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);}
@@ -298,7 +337,7 @@ input:focus, textarea:focus {
 .elFavorite {
     position: absolute;
     top: 8px;
-    right: 8px;
+    right: 20px;
 }
 
 .elFavoriteToggle input {
@@ -338,12 +377,27 @@ input:focus, textarea:focus {
 }
 
 .elPrice, .elDate, .esPrice, .esDate {
+    flex-basis: 1;
     color: white;
     background-color: rgb(33, 156, 140);
     padding: 5px;
     border-radius: 5px;
     font-size: 14px;
     vertical-align: middle;
+}
+
+.elBuy {
+    z-index: 2;
+    color: black;
+    background-color: rgb(175, 245, 235);;
+    padding: 10px;
+    border-radius: 30px;
+    font-size: 14px;
+    vertical-align: middle;
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    cursor: pointer;
 }
 
 /* Category tag */
@@ -394,7 +448,7 @@ input:focus, textarea:focus {
     left: 0px;
     top: 0px;
     right: 0px;
-    max-height: 530px;
+    height: 530px;
     position: absolute;
     background-size: 100% calc(100% - 10px);
     color:white;
@@ -454,11 +508,33 @@ input:focus, textarea:focus {
 
 .listing {
     display: flex;
-    margin-bottom: 12px;
 }
 
 .listing.mini {
+    color: black;
     width: auto;
+    border-style: solid;
+    border-image: 
+      linear-gradient(
+        to right, 
+        transparent 0%,
+        transparent 12.5%, 
+        rgb(33, 156, 140) 12.5%,
+        rgb(33, 156, 140) 87.5%,
+        transparent 87.5%,
+        transparent 99%
+      ) 1;
+    border-width: 0 0 2px 0;
+    border-image-outset: 0 0 5px 0;
+    background-size: calc(100% - 10px) 67px;
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 5px;
+}
+
+.listing.mini:last-of-type {
+    margin-bottom: 5px;
+    border: none;
 }
 
 .lThumbWrapper {
@@ -488,7 +564,14 @@ input:focus, textarea:focus {
 
 .lTitle.mini {
     font-size: 18px;
-    margin-left: 4px;
+    margin: 0px;
+    margin-left: 2.5px;
+}
+
+.listing_info.mini {
+    font-size: 16px;
+    margin: 0px;
+    margin-left: 2.5px;
 }
 
 .lDesc {
@@ -547,11 +630,8 @@ input.lTag:focus, input.lDesc:focus, input.lTitle:focus {
 }
 
 .listing.mini:hover {
-    background-color: rgba(0,0,0,0.1);
-    box-shadow: 0px 0px 0px 5px rgba(0,0,0,0.1);
-    -webkit-box-shadow: 0px 0px 0px 5px rgba(0,0,0,0.1);
-    -moz-box-shadow: 0px 0px 0px 5px rgba(0,0,0,0.1);
-    border-radius: 3.5px;
+    background-color: white;
+    background-image: linear-gradient(135deg, rgba(49,233,208,.2) 0%, rgba(49,233,208,.3) 100%);
     cursor: pointer;
 }
 /* end hover selection logic */
@@ -562,9 +642,25 @@ input.lTag:focus, input.lDesc:focus, input.lTitle:focus {
 }
 
 .material-icons.lAction { font-size: 22px; fill:0; vertical-align: middle; margin-left: 3px; align-self: center}
+.material-icons.m4p_margin {
+    margin-top: -4px;
+}
+.material-icons.elBuy::before {  }
 
 /*
 
-    NOTE: I THINK THAT I SHOULD CHANGE THE MARGIN TO PADDING FOR MOBILE FRIENDLINESS
+    NOTE: I THINK THAT I SHOULD UTILIZE FLEX GAP MORE FOR MOBILE FRIENDLINESS
 
 */
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+}
+
+input[type=number] { 
+    -moz-appearance: textfield;
+    appearance: textfield;
+    margin: 0; 
+}

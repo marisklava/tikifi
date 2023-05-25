@@ -3,3 +3,4 @@ Rocket.toml
 /.cargo
 /binned
 image.pdf
+/images

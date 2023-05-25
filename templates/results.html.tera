@@ -1,5 +1,13 @@
 {% import "macros" as macros %}
 
-{% for event in events %}
-    {{ macros::mini_listing(listing=event, type=2) }}
-{% endfor %}
+{% if events %}
+    {% for event in events %}
+        {{ macros::mini_listing(listing=event, type=2) }}
+    {% endfor %}
+{% endif %}
+
+{% if venues %}
+    {% for venue in venues %}
+        {{ macros::mini_listing(listing=venue, type=1) }}
+    {% endfor %}
+{% endif %}

@@ -1,14 +1,14 @@
 {% macro header(user) %}
 <header>
     <a class="HLogo" href="/">Tikifi</a>
-    <div class="searchToolbar">
-        <input type="text" placeholder="Search for events and venues" id="searchBar" onfocus="showSearch()" oninput="search(this.value)">
+    <div class="searchToolbar" onblur="document.getElementById('search-menu').style.display = 'none';">
+        <input type="text" placeholder="Search for events and venues" id="search_bar"  onfocus="showSearch()" oninput="search()">
         <i class="material-icons HSearchI">search</i>
         <!--<a class="HSort"><i class="material-icons HSortI"></i></a>-->
         <div id="search-menu">
             <div id="search-menu-filters">
-                <a class="elDate"><i class="material-icons eLTag">schedule</i><input class="custom_input" placeholder="Event date" name="date" type="date"></a>
-                <a class="elDate"><i class="material-icons eLTag">euro</i><input class="custom_input" value=0.00 name="price" type="number" step="any" style="width: 32px"></a>
+                <a class="elDate"><i class="material-icons filter_icon">schedule</i><input id="event_filter_date" class="custom_input" placeholder="Event date" name="date" type="date"></a>
+                <a class="elDate"><i class="material-icons filter_icon">euro</i><input id="event_filter_price" class="custom_input" value=0.00 name="price" type="number" step="any"></a>
             </div>
             <div id="search-results" style="flex-direction:column">
             </div>
@@ -18,7 +18,9 @@
         <label class="toggle" onclick="showFavorites()">
             <i class="material-icons HFavoritesI">favorite</i>
         </label>
-        <div id="elFavoritesMenu"></div>
+        <div id="elFavoritesMenu">
+            <p style="text-align: center; font-size: 14px; margin: 20px;"><a style="color:rgb(33, 156, 140); font-size: 14px" href="/login/google">log in</a> to keep your likes and make them public</p>
+        </div>
         {% if not user %}
             <a id="HLogin" href="/login/google"><img src="/assets/btn_google.png"/>Log in</a>
         {% else %}
@@ -32,6 +34,7 @@
                 <a class="menuLink" href="/dashboard"><i class="material-icons">home</i>Dashboard</a>
                 <a class="menuLink" href="/dashboard/events"><i class="material-icons">celebration</i>Events</a>
                 <a class="menuLink" href="/dashboard/venues"><i class="material-icons">fort</i>Venues</a>
+                <a class="menuLink" href="/logout"><i class="material-icons">logout</i>Log out</a>
             </div>
         </div>
         {% endif %}
@@ -46,35 +49,76 @@
         document.getElementById("elProfileMenu").classList.toggle("show");
     }
     function showSearch() {
-        document.getElementById("search-menu").classList.toggle("show");
+        document.getElementById("search-menu").style.display = 'flex';
     }
 
-    let search_bar = document.getElementById("searchBar");
+    let search_bar = document.getElementById("search_bar");
 
     //Search function might need a rework in my opinion
-    function search(value) {
-        let sm = document.getElementById("search-menu");
-        let sr = document.getElementById("search-results");
-        fetch('/search?query='+value)
+    function search() {
+        let search_menu = document.getElementById("search-menu");
+        let search_results = document.getElementById("search-results");
+
+        let search_filter_text = document.getElementById("search_bar").value;
+        let search_filter_date = document.getElementById("event_filter_date");
+        let search_filter_price = document.getElementById("event_filter_price");
+
+        if(search_filter_text == "") {
+            search_results.style.display = "none";
+            return
+        }
+
+        let filters="";
+        if(event_filter_date.value != "") filters = filters + "&date=" + event_filter_date.value        
+        if(event_filter_price.value != 0.0) filters = filters + "&price=" + event_filter_price.value       
+
+        fetch('/search?query='+search_filter_text+filters)
         .then(function (response) {
             switch (response.status) {
                 case 200:
-                    sm.style.display = "inherit";
+                    search_menu.style.display = "inherit";
+                    search_results.style.display = "inherit";
                     return response.text();
                 case 404:
-                    sm.style.display = "none";
+                    search_menu.style.display = "none";
                     return;
                 default:
                     throw response;
             }
         })
         .then(function (template) {
-            sr.innerHTML=template;
+            search_results.innerHTML=template;
         })
         .catch(function (response) {
-            console.log(response.statusText);
+            //console.log(response);
         });
     }
+
+    function set_liked(type, uid, state) {
+        let type_storage = type==2 ? "liked_events" : type==1 ? "liked_venues" : () => { return }
+        let liked_listings = (localStorage.getItem(type_storage) == null) ? [] : JSON.parse(localStorage.getItem(type_storage));
+        if(liked_listings.includes(uid) && state == false) liked_listings.splice(liked_listings.indexOf(uid), 1);
+        if(!liked_listings.includes(uid) && state == true) liked_listings.push(uid)
+        localStorage.setItem(type_storage,JSON.stringify(liked_listings))
+    }
+
+    window.onload = function () {
+        if(localStorage.getItem("liked_events") != null) {
+            let liked_events = JSON.parse(localStorage.getItem("liked_events"));
+            liked_events.forEach((event) => {
+                document.getElementById(event).checked = true
+            })
+        }
+
+        if(localStorage.getItem("liked_venues") != null) {
+            let liked_venues = JSON.parse(localStorage.getItem("liked_venues"));
+            liked_venues.forEach((venue) => {
+                document.getElementById(venue).checked = true
+            })
+        }
+
+    }
+
 </script>
 {% endmacro header %}
 
@@ -83,9 +127,9 @@
     <img class="elThumb" src="{{ event.thumbnail_url }}">
     <div class="elThumbOverlay"></div>
     <div class="elInfo">
-        <a class="elCTag">Party</a>
+        <!--<a class="elCTag">Party</a>-->
         <label class="elFavoriteToggle">
-            <input data-id="{{ event.uid }}" type="checkbox"/>
+            <input class="checkbox_event" id="{{ event.uid }}" onChange="set_liked(2, '{{ event.uid }}', this.checked)" type="checkbox"/>
             <i class="material-icons elFavorite"></i>
         </label>
         <a class="elTitle" href="/events/{{ event.uid }}">{{ event.name }}</a>
@@ -94,6 +138,7 @@
             <a class="elPrice"><i class="material-icons eLTag">euro</i>{% if not event.price %}Free{% else %}{{event.price}}{% endif %}</a>
             {% if event.event_date %}<a class="elDate"><i class="material-icons eLTag">schedule</i>{{ event.event_date | date(format="%d. %b. %Y")}}</a>{% endif %}
         </div>
+        <a class="material-icons elBuy" href="/ticket/buy/{{ event.uid }}">sell</a>
     </div>
 </div> 
 {% endmacro event %}
@@ -104,7 +149,7 @@
     <div class="elThumbOverlay"></div>
     <div class="elInfo">
         <label class="elFavoriteToggle">
-            <input data-id="{{ venue.uid }}" type="checkbox"/>
+            <input class="checkbox_venue" id="{{ venue.uid }}" onChange="set_liked(1, '{{ venue.uid }}', this.checked)" type="checkbox"/>
             <i class="material-icons elFavorite"></i>
         </label>
         <a class="elTitle" href="/venues/{{ venue.uid }}" style="bottom: 50px">{{ venue.name }}</a>
@@ -118,20 +163,21 @@
 {% endmacro event %}
 
 {% macro mini_listing(listing, type) %}
-<span href="/" class="listing mini">
-    <div class="lThumbWrapper mini">
-        <img class="elThumb mini" src="{% if listing %}{{ listing.thumbnail_url }}{% else %}https://media.istockphoto.com/id/1296521436/vector/abstract-geometric-vector-pattern-in-scandinavian-style-green-agriculture-harvest-symbol.jpg?s=612x612&w=0&k=20&c=9qFmXI2T-el0oBD9rwc-ZG5pykoKu_ZVYD2FZw6-xQc={% endif %}">
-    </div>
-    <div class="lInfo mini">
-        <a class="lTitle mini">{{ listing.name }}</a>
-        <div>
-            <!--<a class="lDesc">{{ listing.description }}</a>-->
-            <div class="lBRow">
-                {% if type == 1 %}<a class="lTag"><i class="material-icons eLTag">near_me</i>{{ listing.address }}</a>{% endif %}
+    <a href="/" class="listing mini">
+        <div class="lThumbWrapper mini">
+            <img class="elThumb mini" src="{% if listing %}{{ listing.thumbnail_url }}{% else %}https://media.istockphoto.com/id/1296521436/vector/abstract-geometric-vector-pattern-in-scandinavian-style-green-agriculture-harvest-symbol.jpg?s=612x612&w=0&k=20&c=9qFmXI2T-el0oBD9rwc-ZG5pykoKu_ZVYD2FZw6-xQc={% endif %}">
+        </div>
+        <div class="lInfo mini">
+            <p class="lTitle mini">{{ listing.name }}</p>
+            {% if type == 2 %}<p class="listing_info mini"><i class="material-icons filter_icon outline">near_me</i>{{ listing.venue_name }}</p>{% endif %}
+            <div>
+                <!--<a class="lDesc">{{ listing.description }}</a>-->
+                <div class="lBRow">
+                    {% if type == 21 %}<a class="lTag"><i class="material-icons eLTag">near_me</i>{{ listing.address }}</a>{% endif %}
+                </div>
             </div>
         </div>
-    </div>
-</span>
+    </a>
 {% endmacro mini_listing %}
 
 {% macro dash_listing_editable(listing, type) %} <!-- type 1 - venue, type 2 - event -->
@@ -154,10 +200,16 @@
         <div>
             <input class="lDesc custom_input" placeholder="Venue description" name="description" {% if listing %} value="{{ listing.description }}" {% endif %} required>
             <!--<input class="lDesc custom_input" placeholder="Venue thumbnail url" name="thumbnail_url" type="url" {% if listing %} value="{{ listing.thumbnail_url }}" {% endif %} required>-->
-                {% if type==1 %}<a class="lDesc lTag"><i class="material-icons eLTag">near_me</i><input class="custom_input" placeholder="Venue address" name="address" {% if listing %} value="{{ listing.address }}" {% endif %} required></a>{% endif %}
+                {% if type==1 %}<a class="lDesc lTag m4p_margin"><i class="material-icons eLTag">near_me</i><input class="custom_input" placeholder="Venue address" name="address" {% if listing %} value="{{ listing.address }}" {% endif %} required></a>{% endif %}
                 {% if type==2 %}
-                    <a class="lDesc lTag"><i class="material-icons eLTag">euro</i><input class="custom_input" placeholder="Event price" name="price" {% if listing %} value="{{ listing.price }}" {% endif %} required></a>
-                    <a class="lDesc lTag"><i class="material-icons eLTag">schedule</i><input class="custom_input" placeholder="Event date" name="date" type="date" {% if listing %} value='{{ listing.event_date | date(format="%Y-%m-%d")}}' {% endif %} required></a>
+                    <a class="lDesc lTag"><i class="material-icons eLTag m4p_margin">euro</i><input class="custom_input" placeholder="Event price" name="price" {% if listing %} value="{{ listing.price }}" {% endif %} required></a>
+                    <a class="lDesc lTag"><i class="material-icons eLTag m4p_margin">schedule</i><input style="margin-left: -2px;" class="custom_input" placeholder="Event date" name="event_date" type="date" {% if listing %} value='{{ listing.event_date | date(format="%Y-%m-%d")}}' {% endif %} required></a>
+                    <a class="lDesc lTag"><i class="material-icons eLTag m4p_margin">near_me</i><select style="font-size: 18px" class="custom_input" placeholder="Event venue" name="venue" type="dropdown" required>
+                        {% for venue_name in venue_names %}
+                            <option class="custom_input" style="font-size: 18px" value={{venue_name.uid}} {% if listing %}{% if listing.venue_id == venue_name.uid %}selected{% endif %}{% endif %}>{{venue_name.name}}</option>
+                        {% endfor %}
+                    </select></a>
+
                 {% endif %}
         </div>
     </div>
