@@ -222,7 +222,7 @@
     <label class="lThumbWrapper">
         <i class="material-symbols-outlined uplImg">add_a_photo</i>
         <input name="thumbnail" type="file" accept="image/*" style="display:none" onchange="document.getElementById('d_l_e{% if listing %}-{{ listing.uid }}{% endif %}').src = window.URL.createObjectURL(this.files[0])">
-        <img id='d_l_e{% if listing %}-{{ listing.uid }}{% endif %}' class="elThumb" src="{% if listing %}{{ listing.thumbnail_url }}{% else %}https://media.istockphoto.com/id/1296521436/vector/abstract-geometric-vector-pattern-in-scandinavian-style-green-agriculture-harvest-symbol.jpg?s=612x612&w=0&k=20&c=9qFmXI2T-el0oBD9rwc-ZG5pykoKu_ZVYD2FZw6-xQc={% endif %}">
+        <img id='d_l_e{% if listing %}-{{ listing.uid }}{% endif %}' class="elThumb" src="{% if listing %}/{{ listing.thumbnail_url }}{% else %}https://media.istockphoto.com/id/1296521436/vector/abstract-geometric-vector-pattern-in-scandinavian-style-green-agriculture-harvest-symbol.jpg?s=612x612&w=0&k=20&c=9qFmXI2T-el0oBD9rwc-ZG5pykoKu_ZVYD2FZw6-xQc={% endif %}">
     </label>
     <div class="lInfo">
         <div style="display: flex">
