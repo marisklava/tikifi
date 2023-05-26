@@ -160,7 +160,7 @@
 
 {% macro event(event) %}
 <div class="eventListing">
-    <img class="elThumb" src="{{ event.thumbnail_url }}">
+    <img class="elThumb" src="/{{ event.thumbnail_url }}">
     <div class="elThumbOverlay"></div>
     <div class="elInfo">
         <!--<a class="elCTag">Party</a>-->
