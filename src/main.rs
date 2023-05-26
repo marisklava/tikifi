@@ -10,7 +10,7 @@ use rocket::fs::FileServer;
 use rocket::response::Redirect;
 use rocket_db_pools::{sqlx::{self, FromRow, Row, postgres::*, query_builder::QueryBuilder, Execute, pool::PoolConnection}, Database, Connection};
 
-use chrono::{DateTime, TimeZone, NaiveDate, NaiveDateTime, Utc};
+use chrono::{Local, DateTime, TimeZone, NaiveDate, NaiveDateTime, Utc};
 
 use rocket_oauth2::{OAuth2, TokenResponse};
 struct Google;
@@ -95,6 +95,37 @@ struct Logs(sqlx::PgPool);
 
 #[derive(Debug, Deserialize, Serialize, Clone, sqlx::FromRow)]
 #[serde(crate = "rocket::serde")]
+pub struct Like { 
+    user: String,
+    listing: String,
+}
+
+impl Like {
+    async fn add(mut conn: &mut PoolConnection<Postgres>, listing: String, user: UserInfo) -> Result<(), ApiError> {
+        sqlx::query("INSERT IGNORE INTO public.likes(user, listing) VALUES ($1, $2);")
+        .bind(listing)
+        .bind(user.id)
+        .execute(&mut *conn).await?;
+        Ok(())
+    }
+    async fn remove(mut conn: &mut PoolConnection<Postgres>, listing: String, user: UserInfo) -> Result<(), ApiError> {
+        sqlx::query("DELETE FROM public.likes WHERE user=$1 AND listing=$2;")
+        .bind(listing)
+        .bind(user.id)
+        .execute(&mut *conn).await?;
+        Ok(())
+    }
+    async fn check(mut conn: &mut PoolConnection<Postgres>, listing: String, user: UserInfo) -> Result<bool, ApiError> {
+        sqlx::query("DELETE FROM public.likes WHERE user=$1 AND listing=$2;")
+        .bind(listing)
+        .bind(user.id)
+        .execute(&mut *conn).await?;
+        Ok(true)
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, sqlx::FromRow)]
+#[serde(crate = "rocket::serde")]
 pub struct Ticket { // Ticket struct for interfacing with the database and generating PDF tickets
     uid: String,
     used: bool,
@@ -135,9 +166,10 @@ impl Ticket {
         }).fetch_one(&mut *conn).await?;
         Ok(result)
     }
-    /*async fn set_used(mut conn: &mut PoolConnection<Postgres>, ticket_id: String) -< Result<(), ApiError> {
-
-    }*/
+    async fn check_ticket(mut conn: &mut PoolConnection<Postgres>, ticket_id: String, user_id: String, ) -> Result<bool, ApiError> { // Going to add a sort of "doors open" datetime functionality later on
+        //sqlx::query("CASE WHEN EXISTS (SELECT FROM tickets WHERE uid = $1 AND purchaser = $2 AND event = $3)");
+        Ok(true)
+    }//UPDATE tickets SET used=true WHERE uid = $1
 }
 
 #[derive(FromForm)]
@@ -148,8 +180,8 @@ pub struct EventSubmission<'r> {
     //is_draft: bool,
     venue: String,
     #[field(validate = validate_image())]
-    thumbnail: rocket::fs::TempFile<'r>,
-    price: i64,
+    thumbnail: Option<rocket::fs::TempFile<'r>>,
+    price: f32,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, FromRow)]
@@ -162,7 +194,7 @@ pub struct Event {
     venue_id: String,
     venue_name: String,
     thumbnail_url: String,
-    price: i64,
+    price: f32,
 }
 
 #[derive(Default, Debug)]
@@ -171,11 +203,12 @@ struct EventFilterCriteria {
     author: Option<String>,
     text: Option<String>,
     venue_name: Option<String>, //UNIMPLEMENTED
-    event_date: Option<DateTime<Utc>>,
+    event_date: Option<NaiveDate>,
     venue_id: Option<String>,
     is_draft: bool, //UNIMPLEMENTED
     is_active: bool, //UNIMPLEMENTED
     limit: Option<i32>,
+    price: Option<f32>,
 }
 
 impl EventFilterCriteria {
@@ -195,9 +228,16 @@ impl EventFilterCriteria {
         if(self.venue_id.is_some()) { q.push(" AND ev.venue = "); q.push_bind(self.venue_id.unwrap());};
         if(self.text.is_some()) { q.push(" AND lower(ev.name) LIKE '%' || "); q.push_bind(self.text.unwrap().to_lowercase()); q.push(" || '%'");};
         if(self.author.is_some()) { q.push(" AND ev.author = "); q.push_bind(self.author.unwrap());};
+        if(self.event_date.is_some()) { q.push(" AND (ev.event_date - "); q.push_bind(self.event_date.unwrap()); q.push(") < interval '2 days'");};
+        if(self.price.is_some()) { q.push(" AND ev.price < "); q.push_bind(self.price.unwrap());};
         if(self.limit.is_some()) { q.push(" LIMIT "); q.push_bind(self.limit.unwrap());};
 
-        let result = q.build().map(|row: PgRow| Event {
+
+        let a = q.build();
+        println!("{:?}",a.sql());
+        //println!("{:?}",self.event_date.unwrap());
+
+        let result = a.map(|row: PgRow| Event {
             uid: row.get("uid"),
             name: row.get("name"),
             description: row.get("description"),
@@ -238,12 +278,16 @@ pub struct VenueSubmission<'r> {
     address: String,
     //thumbnail_url: String,
     #[field(validate = validate_image())] //ContentType::new("image", "*")
-    thumbnail: rocket::fs::TempFile<'r>,
+    thumbnail: Option<rocket::fs::TempFile<'r>>,
 }
 
 //thumbnail: rocket::fs::TempFile<'r>,
-fn validate_image<'v>(file: &rocket::fs::TempFile<'_>) -> form::Result<'v, ()> {
-    let ctt = file.content_type().unwrap();
+fn validate_image<'v>(file: &Option<rocket::fs::TempFile<'_>>) -> form::Result<'v, ()> {
+    let tfile = match file {
+        Some(f) => f,
+        None => return Ok(()),
+    };
+    let ctt = tfile.content_type().unwrap();
     match ctt == &ContentType::JPEG || ctt == &ContentType::PNG || ctt == &ContentType::WEBP
     {
         true => Ok(()),
@@ -420,19 +464,37 @@ async fn persist_thumb(thumbnail: &mut rocket::fs::TempFile<'_>) -> Result<Strin
 
 #[post("/events", data = "<data>")] //Insecure
 async fn add_event(mut data: rocket::form::Form<EventSubmission<'_>>, mut conn: Connection<Logs>, cookies: &CookieJar<'_>, user: UserInfo) -> Result<Redirect, ApiError> {
-    let thumb_dir = persist_thumb(&mut data.thumbnail).await?;
+
     let a = sqlx::query("INSERT INTO public.events(
-        name, description, event_date, venue, author, thumbnail_url, price)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)")
+        name, description, event_date, venue, author, price)
+        VALUES ($1, $2, $3, $4, $5, $6) RETURNING uid")
     .bind(&data.name)
     .bind(&data.description)
     .bind(&NaiveDate::parse_from_str(&data.event_date,"%Y-%m-%d")?)
     .bind(&data.venue)
     .bind(&user.id)
-    .bind(&format!("/{}",&thumb_dir))
     .bind(&data.price)
-    .execute(&mut *conn).await?;
-    Ok(Redirect::to("/dashboard/events"))
+    .fetch_one(&mut *conn).await?;
+
+    if(data.thumbnail.is_some()) { 
+        
+        let mut q = QueryBuilder::new("UPDATE events SET thumbnail_url = ");
+
+        let mut thumb = data.thumbnail.as_mut().unwrap();
+        let thumb_dir = persist_thumb(&mut thumb).await?; 
+        q.push_bind(thumb_dir);
+
+        q.push(" WHERE uid = ");
+        let uid: String = a.get("uid");
+        q.push_bind(uid);
+
+        q.push(" AND author = ");
+        q.push_bind(user.id);
+
+        q.build().execute(&mut *conn).await?;    
+    };
+
+    Ok(Redirect::to("/dashboard/events")) // thumbnail_url
 }
 
 /*
@@ -456,16 +518,19 @@ async fn add_event(mut data: rocket::form::Form<EventSubmission<'_>>, mut conn: 
 
 #[post("/events/<id>", data = "<data>")]
 async fn edit_event(mut data: rocket::form::Form<EventSubmission<'_>>, id: String, mut conn: Connection<Logs>, user: UserInfo) -> Result<Redirect, ApiError> {
-    let thumb_dir = persist_thumb(&mut data.thumbnail).await.unwrap();
 
     let mut q = QueryBuilder::new("UPDATE events SET ");
 
-    q.push("name="); q.push_bind(&data.name); q.push(", ");
-    q.push("description="); q.push_bind(&data.description); q.push(", ");
-    q.push("event_date="); q.push_bind(NaiveDate::parse_from_str(&data.event_date,"%Y-%m-%d").unwrap()); q.push(", ");
-    q.push("venue="); q.push_bind(&data.venue); q.push(", ");
+    q.push("name="); q.push_bind(data.name.clone()); q.push(", ");
+    q.push("description="); q.push_bind(data.description.clone()); q.push(", ");
+    q.push("event_date="); q.push_bind(NaiveDate::parse_from_str(&data.event_date.clone(),"%Y-%m-%d").unwrap()); q.push(", ");
+    q.push("venue="); q.push_bind(data.venue.clone()); q.push(", ");
 
-    q.push("thumbnail_url="); q.push_bind(format!("/{}",&thumb_dir)); q.push(", ");
+    if(data.thumbnail.is_some()) { 
+        let mut thumb = data.thumbnail.as_mut().unwrap();
+        let thumb_dir = persist_thumb(&mut thumb).await.unwrap();
+        q.push("thumbnail_url="); q.push_bind(format!("/{}",&thumb_dir)); q.push(", "); 
+    };
 
     q.push("price="); q.push_bind(&data.price);
     q.push("WHERE uid ="); q.push_bind(id);
@@ -476,33 +541,69 @@ async fn edit_event(mut data: rocket::form::Form<EventSubmission<'_>>, id: Strin
 }
 
 #[post("/venues", data = "<data>")]
-async fn add_venue(mut data: rocket::form::Form<VenueSubmission<'_>>, mut conn: Connection<Logs>, user: UserInfo) -> Result<Redirect, ApiError> {
-    let thumb_dir = persist_thumb(&mut data.thumbnail).await?;
+async fn add_listing(mut data: rocket::form::Form<VenueSubmission<'_>>, mut conn: Connection<Logs>, user: UserInfo) -> Result<Redirect, ApiError> {
+    
     let a = sqlx::query("INSERT INTO public.venues(
-        name, description, capacity, address, thumbnail_url, owner)
-        VALUES ($1, $2, $3, $4, $5, $6)")
+        name, description, capacity, address, owner)
+        VALUES ($1, $2, $3, $4, $5) RETURNING uid")
     .bind(&data.name)
     .bind(&data.description)
     .bind(&500)
     .bind(&data.address)
-    .bind(&format!("/{}",&thumb_dir))
     .bind(&user.id)
-    .execute(&mut *conn).await?;
+    .fetch_one(&mut *conn).await?;
+
+    if(data.thumbnail.is_some()) { 
+
+        let mut q = QueryBuilder::new("UPDATE venues SET thumbnail_url = ");
+        
+        let mut thumb = data.thumbnail.as_mut().unwrap();
+        let thumb_dir = persist_thumb(&mut thumb).await?; 
+        q.push_bind(thumb_dir);
+
+        q.push(" WHERE uid = ");
+        let uid: String = a.get("uid");
+        q.push_bind(uid);
+
+        q.push(" AND owner = ");
+        q.push_bind(user.id);
+
+        q.build().execute(&mut *conn).await?;    
+
+    };
+
     Ok(Redirect::to("/dashboard/venues"))
 }
 
 #[post("/venues/<id>", data = "<data>")]
 async fn edit_venue(mut data: rocket::form::Form<VenueSubmission<'_>>, id: String, mut conn: Connection<Logs>, user: UserInfo) -> Result<Redirect, ApiError> {
-    let thumb_dir = persist_thumb(&mut data.thumbnail).await.unwrap();
-    let a = sqlx::query("UPDATE venues SET name=$1, description=$2, capacity=$3, address=$4, thumbnail_url=$5 WHERE uid=$6 AND owner=$7")
+    let a = sqlx::query("UPDATE venues SET name=$1, description=$2, capacity=$3, address=$4 WHERE uid=$5 AND owner=$6")
     .bind(&data.name)
     .bind(&data.description)
     .bind(&500)
     .bind(&data.address)
-    .bind(&format!("/{}",&thumb_dir))
     .bind(id)
     .bind(&user.id)
-    .execute(&mut *conn).await?;
+    .fetch_one(&mut *conn).await?;
+
+    if(data.thumbnail.is_some()) { 
+
+        let mut q = QueryBuilder::new("UPDATE venues SET thumbnail_url = ");
+        
+        let mut thumb = data.thumbnail.as_mut().unwrap();
+        let thumb_dir: String = persist_thumb(&mut thumb).await?; 
+        q.push_bind(thumb_dir);
+
+        q.push(" WHERE uid = ");
+        let uid: String = a.get("uid");
+        q.push_bind(uid);
+
+        q.push(" AND owner = ");
+        q.push_bind(user.id);
+
+        q.build().execute(&mut *conn).await?;    
+    };
+
     Ok(Redirect::to("/dashboard/venues"))
 }
 
@@ -530,9 +631,9 @@ async fn render_listings(events: Vec<Event>, venues: Vec<Venue>) -> Option<Templ
 }
 
 #[get("/search?<query>&<date>&<price>")]
-async fn search_listings(mut conn: Connection<Logs>, user: Option<UserInfo>, query: String, date: Option<String>, price: Option<f32>) -> Option<Template> {
-    if(date.is_some()) { println!("Date: {:?}", NaiveDate::parse_from_str(&date.unwrap(),"%Y-%m-%d").ok()?) };
-    if(price.is_some()) { println!("Price: {:?}", price.unwrap()) };
+async fn search_listings(mut conn: Connection<Logs>, user: Option<UserInfo>, query: Option<String>, date: Option<String>, price: Option<f32>) -> Option<Template> {
+    //if(date.is_some()) { println!("Date: {:?}", NaiveDate::parse_from_str(&date.unwrap(),"%Y-%m-%d").ok()?) };
+    //if(price.is_some()) { println!("Price: {:?}", price.unwrap()) };
 
     let mut ctx = Context::new();
 
@@ -542,13 +643,19 @@ async fn search_listings(mut conn: Connection<Logs>, user: Option<UserInfo>, que
     };
     
     let mut ecriteria = EventFilterCriteria::new();
-    ecriteria.text = Some(query.clone()); 
+    ecriteria.text = query.clone(); 
+    if(date.is_some()) { ecriteria.event_date = Some(NaiveDate::parse_from_str(&date.clone().unwrap(),"%Y-%m-%d").unwrap()) };
+    ecriteria.price = price;
+
+    
+    let mut vcriteria: VenueFilterCriteria = VenueFilterCriteria::new();
+    vcriteria.text = query; 
+    
     let events = ecriteria.exec_query(&mut *conn).await.ok()?;
-    
-    let mut vcriteria = VenueFilterCriteria::new();
-    vcriteria.text = Some(query.clone()); 
-    let venues = vcriteria.exec_query(&mut *conn).await.ok()?;
-    
+    let mut venues: Vec<Venue> = vec![];
+    if(date.is_none() || price.is_none()) { venues = vcriteria.exec_query(&mut *conn).await.ok()? };
+
+
     render_listings(events,venues).await
 }
 
@@ -859,11 +966,22 @@ async fn view_ticket(mut conn: Connection<Logs>, user: Option<UserInfo>, ticket_
     Ok(PdfResponder(generate_ticket_pdf(&ticket_id, &ticket_info.event_name, &ticket_info.venue_name, &ticket_info.event_date).await))
 }
 
+#[get("/like/<listing_id>")]
+async fn like_listing(mut conn: Connection<Logs>, user: UserInfo, listing_id: String) -> Result<(), ApiError> {
+    Like::add(&mut *conn, listing_id, user).await
+}
+
+#[get("/unlike/<listing_id>")]
+async fn unlike_listing(mut conn: Connection<Logs>, user: UserInfo, listing_id: String) -> Result<(), ApiError> {
+    Like::remove(&mut *conn, listing_id, user).await
+}
+
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
         .attach(Logs::init())
-        .mount("/", routes![create_ticket, view_ticket, google_callback, google_login, google_logout, index, dashboard_venues, dashboard_events, get_venue, get_event, search_listings, edit_venue, delete_venue, add_event, edit_event, add_venue, dashboard])
+        .mount("/", routes![like_listing, unlike_listing, create_ticket, view_ticket, google_callback, google_login, google_logout, index, dashboard_venues, dashboard_events, get_venue, get_event, search_listings, edit_venue, delete_venue, add_event, edit_event, add_listing, dashboard])
         .mount("/assets", FileServer::from("./assets"))
         .mount("/images", FileServer::from("./images"))
         .register("/", catchers![default_catcher, forbidden_catcher])

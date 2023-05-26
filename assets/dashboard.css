@@ -31,7 +31,7 @@ body {
     cursor: pointer;
 }
 
-#sidebar .material-icons {
+#sidebar .material-symbols-outlined {
     vertical-align: middle;
     font-size: 24px;
     margin-right: 6px;
@@ -60,17 +60,20 @@ a, a:link, a:visited {
     color: inherit; 
 }
 
-#add_venue, .save_venue {
+#add_listing, .save_listing {
     margin-left: 12px;
     background-color: rgb(114, 216, 182);
     font-size: 14px;
     padding: 8px;
+    padding-right: 13px;
+    padding-left: 13px;
     align-self: center;
-    border-radius: 3px;
+    border-radius: 20px;
     cursor: pointer;
 }
 
-.save_venue {
+.save_listing {
+    display: block;
     align-self: flex-end;
     justify-self: flex-end;
     margin-bottom: 16px;

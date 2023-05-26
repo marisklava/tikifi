@@ -6,6 +6,12 @@ html {
 
 * { 
     font-family: 'Work Sans', sans-serif;
+    scrollbar-width: thin;
+    scrollbar-color:  #000000 white;
+}
+
+*::-webkit-scrollbar-track {
+    background: white;
 }
 
 body {
@@ -15,6 +21,16 @@ body {
     flex-direction: column;
     margin: 0px;
     height: 100%;
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+    margin-top: -20px;
+}
+    
+*::-webkit-scrollbar-thumb {
+    background-color: #000000;
+    border-radius: 4px;
 }
 
 a, a:link, a:visited,
@@ -99,7 +115,7 @@ header {
     border-radius: 10px;
 }
 
-#elProfileMenu .material-icons {
+#elProfileMenu .material-symbols-outlined {
     margin-bottom: 2px;
     margin-right: 4px;
     vertical-align: middle;
@@ -153,15 +169,22 @@ header {
     max-width: 100%;
     flex-direction: column;
     background-color: white;
+    max-height: 372px;
+    overflow-y: auto;
 }
 
 #search-results {
     display: flex;
     gap: 10px;
+    /*margin-top: -10px;*/
 }
 
 #search-menu-filters {
+    position: sticky;
+    top: 0;
+    z-index: 2;
     background-color: white;
+    display: fixed;
     /*background-image: linear-gradient(0deg, rgba(255, 255, 255, 0.5) 0%, rgba(111, 161, 154, 0.65) 100%);*/
     background-size: calc(100%) calc(100%);
     background-repeat: no-repeat;
@@ -169,22 +192,30 @@ header {
     flex-direction: column;
     padding: 15px;
     padding-left: 10px;
-    border-radius: 20px;
 }
 
 #event_filter_price {
     width: 45px;
     text-align: center;
+    font-size: 15px;
 }
 
 #event_filter_date {
-    width: 130px;
+    width: 140px;
     text-align: center;
     text-transform: uppercase;
+    font-size: 15px;
 }
 
-.material-icons.filter_icon {
-    margin-top: -4px !important;
+#event_filter_price.unedited,
+#event_filter_date.unedited,
+.elDate.unedited {
+    background-color: lightblue !important;
+    color: black !important;
+}
+
+.material-symbols-outlined.filter_icon {
+    margin-top: -3px !important;
 }
 
 #elFavoritesMenu.show, #elProfileMenu.show, #search-menu.show {
@@ -232,35 +263,21 @@ input:focus, textarea:focus {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 .eventCarousel {
     display: flex;
-    width: 100%;
-    height: 174px;
-    overflow: scroll;
-    max-width: 100%;
+    height: 172px;
+    max-width: 824px;
+
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    
+    /*scroll-snap-type: x mandatory;*/
+    gap: 20px;
+    overflow-x: scroll;
 }
 
 .eventCarousel::-webkit-scrollbar {
     display: none;
-}
-
-.eventCarousel {
-    -ms-overflow-style: none; 
-    scrollbar-width: none; 
 }
 
 /* event listing */
@@ -272,8 +289,8 @@ input:focus, textarea:focus {
 .eventListing {
     position: relative;
     height: 172px;
-    width: 268px;
-    margin-left: 8px;
+    width: 256px !important;
+    scroll-snap-align: start;
 }
 
 .elThumb {
@@ -289,12 +306,12 @@ input:focus, textarea:focus {
 }
 
 .elInfo {
+    width: 256px;
     position: absolute;
     bottom: 0px;
     left: 0px;
     top: 0px;
     right: 0px;
-    padding-left: 5px;
     color:white;
 }
 
@@ -314,30 +331,25 @@ input:focus, textarea:focus {
     border-radius: 10px;
 }
 
-.material-icons.outline {
-    font-variation-settings:
-    'FILL' 0,
-    'wght' 100,
-    'GRAD' 0,
-    'opsz' 48
-}
-.material-icons {user-select: none;}
-.material-icons.HFavoritesI {color: rgb(33, 156, 140); font-size: 32px; vertical-align: middle; margin-right: 8px; margin-left: 8px; content: "favorite"; cursor: pointer}
-.material-icons.HSearchI { line-height: 64px; z-index: 1; height: 64px; width: 64px; text-align: center; vertical-align: middle; background-color: rgb(49, 233, 208); cursor: pointer;}
-.material-icons.HSortI { vertical-align: middle; color: rgb(33, 156, 140); }
-.material-icons.HSortI::before { content: "sort"; }
-.material-icons.HSortI:hover::before { content: "menu"; }
-.material-icons.eLTag, .material-icons.filter_icon { font-size: 18px; vertical-align: middle; margin-top: -2px; margin-right: 3px;}
-.material-icons.elBuy { font-size: 28px }
-.material-icons.elFavorite { font-size: 32px; cursor: pointer; }
-.material-icons.elFavorite:before { content: "favorite_border"; }
-.material-icons.uplImg { display: none; font-size: 64px; color: white; z-index: 2; position:absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);}
-.elFavoriteToggle input:checked ~ .material-icons.elFavorite::before { content: "favorite"; color:red; }
+.material-symbols-outlined.carousel_button {text-align: center; font-size: 60px; align-self: center; background-color: none; color: black; cursor: pointer }
+.material-symbols-outlined.fill {font-variation-settings: "FILL" 1}
+.material-symbols-outlined {user-select: none;}
+.material-symbols-outlined.HFavoritesI {color: rgb(33, 156, 140); font-size: 32px; vertical-align: middle; margin-right: 8px; margin-left: 8px; content: "favorite"; cursor: pointer}
+.material-symbols-outlined.HSearchI { line-height: 64px; z-index: 1; height: 64px; width: 64px; text-align: center; vertical-align: middle; background-color: rgb(49, 233, 208); cursor: pointer;}
+.material-symbols-outlined.HSortI { vertical-align: middle; color: rgb(33, 156, 140); }
+.material-symbols-outlined.HSortI::before { content: "sort"; }
+.material-symbols-outlined.HSortI:hover::before { content: "menu"; }
+.material-symbols-outlined.eLTag, .material-symbols-outlined.filter_icon { font-size: 18px; vertical-align: middle; margin-top: -2px; margin-right: 3px;}
+.material-symbols-outlined.elBuy { font-size: 28px }
+.material-symbols-outlined.elFavorite { font-size: 32px; cursor: pointer; }
+.material-symbols-outlined.elFavorite:before { content: "favorite_border"; }
+.material-symbols-outlined.uplImg { display: none; font-size: 64px; color: white; z-index: 2; position:absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);}
+.elFavoriteToggle input:checked ~ .material-symbols-outlined.elFavorite { content: "favorite"; color:red; font-variation-settings: "FILL" 1}
 
 .elFavorite {
     position: absolute;
     top: 8px;
-    right: 20px;
+    right: 10px;
 }
 
 .elFavoriteToggle input {
@@ -395,7 +407,7 @@ input:focus, textarea:focus {
     font-size: 14px;
     vertical-align: middle;
     position: absolute;
-    right: 0px;
+    right: -15px;
     bottom: 0px;
     cursor: pointer;
 }
@@ -422,8 +434,10 @@ input:focus, textarea:focus {
 .blockDivider {
     color: rgb(33, 156, 140);
     font-size: 26px;
-    display: flex;
     padding: 16px 0px;
+    flex-basis: 100%;
+    flex-direction: column;
+    width: 100%;
 }
 
 /* Event Showcase - presentation */
@@ -477,14 +491,19 @@ input:focus, textarea:focus {
 }
 
 .contentWrapper {
-    padding-left: 34px;
     display: flex;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .block-wrapper {
-    padding-right: 16px;
-    max-width: 100%;
+    width: 924px;
+    display: flex;
+    flex-direction: column;
+}
+
+.block-wrapper div {
+    display: flex;
 }
 
 .infoParagraph {
@@ -511,7 +530,6 @@ input:focus, textarea:focus {
 }
 
 .listing.mini {
-    color: black;
     width: auto;
     border-style: solid;
     border-image: 
@@ -548,7 +566,7 @@ input:focus, textarea:focus {
     filter: brightness(75%);
 }
 
-.lThumbWrapper:not(.mini):hover .material-icons.uplImg {
+.lThumbWrapper:not(.mini):hover .material-symbols-outlined.uplImg {
     display: inline;
 }
 
@@ -597,14 +615,18 @@ input:focus, textarea:focus {
     padding-top: auto;
     display: flex;
     flex-direction: column;
-    padding-bottom: 8px;
+    padding-bottom: 0px;
     padding-left: 16px;
-    justify-content: space-between;
 }
 
 .lInfo.mini {
     padding-left: 10px;
     justify-content: start;
+    color: black;
+}
+
+.lInfo.mini a:visited {
+    color: black;
 }
 
 .lBRow {
@@ -641,11 +663,11 @@ input.lTag:focus, input.lDesc:focus, input.lTitle:focus {
     background-color: none !important;
 }
 
-.material-icons.lAction { font-size: 22px; fill:0; vertical-align: middle; margin-left: 3px; align-self: center}
-.material-icons.m4p_margin {
+.material-symbols-outlined.lAction { font-size: 22px; fill:0; vertical-align: middle; margin-left: 3px; align-self: center}
+.material-symbols-outlined.m4p_margin {
     margin-top: -4px;
 }
-.material-icons.elBuy::before {  }
+.material-symbols-outlined.elBuy::before {  }
 
 /*
 
