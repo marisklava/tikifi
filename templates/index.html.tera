@@ -23,13 +23,13 @@
         <div class="block-wrapper">
             <div class="blockDivider" id="featuredEvents">Featured events</div>
             <div>
-                <a id="f_ev_co_fw" class="material-symbols-outlined carousel_button">navigate_before</a>
+                <!--<a id="f_ev_co_fw" class="material-symbols-outlined carousel_button">navigate_before</a>-->
                 <div id="f_ev_co" class="eventCarousel">
                     {% for event in events %}
                         {{ macros::event(event=event) }}
                     {% endfor %}
 		        </div>
-                <a id="f_ev_co_bw" class="material-symbols-outlined carousel_button">navigate_next</a>
+                <!--<a id="f_ev_co_bw" class="material-symbols-outlined carousel_button">navigate_next</a>-->
             </div>  
         </div>
         {% endif %}
@@ -37,13 +37,13 @@
         <div class="block-wrapper" id="featuredVenues">
             <div class="blockDivider">Featured venues</div>
             <div>
-                <a class="material-symbols-outlined carousel_button">navigate_before</a>
+                <!--<a class="material-symbols-outlined carousel_button">navigate_before</a>-->
                 <div class="eventCarousel">
                     {% for venue in venues %}
                         {{ macros::venue(venue=venue) }}
                     {% endfor %}
                 </div>
-                <a class="material-symbols-outlined carousel_button">navigate_next</a>
+                <!--<a class="material-symbols-outlined carousel_button">navigate_next</a>-->
             </div>
         </div>
         {% endif %}
