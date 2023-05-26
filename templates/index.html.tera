@@ -14,7 +14,7 @@
 
     {{ macros::header(user=user) }}
     {{ macros::featured(listing=featured[0]) }}
-    
+    {% if events %}
     <div class="contentWrapper">
         <div class="block-wrapper">
             <div class="blockDivider" id="featuredEvents">Featured events</div>
@@ -28,6 +28,8 @@
                 <a id="f_ev_co_bw" class="material-symbols-outlined carousel_button">navigate_next</a>
             </div>  
         </div>
+        {% endif %}
+        {% if venues %}
         <div class="block-wrapper" id="featuredVenues">
             <div class="blockDivider">Featured venues</div>
             <div>
@@ -40,6 +42,7 @@
                 <a class="material-symbols-outlined carousel_button">navigate_next</a>
             </div>
         </div>
+        {% endif %}
     </div>
     
 </body>
