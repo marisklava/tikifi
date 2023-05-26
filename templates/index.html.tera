@@ -13,18 +13,19 @@
 <body>
 
     {{ macros::header(user=user) }}
-    {{ macros::featured(listing=featured[0]) }}
-    
+    {% if featured[0] %}
+    	{{ macros::featured(listing=featured[0]) }}
+    {% endif %}
     <div class="contentWrapper">
         <div class="block-wrapper">
             <div class="blockDivider" id="featuredEvents">Featured events</div>
             <div>
                 <a id="f_ev_co_fw" class="material-symbols-outlined carousel_button">navigate_before</a>
                 <div id="f_ev_co" class="eventCarousel">
-                    {% for event in events %}
+		    {% for event in events %}
                         {{ macros::event(event=event) }}
                     {% endfor %}
-                </div>
+		</div>
                 <a id="f_ev_co_bw" class="material-symbols-outlined carousel_button">navigate_next</a>
             </div>  
         </div>
