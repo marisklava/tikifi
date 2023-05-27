@@ -508,7 +508,7 @@ async fn add_event(mut data: rocket::form::Form<EventSubmission<'_>>, mut conn: 
             q.push_bind(NaiveDate::parse_from_str(&data.event_date,"%Y-%m-%d").unwrap()); q.push(" AS event_date"); q.push(", ");
             q.push_bind(&data.venue); q.push(" AS venue"); q.push(", ");
 
-            q.push_bind(format!("/{}",&thumb_dir)); q.push(" AS thumbnail_url"); q.push(", ");
+            q.push_bind(format!("{}",&thumb_dir)); q.push(" AS thumbnail_url"); q.push(", ");
 
             q.push_bind(&data.price); q.push(" AS price)"); 
 
@@ -529,7 +529,7 @@ async fn edit_event(mut data: rocket::form::Form<EventSubmission<'_>>, id: Strin
     if(data.thumbnail.is_some()) { 
         let mut thumb = data.thumbnail.as_mut().unwrap();
         let thumb_dir = persist_thumb(&mut thumb).await.unwrap();
-        q.push("thumbnail_url="); q.push_bind(format!("/{}",&thumb_dir)); q.push(", "); 
+        q.push("thumbnail_url="); q.push_bind(format!("{}",&thumb_dir)); q.push(", "); 
     };
 
     q.push("price="); q.push_bind(&data.price);
@@ -610,10 +610,19 @@ async fn edit_venue(mut data: rocket::form::Form<VenueSubmission<'_>>, id: Strin
 #[get("/venues/<id>/delete")]
 async fn delete_venue(id: String, mut conn: Connection<Logs>, cookies: &CookieJar<'_>, user: UserInfo) -> Result<Redirect, ApiError> {
     let a = sqlx::query("DELETE FROM venues WHERE uid=$1 AND owner=$2")
-    .bind(id)
-    .bind(&user.id)
-    .execute(&mut *conn).await?;
+        .bind(id)
+        .bind(&user.id)
+        .execute(&mut *conn).await?;
     Ok(Redirect::to("/dashboard/venues"))
+}
+
+#[get("/events/<id>/delete")]
+async fn delete_event(id: String, mut conn: Connection<Logs>, cookies: &CookieJar<'_>, user: UserInfo) -> Result<Redirect, ApiError> {
+    let a = sqlx::query("DELETE FROM events WHERE uid=$1 AND author=$2")
+        .bind(id)
+        .bind(&user.id)
+        .execute(&mut *conn).await?;
+    Ok(Redirect::to("/dashboard/events"))
 }
 
 async fn get_featured_events(mut conn: &mut PoolConnection<Postgres>, limit: i32) -> Result<Vec<Event>, ApiError> {
@@ -981,7 +990,7 @@ async fn unlike_listing(mut conn: Connection<Logs>, user: UserInfo, listing_id: 
 fn rocket() -> _ {
     rocket::build()
         .attach(Logs::init())
-        .mount("/", routes![like_listing, unlike_listing, create_ticket, view_ticket, google_callback, google_login, google_logout, index, dashboard_venues, dashboard_events, get_venue, get_event, search_listings, edit_venue, delete_venue, add_event, edit_event, add_listing, dashboard])
+        .mount("/", routes![like_listing, unlike_listing, create_ticket, view_ticket, google_callback, google_login, google_logout, index, dashboard_venues, dashboard_events, get_venue, get_event, search_listings, edit_venue, delete_venue, delete_event, add_event, edit_event, add_listing, dashboard])
         .mount("/assets", FileServer::from("./assets"))
         .mount("/images", FileServer::from("./images"))
         .register("/", catchers![default_catcher, forbidden_catcher])
