@@ -227,7 +227,7 @@
     <div class="lInfo">
         <div style="display: flex">
             <input class="lTitle custom_input" placeholder="Venue name" name="name" {% if listing %} value="{{ listing.name }}" {% endif %} required>
-            {% if listing %}<a style="vertical-align: middle; margin-left: 3px; align-self: center" href="/{{typestr}}s/{{ listing.uid }}/delete"><i class="material-symbols-outlined lAction">delete</i></a>{% endif %}
+            {% if listing %}<a style="vertical-align: middle; margin-left: 3px; align-self: center" href="{{typestr}}s/{{ listing.uid }}/delete"><i class="material-symbols-outlined lAction">delete</i></a>{% endif %}
             <!--<i class="material-symbols-outlined lAction">edit</i>-->
             <button class="save_listing" style="border: 0px; align-self: center; margin-bottom: 0" type="submit">save</button>
         </div>

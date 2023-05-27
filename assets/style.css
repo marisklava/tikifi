@@ -192,6 +192,14 @@ header {
     flex-direction: column;
     padding: 15px;
     padding-left: 10px;
+
+    border-bottom: 5px solid;
+    border-image: 
+    linear-gradient(
+      to right, 
+      rgb(33, 156, 140) 0%,
+      rgb(33, 156, 140)
+    ) 1;
 }
 
 #event_filter_price {
@@ -264,6 +272,8 @@ input:focus, textarea:focus {
 
 
 .eventCarousel {
+    grid-template-columns: repeat(3);
+
     display: flex;
     height: 172px;
     max-width: 824px;
@@ -287,6 +297,7 @@ input:focus, textarea:focus {
 }
 
 .eventListing {
+    display: grid;
     position: relative;
     height: 172px;
     width: 256px !important;
@@ -493,7 +504,8 @@ input:focus, textarea:focus {
 .contentWrapper {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: left;
+    margin-left: 32px;
 }
 
 .block-wrapper {
@@ -502,7 +514,7 @@ input:focus, textarea:focus {
     flex-direction: column;
 }
 
-.block-wrapper div {
+.block-wrapper div:not(.eventCarousel) {
     display: flex;
 }
 
@@ -540,7 +552,7 @@ input:focus, textarea:focus {
         rgb(33, 156, 140) 12.5%,
         rgb(33, 156, 140) 87.5%,
         transparent 87.5%,
-        transparent 99%
+        transparent 
       ) 1;
     border-width: 0 0 2px 0;
     border-image-outset: 0 0 5px 0;
