@@ -13,6 +13,7 @@
 <body>
 
     {{ macros::header(user=user) }}
+    {{ macros::buy_ticket() }}
 
     {% if featured[0] %}
     	{{ macros::featured(listing=featured[0]) }}
@@ -21,7 +22,7 @@
 
     <div class="contentWrapper">
         <div class="block-wrapper">
-            <div class="blockDivider" id="featuredEvents">Featured events</div>
+            <div class="section_divider" id="featuredEvents">Featured events</div>
             <div>
                 <!--<a id="f_ev_co_fw" class="material-symbols-outlined carousel_button">navigate_before</a>-->
                 <div id="f_ev_co" class="eventCarousel">
@@ -35,7 +36,7 @@
         {% endif %}
         {% if venues %}
         <div class="block-wrapper" id="featuredVenues">
-            <div class="blockDivider">Featured venues</div>
+            <div class="section_divider">Featured venues</div>
             <div>
                 <!--<a class="material-symbols-outlined carousel_button">navigate_before</a>-->
                 <div class="eventCarousel">
@@ -49,14 +50,16 @@
         {% endif %}
     </div>
     
+    
 </body>
 </html>
 
 <script>
+    /*
     document.getElementById('f_ev_co_fw').onclick = () => {
         document.getElementById('f_ev_co').scrollLeft =- 172;
     };
     document.getElementById('f_ev_co_bw').onclick = () => {
         document.getElementById('f_ev_co').scrollLeft =+ 172;
-    };
+    };*/
 </script>

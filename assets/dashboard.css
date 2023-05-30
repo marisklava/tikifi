@@ -60,25 +60,6 @@ a, a:link, a:visited {
     color: inherit; 
 }
 
-#add_listing, .save_listing {
-    margin-left: 12px;
-    background-color: rgb(114, 216, 182);
-    font-size: 14px;
-    padding: 8px;
-    padding-right: 13px;
-    padding-left: 13px;
-    align-self: center;
-    border-radius: 20px;
-    cursor: pointer;
-}
-
-.save_listing {
-    display: block;
-    align-self: flex-end;
-    justify-self: flex-end;
-    margin-bottom: 16px;
-}
-
 .avm_save {
     background-color: rgb(114, 216, 182);
     font-size: 14px;
@@ -96,19 +77,6 @@ a, a:link, a:visited {
     margin-top: auto;
     margin-left: auto;
 }
-
-.modal {
-    display: flex;
-    position: fixed;
-    z-index: 1; 
-    left: 0;
-    top: 0;
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
-    overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-}
   
 .dropdown {
     display: none;
@@ -119,37 +87,6 @@ a, a:link, a:visited {
     /*margin-top: -16px; temporary*/
 }
 
-/* Modal Content */
-.modalContent {
-    display: flex;
-    flex-direction: column;
-    background-color: rgb(207, 250, 230);
-    margin: auto auto; 
-    padding: 20px;
-    min-width: 40%;
-    min-height: 30%;
-    border-radius: 12px;
-}
-
-/* */
-.modalHeaderText {
-    color: black;
-    font-size: 22px;
-}
-  
-/* The Close Button */
-.close {
-    color: #aaaaaa;
-    float: right;
-    font-size: 22px;
-    font-weight: bold;
-}
-  
-.close:hover, .close:focus {
-    color: #000;
-    text-decoration: none;
-    cursor: pointer;
-}
 
 .avm_title, .avm_location {
     text-decoration: none;

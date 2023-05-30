@@ -1,0 +1,9 @@
+{% import "macros" as macros %}
+
+{% if cart %}
+    {% for cart_item in cart %}
+        {{ macros::cart_item(listing=cart_item.event, amount=cart_item.amount) }}
+    {% endfor %}
+{% else %}
+    <p style="text-align: center; font-size: 14px;">Your cart is empty</p>
+{% endif %}

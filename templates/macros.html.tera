@@ -2,7 +2,7 @@
 <header>
     <a class="HLogo" href="/">Tikifi</a>
     <div class="searchToolbar">
-        <input type="text" placeholder="Search for events and venues" id="search_bar" onfocus="showSearch()" oninput="search()">
+        <input type="text" placeholder="Search for events and venues" id="search_bar" onfocus="show_search()" oninput="search()">
         <i class="material-symbols-outlined HSearchI">search</i>
         <!--<a class="HSort"><i class="material-symbols-outlined HSortI"></i></a>-->
         <div id="search-menu">
@@ -15,25 +15,38 @@
         </div>
     </div>
     <div class="HRMenu">
-        <label class="toggle" onclick="showFavorites()">
+        <!--<label class="toggle" onclick="show_favorites()">
             <i class="material-symbols-outlined HFavoritesI fill">favorite</i>
+        </label>-->
+        <label class="toggle" onclick="show_cart()">
+            <i class="material-symbols-outlined HFavoritesI fill">shopping_cart</i>
         </label>
-        <div id="elFavoritesMenu">
-            <p style="text-align: center; font-size: 14px; margin: 20px;"><a style="color:rgb(33, 156, 140); font-size: 14px" href="/login/google">log in</a> to keep your likes and make them public</p>
+        <div id="el_liked_menu">
+            <div id="el_liked_menu_content"></div>
+            <p style="text-align: center; font-size: 14px;"><a style="color:rgb(33, 156, 140); font-size: 14px" href="/login/google">log in</a> to keep your likes and make them public</p>
         </div>
+        <form id="el_cart_menu" action="/ticket/buy">
+            <div id="el_cart_menu_content"></div>
+            {% if not user %}
+                <p style="text-align: center; font-size: 14px;"><a style="color:rgb(33, 156, 140); font-size: 14px" href="/login/google">log in</a> to use the cart feature</p>
+            {% else %}
+                <button class="round_button buy_listing_button" style="margin-right: 10px; margin-bottom: 10px; text-align: center" type="submit">buy</button>
+            {% endif %}
+        </form>
         {% if not user %}
             <a id="HLogin" href="/login/google"><img src="/assets/btn_google.png"/>Log in</a>
         {% else %}
-        <label class="toggle" onclick="showProfile()">
+        <label class="toggle" onclick="show_profile()">
             <img class="material-symbols-outlined HFavoritesI fill" style="margin-left: 0; height: 32px; width: 32px; border-radius:16px" src="{{user.avatar}}"/>
         </label>
-        <div id="elProfileMenu">
-            <div id="elProfileMenu-header" style="background-image: url({{user.avatar}})"></div>
-            <img id="elProfileMenu-header-pfp" src="{{user.avatar}}"/>
-            <div id="elProfileMenu-links">
+        <div id="el_profile_menu">
+            <div id="el_profile_menu-header" style="background-image: url({{user.avatar}})"></div>
+            <img id="el_profile_menu-header-pfp" src="{{user.avatar}}"/>
+            <div id="el_profile_menu-links">
                 <a class="menuLink" href="/dashboard"><i class="material-symbols-outlined">home</i>Dashboard</a>
                 <a class="menuLink" href="/dashboard/events"><i class="material-symbols-outlined">celebration</i>Events</a>
                 <a class="menuLink" href="/dashboard/venues"><i class="material-symbols-outlined">fort</i>Venues</a>
+                <a class="menuLink" href="/dashboard/tickets"><i class="material-symbols-outlined">play_pass</i>Tickets</a>
                 <a class="menuLink" href="/logout"><i class="material-symbols-outlined">logout</i>Log out</a>
             </div>
         </div>
@@ -42,15 +55,91 @@
 </header>
 
 <script>
-    function showFavorites() {
-        document.getElementById("elFavoritesMenu").classList.toggle("show");
+
+    function show_favorites() {
+        let liked_menu = document.getElementById("el_liked_menu");
+        liked_menu.classList.toggle("show");
+
+        let events = localStorage.getItem("liked_events")
+        let content = JSON.parse(events);
+
+        fill_with_mini_listings("el_cart_menu_content", content);
     }
-    function showProfile() {
-        document.getElementById("elProfileMenu").classList.toggle("show");
+
+    function show_cart() {
+        let cart_menu = document.getElementById("el_cart_menu");
+        cart_menu.classList.toggle("show");
+
+        fill_with_cart_items("el_cart_menu_content");
     }
-    function showSearch() {
+
+    function fill_with_cart_items(div) {
+        document.getElementById(div).innerHTML="" 
+
+        let liked_menu_content = document.getElementById(div);
+        let listings = document.querySelectorAll(".checkbox_listing")
+
+        fetch("/cart/view")
+        .then(function (response) {
+            switch (response.status) {
+                case 200:
+                    return response.text();
+                case 404:
+                    return;
+                default:
+                    throw response;
+            }
+        })
+        .then(function (template) {
+            liked_menu_content.innerHTML=liked_menu_content.innerHTML+template
+        })
+        .catch(function (response) {
+            console.log(listing.dataset.event);
+        });
+    }
+
+    function fill_with_mini_listings(div, content) {
+        document.getElementById(div).innerHTML="" 
+
+        let liked_menu_content = document.getElementById(div);
+        let listings = document.querySelectorAll(".checkbox_listing")
+
+        fetch("/events/" + content + "/mini_listing")
+        .then(function (response) {
+            switch (response.status) {
+                case 200:
+                    return response.text();
+                case 404:
+                    return;
+                default:
+                    throw response;
+            }
+        })
+        .then(function (template) {
+            liked_menu_content.innerHTML=liked_menu_content.innerHTML+template
+        })
+        .catch(function (response) {
+            console.log(listing.dataset.event);
+        });
+    }
+
+    function show_profile() {
+        document.getElementById("el_profile_menu").classList.toggle("show");
+    }
+
+    function show_search() {
         document.getElementById("search-menu").style.display = 'flex';
         document.getElementById("search-results").style.display = 'none';
+    }
+
+    function update_date_filter(value) {
+        document.getElementById("event_filter_date").value = value;
+        search()
+    }
+
+    function update_price_filter(value) {
+        document.getElementById("event_filter_price").value = value;
+        search()
     }
 
     let search_bar = document.getElementById("search_bar");
@@ -125,7 +214,7 @@
     }
 
     function set_liked(type, uid, state) {
-        let type_storage = "liked_listings"
+        let type_storage = (type==2) ? "liked_events" : "liked_venues"
         let liked_listings = (localStorage.getItem(type_storage) == null) ? [] : JSON.parse(localStorage.getItem(type_storage));
         if(liked_listings.includes(uid) && state == false) { 
             liked_listings.splice(liked_listings.indexOf(uid), 1);
@@ -139,21 +228,20 @@
     }
 
     window.onload = function () {
-        if(localStorage.getItem("liked_events") != null) {
-            let liked_events = JSON.parse(localStorage.getItem("liked_events"));
-            liked_events.forEach((event) => {
-                document.getElementById(event).checked = true
-            })
-        }
+        let listings = document.querySelectorAll(".checkbox_listing")
+        let events = localStorage.getItem("liked_events")
+        let venues = localStorage.getItem("liked_venues")
 
-        if(localStorage.getItem("liked_venues") != null) {
-            let liked_venues = JSON.parse(localStorage.getItem("liked_venues"));
-            liked_venues.forEach((venue) => {
-                document.getElementById(venue).checked = true
-            })
-        }
-
+        listings.forEach((listing => {
+            if(listing.dataset.venue && venues) {
+                if(JSON.parse(venues).includes(listing.dataset.venue)) listing.checked = true;
+            } else if(listing.dataset.event && events) {
+                if(JSON.parse(events).includes(listing.dataset.event)) listing.checked = true;
+            }
+        }))
     }
+
+    // cart logic
 
 </script>
 {% endmacro header %}
@@ -164,17 +252,17 @@
     <div class="elThumbOverlay"></div>
     <div class="elInfo">
         <!--<a class="elCTag">Party</a>-->
-        <label class="elFavoriteToggle">
-            <input class="checkbox_event" id="{{ event.uid }}" onChange="set_liked(2, '{{ event.uid }}', this.checked)" type="checkbox"/>
+        <!--<label class="elFavoriteToggle">
+            <input class="checkbox_listing" data-event="{{ event.uid }}" onChange="set_liked(2, '{{ event.uid }}', this.checked)" type="checkbox"/>
             <i class="material-symbols-outlined elFavorite"></i>
-        </label>
+        </label>-->
         <a class="elTitle" href="/events/{{ event.uid }}">{{ event.name }}</a>
         <a class="elLocation" href="/venues/{{ event.venue_id }}"><i class="material-symbols-outlined eLTag">near_me</i>{{ event.venue_name }}</a>
         <div class="elBRow"> 
             <a class="elPrice"><i class="material-symbols-outlined eLTag">euro</i>{% if not event.price %}Free{% else %}{{event.price | round(method="ceil", precision=4)}}{% endif %}</a>
-            {% if event.event_date %}<a class="elDate"><i class="material-symbols-outlined eLTag">schedule</i>{{ event.event_date | date(format="%d. %b. %Y")}}</a>{% endif %}
+            {% if event.event_date %}<a class="elDate" onclick='update_date_filter("{{ event.event_date | date(format=`%Y-%m-%d`) }}")'><i class="material-symbols-outlined eLTag">schedule</i>{{ event.event_date | date(format="%d. %b. %Y")}}</a>{% endif %}
         </div>
-        <a class="material-symbols-outlined elBuy" href="/ticket/buy/{{ event.uid }}">sell</a>
+        <a class="material-symbols-outlined elBuy" onclick="show_buy_ticket('{{ event.uid }}',{{ event.price }})">sell</a>
     </div>
 </div> 
 {% endmacro event %}
@@ -184,10 +272,10 @@
     <img class="elThumb" src="{{ venue.thumbnail_url }}">
     <div class="elThumbOverlay"></div>
     <div class="elInfo">
-        <label class="elFavoriteToggle">
-            <input class="checkbox_venue" id="{{ venue.uid }}" onChange="set_liked(1, '{{ venue.uid }}', this.checked)" type="checkbox"/>
+        <!--<label class="elFavoriteToggle">
+            <input class="checkbox_listing" data-venue="{{ venue.uid }}" onChange="set_liked(1, '{{ venue.uid }}', this.checked)" type="checkbox"/>
             <i class="material-symbols-outlined elFavorite"></i>
-        </label>
+        </label>-->
         <a class="elTitle" href="/venues/{{ venue.uid }}" style="bottom: 50px">{{ venue.name }}</a>
         <a class="elLocation" style="bottom: 26px"><i class="material-symbols-outlined eLTag">near_me</i>{{ venue.address }}</a>
         <!--<div class="elBRow">
@@ -203,17 +291,33 @@
     {% elif type == 2 %}{% set typestr = "event" %}{% endif %}
     <div class="listing mini">
         <div class="lThumbWrapper mini">
-            <img href="/{{typestr}}s/{{ listing.uid }}" class="elThumb mini" src="{% if listing %}{{ listing.thumbnail_url }}{% else %}https://media.istockphoto.com/id/1296521436/vector/abstract-geometric-vector-pattern-in-scandinavian-style-green-agriculture-harvest-symbol.jpg?s=612x612&w=0&k=20&c=9qFmXI2T-el0oBD9rwc-ZG5pykoKu_ZVYD2FZw6-xQc={% endif %}">
+            <img href="/{{typestr}}s/{{ listing.uid }}" class="elThumb mini" src="{% if listing.thumbnail_url %}{{ listing.thumbnail_url }}{% else %}https://media.istockphoto.com/id/1296521436/vector/abstract-geometric-vector-pattern-in-scandinavian-style-green-agriculture-harvest-symbol.jpg?s=612x612&w=0&k=20&c=9qFmXI2T-el0oBD9rwc-ZG5pykoKu_ZVYD2FZw6-xQc={% endif %}">
         </div>
         <div class="lInfo mini">
             <a href="/{{typestr}}s/{{ listing.uid }}" class="lTitle mini">{{ listing.name }}</a>
-            {% if type == 2 %}<a class="listing_info mini"><i class="material-symbols-outlined filter_icon outline">schedule</i>{{ listing.event_date | date(format="%Y-%m-%d")}}</a>{% endif %}
+            {% if type == 2 %}<a class="listing_info mini" onclick='update_date_filter("{{ listing.event_date | date(format=`%Y-%m-%d`) }}")'><i class="material-symbols-outlined filter_icon outline">schedule</i>{{ listing.event_date | date(format="%Y-%m-%d")}}</a>{% endif %}
             {% if type == 2 %}<a class="listing_info mini" href="/venues/{{ listing.venue_id }}"><i class="material-symbols-outlined filter_icon outline">near_me</i>{{ listing.venue_name }}</a>{% endif %}
             {% if type == 1 %}<a class="listing_info mini"><i class="material-symbols-outlined filter_icon outline">near_me</i>{{ listing.address }}</a>{% endif %}
         </div>
     </div>
 {% endmacro mini_listing %}
 
+{% macro cart_item(listing, amount) %}
+    {% set typestr = "event" %}
+    <div class="listing mini">
+        <div class="lThumbWrapper mini">
+            <img href="/events/{{ listing.uid }}" class="elThumb mini" src="{% if listing.thumbnail_url %}{{ listing.thumbnail_url }}{% else %}https://media.istockphoto.com/id/1296521436/vector/abstract-geometric-vector-pattern-in-scandinavian-style-green-agriculture-harvest-symbol.jpg?s=612x612&w=0&k=20&c=9qFmXI2T-el0oBD9rwc-ZG5pykoKu_ZVYD2FZw6-xQc={% endif %}">
+        </div>
+        <div class="lInfo mini">
+            <a href="/events/{{ listing.uid }}" class="lTitle mini">{{ listing.name }}</a>
+            <a class="listing_info mini" onclick='update_date_filter("{{ listing.event_date | date(format=`%Y-%m-%d`) }}")'><i class="material-symbols-outlined filter_icon outline">schedule</i>{{ listing.event_date | date(format="%Y-%m-%d")}}</a>
+            <a class="listing_info mini" href="/venues/{{ listing.venue_id }}"><i class="material-symbols-outlined filter_icon outline">near_me</i>{{ listing.venue_name }}</a>
+        </div>
+        <input oninput="this.style.width = Math.max(this.value.length, 1) + 'ch'" style="width: 1ch; max-width: 5ch; margin: auto; height: 1ch;" class="lDesc custom_input ticket_amount" value={{amount}} name="amount" data-price=0>
+    </div>
+{% endmacro cart_item %}
+
+<!-- onclick='update_price_filter(" listing.price ")' -->
 {% macro dash_listing_editable(listing, type) %} <!-- type 1 - venue, type 2 - event -->
 {% if type == 1 %}{% set typestr = "venue" %}
 {% elif type == 2 %}{% set typestr = "event" %}{% endif %}
@@ -222,14 +326,14 @@
     <label class="lThumbWrapper">
         <i class="material-symbols-outlined uplImg">add_a_photo</i>
         <input name="thumbnail" type="file" accept="image/*" style="display:none" onchange="document.getElementById('d_l_e{% if listing %}-{{ listing.uid }}{% endif %}').src = window.URL.createObjectURL(this.files[0])">
-        <img id='d_l_e{% if listing %}-{{ listing.uid }}{% endif %}' class="elThumb" src="{% if listing %}/{{ listing.thumbnail_url }}{% else %}https://media.istockphoto.com/id/1296521436/vector/abstract-geometric-vector-pattern-in-scandinavian-style-green-agriculture-harvest-symbol.jpg?s=612x612&w=0&k=20&c=9qFmXI2T-el0oBD9rwc-ZG5pykoKu_ZVYD2FZw6-xQc={% endif %}">
+        <img id='d_l_e{% if listing %}-{{ listing.uid }}{% endif %}' class="elThumb" src="{% if listing %}{{ listing.thumbnail_url }}{% else %}https://media.istockphoto.com/id/1296521436/vector/abstract-geometric-vector-pattern-in-scandinavian-style-green-agriculture-harvest-symbol.jpg?s=612x612&w=0&k=20&c=9qFmXI2T-el0oBD9rwc-ZG5pykoKu_ZVYD2FZw6-xQc={% endif %}">
     </label>
     <div class="lInfo">
         <div style="display: flex">
             <input class="lTitle custom_input" placeholder="Venue name" name="name" {% if listing %} value="{{ listing.name }}" {% endif %} required>
             {% if listing %}<a style="vertical-align: middle; margin-left: 3px; align-self: center" href="{{typestr}}s/{{ listing.uid }}/delete"><i class="material-symbols-outlined lAction">delete</i></a>{% endif %}
             <!--<i class="material-symbols-outlined lAction">edit</i>-->
-            <button class="save_listing" style="border: 0px; align-self: center; margin-bottom: 0" type="submit">save</button>
+            <button class="round_button save_listing_button" style="border: 0px; align-self: center; margin-bottom: 0" type="submit">save</button>
         </div>
         <div>
             <input class="lDesc custom_input" placeholder="Venue description" name="description" {% if listing %} value="{{ listing.description }}" {% endif %} required>
@@ -257,9 +361,98 @@
         <a class="esTitle" href="/events/{{ listing.uid }}">{{ listing.name }}</a>
         <a class="esLocation" href="/venues/{{ listing.venue_id }}"><i class="material-symbols-outlined eLTag">near_me</i>{{ listing.venue_name }}</a>
         <div class="esBRow">
-            {% if listing.event_date %}<a class="esPrice"><i class="material-symbols-outlined eLTag">euro</i>{% if listing.price==0 %}Free{% else %}{{listing.price}}{% endif %}</a>{% endif %}
-            {% if listing.event_date %}<a class="esDate"><i class="material-symbols-outlined eLTag">schedule</i>{{ listing.event_date | date(format="%d. %b. %Y")}}</a>{% endif %}
+            {% if listing.event_date %}<a class="esPrice" onclick='update_price_filter("{{ listing.price }}")'><i class="material-symbols-outlined eLTag">euro</i>{% if listing.price==0 %}Free{% else %}{{listing.price}}{% endif %}</a>{% endif %}
+            {% if listing.event_date %}<a class="esDate" onclick='update_date_filter("{{ listing.event_date | date(format=`%Y-%m-%d`) }}")'><i class="material-symbols-outlined eLTag">schedule</i>{{ listing.event_date | date(format="%d. %b. %Y")}}</a>{% endif %}
         </div>
     </div>
 </div>
 {% endmacro featured %}
+
+{% macro buy_ticket() %}
+<div id="buy_ticket_modal" class="modal" style="display: none">
+    <form id="buy_ticket_form" class="modalContent" action="/cart/add" method="post" enctype="multipart/form-data">
+      <div class="modalHeaderText">Buy tickets<span onclick="hide_buy_ticket()" class="close">&times;</span></div>
+
+      <a class="lDesc custom_input">Ticket type</a>
+
+      <div class="flex_row" style="gap: 15px">
+        <span class="ticket_type emoji"><a class="lDesc">Regular</a>
+            🚪
+            <input oninput="this.style.width = Math.max(this.value.length, 1) + 'ch'; update_prices()" style="width: 1ch;  max-width: 5ch" class="lDesc custom_input ticket_amount" placeholder=0 name="amount" data-price=0>
+        </span>
+      </div>
+
+      <div id="cartct"></div>
+      
+      <a class="lDesc custom_input">Summary</a>
+      <a class="lDesc custom_input" id="buy_listing_total">Total:</a>
+      <a class="lDesc custom_input" id="buy_listing_withtax">With tax:</a>
+
+      <div class="flex_row" style="margin-left: auto;">
+        <button name="event" id="add_to_cart_button" class="round_button buy_listing_button" type="submit">add to cart</button>
+        <button class="round_button buy_listing_button" type="submit">buy</button>
+      </div>
+
+    </form>
+</div>
+
+<script>
+    function show_buy_ticket(uid, price) {
+        document.getElementById("buy_ticket_modal").classList.toggle("show");
+        document.getElementById("add_to_cart_button").value = uid;
+        document.getElementById("buy_ticket_form").dataset.uid = uid;
+        let amount_pickers = document.querySelectorAll(".ticket_amount");
+        amount_pickers.forEach((idx) => {
+            idx.dataset.price=price;
+        })
+    }
+
+    function hide_buy_ticket() {
+        document.getElementById("buy_ticket_modal").classList.toggle("show");
+    }
+
+    function update_prices() {
+        let price = 0;
+        let amount_pickers = document.querySelectorAll(".ticket_amount");
+        amount_pickers.forEach((idx) => {
+            price = price + idx.dataset.price*idx.value
+        })
+        document.getElementById("buy_listing_total").innerHTML="Total: "+price;
+        document.getElementById("buy_listing_withtax").innerHTML="With tax: "+price*1.21;
+    }
+
+    function add_to_cart() {
+        let amount = 0;
+        let uid = document.getElementById("buy_ticket_form").dataset.uid;
+        let amount_pickers = document.querySelectorAll(".ticket_amount");
+        amount_pickers.forEach((idx) => {
+            amount = amount + idx.value
+        })
+
+        let type_storage = "cart"
+        let cart = (localStorage.getItem(type_storage) == null) ? [] : JSON.parse(localStorage.getItem(type_storage));
+        if(cart.some(e => e.uid == uid)) {
+            cart.find(e => {
+                e.amount=amount
+            })
+        } else {
+            cart.push({uid:uid,amount:amount});
+        }
+        localStorage.setItem(type_storage,JSON.stringify(cart))
+    }
+
+    window.onload = function() {
+        //fill_with_mini_listings("cartct")
+    }
+</script>
+{% endmacro %}
+
+{% macro dash_ticket(ticket) %} 
+<tr class="ticket_list_row">
+    <th><a href="/events/{{ ticket.event }}">{{ticket.event_name}}</a></th>
+    <th><a href="/venues/{{ ticket.venue }}">{{ticket.venue_name}}</a></th>
+    <th>{{ticket.event_date | date(format=`%Y-%m-%d`)}}</th>
+    <th>{{ticket.used}}</th>
+    <th><a href="/ticket/{{ ticket.uid }}" class="material-symbols-outlined eLTag">download</a></th>
+</tr>
+{% endmacro %}

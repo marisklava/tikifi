@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
 
 html {
     height: 100%;
@@ -104,41 +105,30 @@ header {
     overflow: hidden;
 }
 
-#elFavoritesMenu, #elProfileMenu {
-    display: none;
-    flex-direction: column;
-    position: fixed;
-    top: 62px;
-    right: 8px;
-    width: 240px;
-    background-color: white;
-    border-radius: 10px;
-}
-
-#elProfileMenu .material-symbols-outlined {
+#el_profile_menu .material-symbols-outlined {
     margin-bottom: 2px;
     margin-right: 4px;
     vertical-align: middle;
     font-size: 24px;
 }
 
-#elProfileMenu a {
+#el_profile_menu a {
     margin-bottom: 5px;
     font-size: 18px;
     color: black;
 }
 
-#elProfileMenu a:last-of-type {
+#el_profile_menu a:last-of-type {
     margin-bottom: 0;
 }
 
-#elProfileMenu-links {
+#el_profile_menu-links {
     display: flex;
     flex-direction: column;
     padding: 10px
 }
 
-#elProfileMenu-header {
+#el_profile_menu-header {
     width: 100%;
     height: 128px;
     border-radius: 10px 10px 0px 0px;
@@ -150,7 +140,7 @@ header {
     overflow: hidden;
 }
 
-#elProfileMenu-header-pfp {
+#el_profile_menu-header-pfp {
     position: absolute;
     top: 64px;
     left: 50%;
@@ -178,6 +168,32 @@ header {
     gap: 10px;
     /*margin-top: -10px;*/
 }
+
+#el_liked_menu, #el_cart_menu {
+    width: 352px;
+}
+
+#el_profile_menu {
+    width: 240px;
+}
+
+#el_liked_menu, #el_profile_menu, #el_cart_menu {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    top: 62px;
+    right: 8px;
+    background-color: white;
+    border-radius: 10px;
+}
+
+#el_liked_menu_content, #el_cart_menu_content {
+    flex-direction: column;
+    display: flex;
+    gap: 10px;
+    padding-top: 5px;
+}
+
 
 #search-menu-filters {
     position: sticky;
@@ -226,8 +242,8 @@ header {
     margin-top: -3px !important;
 }
 
-#elFavoritesMenu.show, #elProfileMenu.show, #search-menu.show {
-    display: flex;
+#el_cart_menu.show, #el_liked_menu.show, #el_profile_menu.show, #search-menu.show, #buy_ticket_modal.show {
+    display: flex !important;
 }
 
 /* Search Toolbar Styling */
@@ -345,7 +361,7 @@ input:focus, textarea:focus {
 .material-symbols-outlined.carousel_button {text-align: center; font-size: 60px; align-self: center; background-color: none; color: black; cursor: pointer }
 .material-symbols-outlined.fill {font-variation-settings: "FILL" 1}
 .material-symbols-outlined {user-select: none;}
-.material-symbols-outlined.HFavoritesI {color: rgb(33, 156, 140); font-size: 32px; vertical-align: middle; margin-right: 8px; margin-left: 8px; content: "favorite"; cursor: pointer}
+.material-symbols-outlined.HFavoritesI {color: rgb(33, 156, 140); font-size: 32px; vertical-align: middle; margin-right: 8px; content: "favorite"; cursor: pointer}
 .material-symbols-outlined.HSearchI { line-height: 64px; z-index: 1; height: 64px; width: 64px; text-align: center; vertical-align: middle; background-color: rgb(49, 233, 208); cursor: pointer;}
 .material-symbols-outlined.HSortI { vertical-align: middle; color: rgb(33, 156, 140); }
 .material-symbols-outlined.HSortI::before { content: "sort"; }
@@ -400,6 +416,7 @@ input:focus, textarea:focus {
 }
 
 .elPrice, .elDate, .esPrice, .esDate {
+    cursor: pointer;
     flex-basis: 1;
     color: white;
     background-color: rgb(33, 156, 140);
@@ -410,9 +427,8 @@ input:focus, textarea:focus {
 }
 
 .elBuy {
-    z-index: 2;
     color: black;
-    background-color: rgb(175, 245, 235);;
+    background-color: rgb(175, 245, 235);
     padding: 10px;
     border-radius: 30px;
     font-size: 14px;
@@ -442,11 +458,10 @@ input:focus, textarea:focus {
 
 /* Featured Category Divider */
 
-.blockDivider {
+.section_divider {
     color: rgb(33, 156, 140);
     font-size: 26px;
     padding: 16px 0px;
-    flex-basis: 100%;
     flex-direction: column;
     width: 100%;
 }
@@ -697,4 +712,121 @@ input[type=number] {
     -moz-appearance: textfield;
     appearance: textfield;
     margin: 0; 
+}
+
+.modal {
+    display: flex;
+    position: fixed;
+    z-index: 1; 
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modalContent {
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(196, 255, 246);
+    margin: auto auto; 
+    padding: 20px;
+    min-width: 20%;
+    min-height: 30%;
+    border-radius: 12px;
+}
+
+.round_button {
+    margin-left: 12px;
+    background-color: rgb(114, 216, 182);
+    font-size: 14px;
+    padding: 8px;
+    padding-right: 13px;
+    padding-left: 13px;
+    align-self: center;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.save_listing_button {
+    display: block;
+    align-self: flex-end;
+    justify-self: flex-end;
+    margin-bottom: 16px;
+}
+
+.buy_listing_button {
+    border: 0px; 
+    align-self: flex-end;
+    justify-self: flex-end;
+    margin-bottom: 0;
+    margin-right: 0;
+}
+
+/* */
+.modalHeaderText {
+    color: black;
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+/* The Close Button */
+.close {
+    color: #aaaaaa;
+    float: right;
+    font-size: 22px;
+    font-weight: bold;
+}
+  
+.close:hover, .close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.emoji {
+    font-family: 'Noto Color Emoji', sans-serif;
+}
+
+.ticket_type {
+    margin-bottom: 10px;
+    width: 100px;
+    height: 120px;
+    padding-top: 20px;
+    text-align: center;
+    font-size: 36px;
+    background-color: rgb(75, 255, 195);
+    border-radius: 10px;
+}
+
+.ticket_type input {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10px;
+}
+
+.flex_row {
+    display: flex;
+    flex-direction: row;
+}
+
+.ticket_list_table {
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.ticket_list_row th {
+    padding: 15px 10px;
+    font-weight: 100;
+}
+
+.ticket_list_row:nth-child(odd) {
+    background-color: whitesmoke;
+}
+
+.ticket_list_titles th {
+    font-weight: bold;
 }

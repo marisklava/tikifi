@@ -29,13 +29,13 @@
 
     <div class="contentWrapper">
         <div class="block-wrapper">
-            <a class="blockDivider">Venue description</a>
+            <a class="section_divider">Venue description</a>
             <p class="infoParagraph">
                 {{ venue.description }}
             </p>
         </div>
         <div class="block-wrapper">
-            <a class="blockDivider">Upcoming events</a>
+            <a class="section_divider">Upcoming events</a>
             <div class="eventCarousel" id="junk">
                 {% for event in events %}
                     {{ macros::event(event=event) }}

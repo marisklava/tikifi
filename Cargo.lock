@@ -2991,6 +2991,7 @@ dependencies = [
  "miniz_oxide 0.7.1",
  "oauth2",
  "pdf-writer",
+ "regex",
  "rocket",
  "rocket_db_pools",
  "rocket_dyn_templates",

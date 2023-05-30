@@ -9,6 +9,7 @@ use rocket::request::{self, FromRequest};
 use rocket::fs::FileServer;
 use rocket::response::Redirect;
 use rocket_db_pools::{sqlx::{self, FromRow, Row, postgres::*, query_builder::QueryBuilder, Execute, pool::PoolConnection}, Database, Connection};
+use regex::Regex;
 
 use chrono::{Local, DateTime, TimeZone, NaiveDate, NaiveDateTime, Utc};
 
@@ -124,6 +125,42 @@ impl Like {
     }
 }
 
+#[derive(Debug, Clone, Default)]
+pub struct TicketFilterCriteria { 
+    uid: Option<String>,
+    used: Option<bool>,
+    venue: Option<String>,
+    venue_name: Option<String>,
+    event: Option<String>,
+    event_name: Option<String>,
+    event_date: Option<DateTime<Utc>>,
+    purchaser: Option<String>,
+}
+
+impl TicketFilterCriteria {
+    fn new() -> TicketFilterCriteria {
+        TicketFilterCriteria { ..Default::default() }
+    }
+
+    async fn exec_query(self, mut conn: &mut PoolConnection<Postgres>) -> Result<Vec<Ticket>, ApiError> {
+        let mut q = QueryBuilder::new("SELECT ti.uid AS ticket_id, ti.used, ti.venue, ti.event, ti.purchaser, ven.name AS venue_name, ev.name as event_name, ev.event_date FROM public.tickets AS ti JOIN venues AS ven ON ti.venue = ven.uid JOIN events AS ev ON ti.event = ev.uid");
+        if self.purchaser.is_some() { q.push(" AND ti.purchaser = "); q.push_bind(self.purchaser.unwrap());};
+
+        let result = q.build()
+        .map(|row: PgRow| Ticket {
+            uid: row.get("ticket_id"),
+            used: row.get("used"),
+            venue: row.get("venue"),
+            venue_name: row.get("venue_name"), 
+            event: row.get("event"),
+            event_name: row.get("event_name"),
+            event_date: row.get("event_date"),
+            purchaser: row.get("purchaser"),
+        }).fetch_all(&mut *conn).await?;
+        Ok(result)
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone, sqlx::FromRow)]
 #[serde(crate = "rocket::serde")]
 pub struct Ticket { // Ticket struct for interfacing with the database and generating PDF tickets
@@ -138,21 +175,23 @@ pub struct Ticket { // Ticket struct for interfacing with the database and gener
 }
 
 impl Ticket {
-    async fn create(mut conn: &mut PoolConnection<Postgres>, event_id: String, user: UserInfo) -> Result<Redirect, ApiError> {
+    async fn create(mut conn: &mut PoolConnection<Postgres>, event_id: String, user_id: String) -> Result<(), ApiError> {
         let ticket_id: String = sqlx::query("INSERT INTO public.tickets(
             used, event, venue, purchaser)
             VALUES (false, $1, (SELECT ev.venue FROM events AS ev WHERE ev.uid=$2), $3) RETURNING uid")
         .bind(&event_id)
         .bind(&event_id)
-        .bind(&user.id)
+        .bind(&user_id)
         .map(|row: PgRow| row.get("uid"))
         .fetch_one(&mut *conn).await?;
-        Ok(Redirect::to(format!("/ticket/{}", ticket_id)))
+        Ok(())
     }
-    async fn get_info(mut conn: &mut PoolConnection<Postgres>, ticket_id: String) -> Result<Ticket, ApiError> {
+    async fn get_info(mut conn: &mut PoolConnection<Postgres>, ticket_id: String, user_id: String) -> Result<Ticket, ApiError> {
         let mut query = QueryBuilder::new("SELECT ti.uid AS ticket_id, ti.used, ti.venue, ti.event, ti.purchaser, ven.name AS venue_name, ev.name as event_name, ev.event_date FROM public.tickets AS ti JOIN venues AS ven ON ti.venue = ven.uid JOIN events AS ev ON ti.event = ev.uid");
         query.push(" WHERE ti.uid = "); 
         query.push_bind(ticket_id);
+        query.push(" AND purchaser = "); 
+        query.push_bind(user_id);
         let result = query.build()
         .map(|row: PgRow| Ticket {
             uid: row.get("ticket_id"),
@@ -200,6 +239,7 @@ pub struct Event {
 #[derive(Default, Debug)]
 struct EventFilterCriteria {
     uid: Option<String>,
+    uids: Option<Vec<String>>,
     author: Option<String>,
     text: Option<String>,
     venue_name: Option<String>, //UNIMPLEMENTED
@@ -225,6 +265,20 @@ impl EventFilterCriteria {
         let mut q = QueryBuilder::new("SELECT ev.uid, ev.name, ev.description, ev.event_date, ev.price, ev.thumbnail_url, ev.venue AS venue_id, ven.name AS venue_name FROM events AS ev JOIN venues AS ven ON ev.venue = ven.uid");
         
         if(self.uid.is_some()) { q.push(" AND ev.uid = "); q.push_bind(self.uid.unwrap());};
+
+        if(self.uids.is_some()) { 
+            q.push(" AND ev.uid IN ("); 
+            
+            let uids = self.uids.unwrap();
+            for i in 0..uids.len() {
+                q.push_bind(uids[i].clone());
+                println!("{} {}", uids.len(), i);
+                if(i != uids.len()-1) { q.push(", "); } else { q.push(" "); };
+            }
+ 
+            q.push(") ");
+        };
+
         if(self.venue_id.is_some()) { q.push(" AND ev.venue = "); q.push_bind(self.venue_id.unwrap());};
         if(self.text.is_some()) { q.push(" AND lower(ev.name) LIKE '%' || "); q.push_bind(self.text.unwrap().to_lowercase()); q.push(" || '%'");};
         if(self.author.is_some()) { q.push(" AND ev.author = "); q.push_bind(self.author.unwrap());};
@@ -662,7 +716,7 @@ async fn search_listings(mut conn: Connection<Logs>, user: Option<UserInfo>, que
     
     let events = ecriteria.exec_query(&mut *conn).await.ok()?;
     let mut venues: Vec<Venue> = vec![];
-    if(date.is_none() || price.is_none()) { venues = vcriteria.exec_query(&mut *conn).await.ok()? };
+    if date.is_none() || price.is_none() { venues = vcriteria.exec_query(&mut *conn).await.ok()? };
 
 
     render_listings(events,venues).await
@@ -684,6 +738,32 @@ async fn get_event(mut conn: Connection<Logs>, id: String, user: Option<UserInfo
     ctx.insert("event", &event[0]);
 
     Ok(Template::render("event", ctx.into_json()))
+}
+
+#[get("/events/<id>/mini_listing")] // insecure
+async fn get_event_mini_listing(mut conn: Connection<Logs>, id: String, user: Option<UserInfo>) -> Result<Template, ApiError> {
+    let regex = Regex::new(r"(?m)^[0-9A-Za-z\-]+(,[0-9A-Za-z\-]+)*$").unwrap();
+
+    let mut ctx = Context::new();
+
+    match user {
+        Some(c) => ctx.insert("user", &c),
+        None => ctx.insert("user", &false),
+    };
+    
+    let mut criteria = EventFilterCriteria::new();
+    if(regex.is_match(&id)) {
+        criteria.uids = Some(id.clone().split(",").map(String::from).collect::<Vec<String>>());
+    } else {
+        criteria.uid = Some(id); 
+    }
+
+    let events = criteria.exec_query(&mut *conn).await?;
+    if events.len() == 0 { return Err(ApiError::ResourceNotFound) }
+    ctx.insert("events", &events);
+
+    Ok(Template::render("mini_listing", ctx.into_json()))
+
 }
 
 #[get("/venues/<id>")]
@@ -798,6 +878,28 @@ async fn dashboard_venues(mut conn: Connection<Logs>, user: UserInfo) -> Result<
     }
 
     Ok(Template::render("dashboard_listings", ctx.into_json()))
+}
+
+#[get("/dashboard/tickets")]
+async fn dashboard_tickets(mut conn: Connection<Logs>, user: UserInfo) -> Result<Template, ApiError> {
+    let mut ctx = Context::new();
+    ctx.insert("user", &user);
+
+    let mut criteria = TicketFilterCriteria::new();
+    criteria.purchaser = Some(user.id.clone());
+
+    let tickets = criteria.exec_query(&mut *conn).await.ok(); 
+
+    match tickets {
+        Some(e) => {
+            ctx.insert("tickets", &e);
+        }
+        None => {
+            ctx.insert("tickets", &false);
+        }
+    }
+
+    Ok(Template::render("dashboard_tickets", ctx.into_json()))
 }
 
 #[get("/dashboard/events")] // arguably insecure
@@ -963,16 +1065,27 @@ async fn generate_ticket_pdf(uid: &str, event_name: &str, venue_name: &str, even
 #[response(status = 200, content_type = "pdf")]
 struct PdfResponder(Vec<u8>);
 
-#[get("/ticket/buy/<event_id>")]
-async fn create_ticket(mut conn: Connection<Logs>, user: UserInfo, event_id: String) -> Result<Redirect, ApiError> {
-    Ok(Ticket::create(&mut *conn, event_id, user).await?)
+#[get("/ticket/buy")]
+async fn create_ticket(mut conn: Connection<Logs>, user: UserInfo) -> Result<Redirect, ApiError> {
+    let cart = CartItem::get_info(&mut *conn, user.id.clone()).await?;
+    for(item) in cart {
+        Ticket::create(&mut *conn, item.event.uid, user.id.clone()).await?;
+    }
+    CartItem::clear_cart(&mut *conn, user.id.clone()).await?;
+    Ok(Redirect::to("/dashboard/tickets"))
 }
 
 #[get("/ticket/<ticket_id>")]
-async fn view_ticket(mut conn: Connection<Logs>, user: Option<UserInfo>, ticket_id: String) -> Result<PdfResponder, ApiError> {
+async fn view_ticket(mut conn: Connection<Logs>, user: UserInfo, ticket_id: String) -> Result<PdfResponder, ApiError> {
     //std::fs::write("image.pdf", writer.finish());
-    let ticket_info = Ticket::get_info(&mut *conn, ticket_id.clone()).await?;
+    let ticket_info = Ticket::get_info(&mut *conn, ticket_id.clone(), user.id).await?;
     Ok(PdfResponder(generate_ticket_pdf(&ticket_id, &ticket_info.event_name, &ticket_info.venue_name, &ticket_info.event_date).await))
+}
+
+#[get("/reader")]
+async fn ticket_reader(mut conn: Connection<Logs>, user: UserInfo,) -> Result<Template, ApiError> {
+    let mut ctx = Context::new();
+    Ok(Template::render("reader", ctx.into_json()))
 }
 
 #[get("/like/<listing_id>")]
@@ -985,12 +1098,106 @@ async fn unlike_listing(mut conn: Connection<Logs>, user: UserInfo, listing_id: 
     Like::remove(&mut *conn, listing_id, user).await
 }
 
+#[derive(FromForm, Serialize, Debug)]
+#[serde(crate = "rocket::serde")]
+struct CartSubmission {
+    event: String,
+    amount: i64,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(crate = "rocket::serde")]
+struct CartItem {
+    event: Event,
+    amount: i64,
+}
+
+impl CartItem {
+    async fn get_info(mut conn: &mut PoolConnection<Postgres>, user_id: String) -> Result<Vec<CartItem>, ApiError> {
+        let cart: Vec<CartItem> = sqlx::query("
+        SELECT ev.uid, ev.name, ev.description, ev.event_date, ev.price, ev.thumbnail_url, ev.venue AS venue_id, ven.name AS venue_name, ct.event, ct.amount FROM cart AS ct 
+        JOIN events AS ev ON ct.event = ev.uid 
+        JOIN venues AS ven ON ev.venue = ven.uid
+        WHERE ct.user = $1
+        ")
+        .bind(&user_id)
+        .map(|row: PgRow| CartItem {
+            event: Event {
+                uid: row.get("uid"),
+                name: row.get("name"),
+                description: row.get("description"),
+                event_date: row.get("event_date"),
+                venue_id: row.get("venue_id"),
+                venue_name: row.get("venue_name"),
+                thumbnail_url: row.get("thumbnail_url"),
+                price: row.get("price"),
+            },
+            amount: row.get("amount"),
+        })
+        .fetch_all(&mut *conn).await?;
+        Ok(cart)
+    }
+    async fn clear_cart(mut conn: &mut PoolConnection<Postgres>, user_id: String) -> Result<(), ApiError> {
+        sqlx::query("
+        DELETE FROM public.cart WHERE \"user\"=$1;")
+        .bind(&user_id)
+        .execute(&mut *conn).await?;
+        Ok(())
+    }
+}
+
+#[post("/cart/add", data = "<data>")]
+async fn add_to_cart(mut data: rocket::form::Form<CartSubmission>, mut conn: Connection<Logs>, user: UserInfo) -> Result<Redirect, ApiError> {
+    
+    sqlx::query("INSERT INTO public.cart(
+        event, amount, \"user\")
+        VALUES ($1, $2, $3)
+        ON CONFLICT
+        ON CONSTRAINT cart_pkey
+        DO UPDATE SET amount = $4")
+    .bind(&data.event)
+    .bind(&data.amount)
+    .bind(&user.id)
+    .bind(&data.amount)
+    .execute(&mut *conn).await?;
+
+    Ok(Redirect::to("/"))
+
+}
+
+#[post("/cart/delete", data = "<data>")]
+async fn delete_from_cart(mut data: rocket::form::Form<CartSubmission>, mut conn: Connection<Logs>, user: UserInfo) -> Result<Redirect, ApiError> {
+    
+    sqlx::query("
+    DELETE FROM public.cart WHERE event=$1 AND user=$2;")
+    .bind(&data.event)
+    .bind(&user.id)
+    .execute(&mut *conn).await?;
+
+    Ok(Redirect::to("/"))
+
+}
+
+#[get("/cart/view")]
+async fn view_cart(mut conn: Connection<Logs>, user: UserInfo) -> Result<Template, ApiError> {
+    
+    let mut ctx = Context::new();
+
+    ctx.insert("user", &user);
+    
+    let cart = CartItem::get_info(&mut *conn, user.id).await?;
+
+    ctx.insert("cart", &cart);
+
+    Ok(Template::render("cart", ctx.into_json()))
+
+}
 
 #[launch]
 fn rocket() -> _ {
     rocket::build()
         .attach(Logs::init())
-        .mount("/", routes![like_listing, unlike_listing, create_ticket, view_ticket, google_callback, google_login, google_logout, index, dashboard_venues, dashboard_events, get_venue, get_event, search_listings, edit_venue, delete_venue, delete_event, add_event, edit_event, add_listing, dashboard])
+        .mount("/", routes![ticket_reader, delete_from_cart, view_cart, add_to_cart, dashboard_tickets, /*like_listing, unlike_listing,*/ create_ticket, view_ticket, google_callback, google_login, google_logout, index, dashboard_venues, dashboard_events, get_venue, get_event, get_event_mini_listing, search_listings, edit_venue, delete_venue, delete_event, add_event, edit_event, add_listing, dashboard])
         .mount("/assets", FileServer::from("./assets"))
         .mount("/images", FileServer::from("./images"))
         .register("/", catchers![default_catcher, forbidden_catcher])
