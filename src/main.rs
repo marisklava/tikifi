@@ -212,6 +212,25 @@ impl Ticket {
     }
     async fn check_ticket(mut conn: &mut PoolConnection<Postgres>, ticket_id: String, user_id: String, ) -> Result<bool, ApiError> { // Going to add a sort of "doors open" datetime functionality later on
         //sqlx::query("CASE WHEN EXISTS (SELECT FROM tickets WHERE uid = $1 AND purchaser = $2 AND event = $3)");
+
+
+        /*
+        
+            SELECT case
+                when (EXISTS (SELECT FROM tickets WHERE 
+                        uid = 'uid' 
+                        AND EXISTS (SELECT FROM events 
+                                WHERE event = 'event'
+                                AND author = 'author'
+                                AND used = false)))
+                then true
+                else false
+            end as permitted
+
+
+        */
+
+
         Ok(true)
     }//UPDATE tickets SET used=true WHERE uid = $1
 }

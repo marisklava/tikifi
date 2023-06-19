@@ -456,3 +456,7 @@
     <th><a href="/ticket/{{ ticket.uid }}" class="material-symbols-outlined eLTag">download</a></th>
 </tr>
 {% endmacro %}
+
+{% macro reader_settings() %}
+    <a class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">near_me</i><select style="font-size: 18px" class="custom_input" placeholder="Event venue" name="venue" type="dropdown" required>
+{% endmacro %}

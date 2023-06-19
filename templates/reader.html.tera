@@ -12,7 +12,9 @@
     <title>Tikifi</title>
 </head>
 <body>
-    <div id="reader"></div>
+    <!--<div id="reader"></div>-->
+    {{ macros::reader_settings() }}
+
 </body>
 </html>
 
