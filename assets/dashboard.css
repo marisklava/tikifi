@@ -81,12 +81,12 @@ a, a:link, a:visited {
 .dropdown {
     display: none;
     width: 560px;  
-    /*background-color: red; */
-    margin-left: -16px; /*temporary*/
-    padding-left: 16px;
+    background-color: whitesmoke; 
+    padding: 16px;
+    padding-bottom: 6px;
+    border-radius: 12.5px;
     /*margin-top: -16px; temporary*/
 }
-
 
 .avm_title, .avm_location {
     text-decoration: none;

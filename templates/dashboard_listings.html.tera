@@ -17,6 +17,19 @@
     {% if not venues is undefined %}{% set typestr = "venue" %}{% set type = 1 %}{% endif %}
     {% if not events is undefined %}{% set typestr = "event" %}{% set type = 2 %}{% endif %}
 
+    {% if not venues and not events %}
+    <div class="empty_placeholder">
+        <span class="material-symbols-outlined big_placeholder_icon">
+            {% if typestr == "event" %}
+              celebration
+            {% elif typestr == "venue" %}
+              fort
+            {% endif %}
+        </span>
+        You currently have no {{typestr}}s. Add some {{typestr}}s and they will be displayed here.
+    </div>
+    {% endif %}
+
     <div id="content">
         <div class="section_divider" style="color: black; margin-left: 0px;">Your {{typestr}}s <a class="round_button" id="add_listing">add new</a></div>
         
@@ -59,7 +72,7 @@
 
 <script>
 
-var modal = document.getElementById("round_button add_listing_dropdown");
+var modal = document.getElementById("add_listing_dropdown");
 var add_listing = document.getElementById("add_listing");
 var close_modal = document.getElementsByClassName("close")[0];
 

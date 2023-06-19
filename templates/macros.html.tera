@@ -248,7 +248,7 @@
 
 {% macro event(event) %}
 <div class="eventListing">
-    <img class="elThumb" src="/{{ event.thumbnail_url }}">
+    <img class="elThumb" src="{{ event.thumbnail_url }}">
     <div class="elThumbOverlay"></div>
     <div class="elInfo">
         <!--<a class="elCTag">Party</a>-->
@@ -330,18 +330,18 @@
     </label>
     <div class="lInfo">
         <div style="display: flex">
-            <input class="lTitle custom_input" placeholder="Venue name" name="name" {% if listing %} value="{{ listing.name }}" {% endif %} required>
-            {% if listing %}<a style="vertical-align: middle; margin-left: 3px; align-self: center" href="{{typestr}}s/{{ listing.uid }}/delete"><i class="material-symbols-outlined lAction">delete</i></a>{% endif %}
+            <input oninput="this.style.width = Math.max(this.value.length, 10) + 'ch'" style="width: 10ch" class="lTitle custom_input" placeholder="Venue name" name="name" {% if listing %} value="{{ listing.name }}" {% endif %} required>
+            {% if listing %}<a style="vertical-align: middle; margin-left: 3px; align-self: center" href="/{{typestr}}s/{{ listing.uid }}/delete"><i class="material-symbols-outlined lAction">delete</i></a>{% endif %}
             <!--<i class="material-symbols-outlined lAction">edit</i>-->
             <button class="round_button save_listing_button" style="border: 0px; align-self: center; margin-bottom: 0" type="submit">save</button>
         </div>
         <div>
-            <input class="lDesc custom_input" placeholder="Venue description" name="description" {% if listing %} value="{{ listing.description }}" {% endif %} required>
+            <input oninput="this.style.width = Math.max(this.value.length, 15) + 'ch'" style="width: 15ch" class="lDesc custom_input" placeholder="Venue description" name="description" {% if listing %} value="{{ listing.description }}" {% endif %} required>
             <!--<input class="lDesc custom_input" placeholder="Venue thumbnail url" name="thumbnail_url" type="url" {% if listing %} value="{{ listing.thumbnail_url }}" {% endif %} required>-->
-                {% if type==1 %}<a class="lDesc lTag m4p_margin"><i class="material-symbols-outlined eLTag">near_me</i><input class="custom_input" placeholder="Venue address" name="address" {% if listing %} value="{{ listing.address }}" {% endif %} required></a>{% endif %}
+                {% if type==1 %}<a class="lDesc lTag m4p_margin"><i class="material-symbols-outlined eLTag">near_me</i><input oninput="this.style.width = Math.max(this.value.length, 15) + 'ch'" style="width: 15ch" class="custom_input" placeholder="Venue address" name="address" {% if listing %} value="{{ listing.address }}" {% endif %} required></a>{% endif %}
                 {% if type==2 %}
-                    <a class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">euro</i><input class="custom_input" placeholder="Event price" name="price" {% if listing %} value="{{ listing.price }}" {% endif %} required></a>
-                    <a class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">schedule</i><input style="margin-left: -2px;" class="custom_input" placeholder="Event date" name="event_date" type="date" {% if listing %} value='{{ listing.event_date | date(format="%Y-%m-%d")}}' {% endif %} required></a>
+                    <a class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">euro</i><input oninput="this.style.width = Math.max(this.value.length, 10) + 'ch'" style="width: 10ch" class="custom_input" placeholder="Event price" name="price" {% if listing %} value="{{ listing.price }}" {% endif %} required></a>
+                    <a class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">schedule</i><input oninput="this.style.width = Math.max(this.value.length, 15) + 'ch'" style="width: 15ch" style="margin-left: -2px;" class="custom_input" placeholder="Event date" name="event_date" type="date" {% if listing %} value='{{ listing.event_date | date(format="%Y-%m-%d")}}' {% endif %} required></a>
                     <a class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">near_me</i><select style="font-size: 18px" class="custom_input" placeholder="Event venue" name="venue" type="dropdown" required>
                         {% for venue_name in venue_names %}
                             <option class="custom_input" style="font-size: 18px" value={{venue_name.uid}} {% if listing %}{% if listing.venue_id == venue_name.uid %}selected{% endif %}{% endif %}>{{venue_name.name}}</option>

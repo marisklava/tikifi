@@ -17,7 +17,7 @@
 
     <div class="contentWrapper">
         <div class="block-wrapper">
-            <a class="section_divider">Venue description</a>
+            <a class="section_divider">Event description</a>
             <p class="infoParagraph">
                 {{ event.description }}
             </p>

@@ -15,6 +15,16 @@
     {{ macros::header(user=user) }}
     {{ macros::buy_ticket() }}
 
+    {% if not featured[0] and not events and not listings %}
+        <div class="empty_placeholder">
+            <span class="material-symbols-outlined big_placeholder_icon">
+                empty_dashboard
+            </span>
+            This site currently has no content. Add venues and events using the dashboard.
+        </div>
+    {% endif %}
+
+
     {% if featured[0] %}
     	{{ macros::featured(listing=featured[0]) }}
     {% endif %}

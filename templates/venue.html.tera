@@ -34,6 +34,7 @@
                 {{ venue.description }}
             </p>
         </div>
+        {% if events %}
         <div class="block-wrapper">
             <a class="section_divider">Upcoming events</a>
             <div class="eventCarousel" id="junk">
@@ -42,6 +43,7 @@
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
     </div>
 
 </body>

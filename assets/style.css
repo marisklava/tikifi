@@ -16,7 +16,7 @@ html {
 }
 
 body {
-    background-color: white;
+    background-color: rgb(253, 242, 250);
     display: flex;
     flex-wrap: nowrap;
     flex-direction: column;
@@ -293,7 +293,8 @@ input:focus, textarea:focus {
     display: flex;
     height: 172px;
     max-width: 824px;
-
+    padding-right: 20px;
+    
     -ms-overflow-style: none;
     scrollbar-width: none;
     
@@ -524,7 +525,7 @@ input:focus, textarea:focus {
 }
 
 .block-wrapper {
-    width: 924px;
+    max-width: 924px;
     display: flex;
     flex-direction: column;
 }
@@ -829,4 +830,22 @@ input[type=number] {
 
 .ticket_list_titles th {
     font-weight: bold;
+}
+
+.empty_placeholder {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    flex-direction: column;
+    text-align: center;
+}
+
+.material-symbols-outlined.big_placeholder_icon {
+    font-size: 100px;
 }

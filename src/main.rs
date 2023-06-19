@@ -80,13 +80,18 @@ fn default_catcher(error: rocket::http::Status, request: &Request<'_>) {
 
 }
 
+//exclude these routes from the initial uri redirect
+const EXCLUDED_ROUTES: [&'static str; 3] = ["/cart/view", "/ticket/buy", "/test/route"];
+
 #[catch(403)]
 fn forbidden_catcher(error: rocket::http::Status, request: &Request<'_>) -> Redirect {
-    request.cookies().add(
-        Cookie::build("initial_uri", request.uri().to_string())
-            .same_site(SameSite::Lax)
-            .finish()
-    );
+    if(!EXCLUDED_ROUTES.contains(&request.uri().to_string().as_str())) {
+        request.cookies().add(
+            Cookie::build("initial_uri", request.uri().to_string())
+                .same_site(SameSite::Lax)
+                .finish()
+        );
+    }
     Redirect::to("/login/google")
 }
 
@@ -375,7 +380,7 @@ impl VenueFilterCriteria {
         let mut q = QueryBuilder::new("SELECT ven.uid, ven.name, ven.description, ven.capacity, ven.address, ven.thumbnail_url FROM venues AS ven WHERE true");
         
         if(self.uid.is_some()) { q.push(" AND uid = "); q.push_bind(self.uid.unwrap());};
-        if(self.owner.is_some()) { q.push(" AND owner = "); q.push_bind(self.owner.unwrap());};
+        if(self.owner.is_some()) { q.push(" AND \"owner\" = "); q.push_bind(self.owner.unwrap());};
         if(self.text.is_some()) { q.push(" AND lower(ven.name) LIKE '%' || "); q.push_bind(self.text.unwrap().to_lowercase()); q.push(" || '%'");};
 
         let result = q.build().map(|row: PgRow| Venue {
@@ -398,7 +403,7 @@ impl VenueFilterCriteria {
 
         let mut q = QueryBuilder::new("SELECT ven.uid, ven.name FROM venues AS ven WHERE true");
         
-        if(self.owner.is_some()) { q.push(" AND owner = "); q.push_bind(self.owner.unwrap());};
+        if(self.owner.is_some()) { q.push(" AND \"owner\" = "); q.push_bind(self.owner.unwrap());};
 
         let result = q.build().map(|row: PgRow| VenueName {
             uid: row.get("uid"),
@@ -513,7 +518,7 @@ async fn google_callback(mut conn: Connection<Logs>, token: TokenResponse<Google
 async fn persist_thumb(thumbnail: &mut rocket::fs::TempFile<'_>) -> Result<String, ApiError> {
     let thumb_dir = format!("images/{}", &Uuid::new_v4().to_string());
     thumbnail.persist_to(&thumb_dir).await?; //todo: upload to cdn
-    Ok(thumb_dir)
+    Ok(format!("/{}",thumb_dir))
 }
 
 #[post("/events", data = "<data>")] //Insecure
@@ -619,7 +624,7 @@ async fn add_listing(mut data: rocket::form::Form<VenueSubmission<'_>>, mut conn
         let uid: String = a.get("uid");
         q.push_bind(uid);
 
-        q.push(" AND owner = ");
+        q.push(" AND \"owner\" = ");
         q.push_bind(user.id);
 
         q.build().execute(&mut *conn).await?;    
@@ -631,14 +636,17 @@ async fn add_listing(mut data: rocket::form::Form<VenueSubmission<'_>>, mut conn
 
 #[post("/venues/<id>", data = "<data>")]
 async fn edit_venue(mut data: rocket::form::Form<VenueSubmission<'_>>, id: String, mut conn: Connection<Logs>, user: UserInfo) -> Result<Redirect, ApiError> {
-    let a = sqlx::query("UPDATE venues SET name=$1, description=$2, capacity=$3, address=$4 WHERE uid=$5 AND owner=$6")
+    let lid = id.clone();
+    let a = sqlx::query("UPDATE venues SET name=$1, description=$2, capacity=$3, address=$4 WHERE uid=$5 AND \"owner\"=$6")
     .bind(&data.name)
     .bind(&data.description)
     .bind(&500)
     .bind(&data.address)
-    .bind(id)
-    .bind(&user.id)
-    .fetch_one(&mut *conn).await?;
+    .bind(&lid)
+    .bind(&user.id);
+    println!("{:?}",a.sql());
+
+    a.execute(&mut *conn).await?;
 
     if(data.thumbnail.is_some()) { 
 
@@ -649,13 +657,16 @@ async fn edit_venue(mut data: rocket::form::Form<VenueSubmission<'_>>, id: Strin
         q.push_bind(thumb_dir);
 
         q.push(" WHERE uid = ");
-        let uid: String = a.get("uid");
+        let uid: String = id.clone();
         q.push_bind(uid);
 
-        q.push(" AND owner = ");
+        q.push(" AND \"owner\" = ");
         q.push_bind(user.id);
 
-        q.build().execute(&mut *conn).await?;    
+        let b = q.build();
+        println!("{:?}",b.sql());
+
+        b.execute(&mut *conn).await?;    
     };
 
     Ok(Redirect::to("/dashboard/venues"))
@@ -663,7 +674,7 @@ async fn edit_venue(mut data: rocket::form::Form<VenueSubmission<'_>>, id: Strin
 
 #[get("/venues/<id>/delete")]
 async fn delete_venue(id: String, mut conn: Connection<Logs>, cookies: &CookieJar<'_>, user: UserInfo) -> Result<Redirect, ApiError> {
-    let a = sqlx::query("DELETE FROM venues WHERE uid=$1 AND owner=$2")
+    let a = sqlx::query("DELETE FROM venues WHERE uid=$1 AND \"owner\"=$2")
         .bind(id)
         .bind(&user.id)
         .execute(&mut *conn).await?;
