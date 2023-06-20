@@ -37,8 +37,7 @@
     let qr_code_message_title = document.getElementById("qr_code_scanner_preview_message_title");
 
     function check_ticket(event, ticket) {
-        console.log(event)
-        console.log(ticket)
+        console.log("test" + event)
         
         //let listings = document.querySelectorAll(".checkbox_listing")
 
