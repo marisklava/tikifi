@@ -45,12 +45,11 @@
             <div id="el_profile_menu-header" style="background-image: url({{user.avatar}})"></div>
             <img id="el_profile_menu-header-pfp" src="{{user.avatar}}"/>
             <div id="el_profile_menu-links">
-                <a class="menuLink" href="/dashboard"><i class="material-symbols-outlined">home</i>Dashboard</a>
-                <a class="menuLink" href="/dashboard/events"><i class="material-symbols-outlined">celebration</i>Events</a>
-                <a class="menuLink" href="/dashboard/venues"><i class="material-symbols-outlined">fort</i>Venues</a>
-                <a class="menuLink" href="/dashboard/tickets"><i class="material-symbols-outlined">confirmation_number</i>Tickets</a>
-                <a class="menuLink" href="/logout"><i class="material-symbols-outlined">logout</i>Log out</a>
-                <a class="menuLink" href="/reader"><i class="material-symbols-outlined">camera</i>Ticket scanner</a>
+                <a class='menu_link' href="/dashboard/events"><i class="material-symbols-outlined">celebration</i>Events</a>
+                <a class='menu_link' href="/dashboard/venues"><i class="material-symbols-outlined">fort</i>Venues</a>
+                <a class='menu_link' href="/dashboard/tickets"><i class="material-symbols-outlined">confirmation_number</i>Tickets</a>
+                <a class='menu_link' href="/logout"><i class="material-symbols-outlined">logout</i>Log out</a>
+                <a class='menu_link' href="/reader"><i class="material-symbols-outlined">camera</i>Ticket scanner</a>
             </div>
         </div>
         {% endif %}
@@ -463,7 +462,7 @@
 {% macro reader_settings(venue_names,event_names) %}
 <div id="qr_code_settings" class="show">
     <label class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">near_me</i>
-        <select style="font-size: 18px" class="custom_input" placeholder="Event venue" name="venue" type="dropdown" required>
+        <select style="font-size: 18px" id="event_picker" class="custom_input" placeholder="Event venue" name="venue" type="dropdown" required>
             {% for venue_name in venue_names %}
                 <option class="custom_input" style="font-size: 18px" value={{venue_name.uid}}>{{venue_name.name}}</option>
             {% endfor %}
@@ -471,7 +470,7 @@
     </label>
 
     <label class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">fort</i>
-        <select style="font-size: 18px" class="custom_input" placeholder="Event venue" name="event" type="dropdown" required>
+        <select style="font-size: 18px" id="venue_picker" class="custom_input" placeholder="Event venue" name="event" type="dropdown" required>
             {% for event_name in event_names %}
                 <option class="custom_input" style="font-size: 18px" value={{event_name.uid}}>{{event_name.name}}</option>
             {% endfor %}

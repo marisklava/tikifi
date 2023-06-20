@@ -16,59 +16,105 @@
     <!--<div id="reader"></div>-->
     <div class="center_abs">
         {{ macros::reader_settings(venue_names=venue_names,event_names=event_names) }}
-        <div id="qr_code_scanner_preview"></div>
+        <div id="qr_code_scanner_preview_wrapper">
+            <div id="qr_code_scanner_preview"></div>
+            <div id="qr_code_scanner_preview_overlay"><div id="qr_code_scanner_preview_message"><a id="qr_code_scanner_preview_message_title"></a></div></div>
+        </div>
         <a id="qr_code_settings_button" class="material-symbols-outlined HFavoritesI fill" style="padding:10px; display:none" onclick="show_qr_settings()">settings</a>
     </div>
 </body>
 </html>
 
-<!--<script>
-    function onScanSuccess(decodedText, decodedResult) {
-        // handle the scanned code as you like, for example:
-        console.log(`Code matched = ${decodedText}`, decodedResult);
-    }
-      
-    function onScanFailure(error) {
-        console.warn(`Error: ${error}`);
-    }
-      
-    let html5QrcodeScanner = new Html5QrcodeScanner(
-        "reader",
-        { fps: 10, qrbox: {width: 250, height: 250} },
-        false);
-    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-</script>-->
-
 <script>
+    let event_picker = document.getElementById("event_picker");
+    let venue_picker = document.getElementById("venue_picker");
+    let qr_code_wrapper = document.getElementById("qr_code_scanner_preview_wrapper");
+    let qr_code_overlay = document.getElementById("qr_code_scanner_preview_overlay");
+    let qr_code_scanner = document.getElementById("qr_code_scanner_preview");
+    let qr_code_settings_button = document.getElementById("qr_code_settings_button");
+    let qr_code_settings = document.getElementById("qr_code_settings");
+    let qr_code_message = document.getElementById("qr_code_scanner_preview_message");
+    let qr_code_message_title = document.getElementById("qr_code_scanner_preview_message_title");
 
-    const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+    function check_ticket(event, ticket) {
+        //let listings = document.querySelectorAll(".checkbox_listing")
+
+        fetch(f`/${event}/${ticket}`)
+        .then(function (response) {
+            switch (response.status) {
+                case 200:
+                    return response.text();
+                case 404:
+                    throw response;
+                default:
+                    throw response;
+            }
+        })
+        .then(function (res) {
+            switch (res) {
+                case "true":
+                    on_success()
+                break
+                case "false":
+                    on_failure()
+                break
+                default: 
+                throw res 
+            }
+        })
+        .catch(function (err) {
+            on_failure();
+            console.err(err);
+        });
+    }
+
+    function on_success() {
+        qr_code_message_title.innerHTML = "Valid ticket"
+        qr_code_scanner.classList.add("success");
+        qr_code_overlay.classList.add("show");
+        setTimeout(() => {
+            qr_code_scanner.classList.remove("success");
+            qr_code_overlay.classList.remove("show");
+        }, 1000)
+    }
+
+    function on_failure() {
+        qr_code_message_title.innerHTML = "Invalid ticket"
+        qr_code_scanner.classList.add("failure");
+        qr_code_overlay.classList.add("show");
+        setTimeout(() => {
+            qr_code_scanner.classList.remove("failure");
+            qr_code_overlay.classList.remove("show");
+        }, 1000)
+    }
+
+    function on_scan(decodedText, decodedResult) {
+        check_ticket(event_picker.value, decodedText)
     };
 
     function show_qr_settings() {
-        let qr_code_scanner = document.getElementById("qr_code_scanner_preview");
-        let qr_code_settings_button = document.getElementById("qr_code_settings_button");
-        let qr_code_settings = document.getElementById("qr_code_settings");
         qr_code_settings.classList.toggle("show");
-        qr_code_scanner.classList.toggle("show");
+        qr_code_wrapper.classList.toggle("show");
         qr_code_settings_button.classList.toggle("show");
     }
 
     function show_qr_scanner() {
-        let qr_code_scanner = document.getElementById("qr_code_scanner_preview");
-        let qr_code_settings_button = document.getElementById("qr_code_settings_button");
-        let qr_code_settings = document.getElementById("qr_code_settings");
         qr_code_settings.classList.toggle("show");
-        qr_code_scanner.classList.toggle("show");
+        qr_code_wrapper.classList.toggle("show");
         qr_code_settings_button.classList.toggle("show");
 
-        const html5QrCode = new Html5Qrcode("qr_code_scanner_preview", { });
+        const html5QrCode = new Html5Qrcode("qr_code_scanner_preview");
 
-        const config = { 
+        const aconfig = { 
             fps: 10,
-            aspectRatio: 0,
+            videoConstraints: 
+            {
+                aspectRatio: 1,
+            },
         };
         
-        html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
+        html5QrCode.start({ facingMode: "environment" }, aconfig, on_scan);
+    
     }
 
 </script>

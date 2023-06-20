@@ -211,27 +211,44 @@ impl Ticket {
         Ok(result)
     }
     async fn check_ticket(mut conn: &mut PoolConnection<Postgres>, ticket_id: String, user_id: String, event_id: String,) -> Result<bool, ApiError> { // Going to add a sort of "doors open" datetime functionality later on
-        //sqlx::query("CASE WHEN EXISTS (SELECT FROM tickets WHERE uid = $1 AND purchaser = $2 AND event = $3)");
-
+        let valid: bool = sqlx::query("
+            WITH update_proc AS (UPDATE tickets SET used = true 
+            WHERE \"uid\" = $1 
+            AND EXISTS (SELECT FROM events 
+            WHERE event = $2
+            AND author = $3
+            AND used = false)
+            RETURNING used)
+            SELECT EXISTS(SELECT * FROM update_proc) AS permitted
+        ")
+        .bind(&ticket_id)
+        .bind(&event_id)
+        .bind(&user_id)
+        .map(|row: PgRow| row.get("permitted"))
+        .fetch_one(&mut *conn).await?;
+        Ok(valid)
 
         /*
-        
-            SELECT case
-                when (EXISTS (SELECT FROM tickets WHERE 
-                        uid = 'uid' 
-                        AND EXISTS (SELECT FROM events 
-                                WHERE event = 'event'
-                                AND author = 'author'
-                                AND used = false)))
-                then true
-                else false
-            end as permitted
-
+    
+SELECT case
+		when (EXISTS (SELECT FROM tickets WHERE 
+				uid = 'uid' 
+				AND EXISTS (SELECT FROM events 
+						WHERE event = 'event'
+						AND author = 'author'
+						AND used = false)))
+		then true
+		else false
+	END AS permitted
 
         */
 
+/*
 
-        Ok(true)
+
+
+ */
+
     }//UPDATE tickets SET used=true WHERE uid = $1
 }
 
@@ -1125,6 +1142,12 @@ async fn view_ticket(mut conn: Connection<Logs>, user: UserInfo, ticket_id: Stri
     Ok(PdfResponder(generate_ticket_pdf(&ticket_id, &ticket_info.event_name, &ticket_info.venue_name, &ticket_info.event_date).await))
 }
 
+#[get("/ticket/check/<event_id>/<ticket_id>")]
+async fn check_ticket(mut conn: Connection<Logs>, user: UserInfo, event_id: String, ticket_id: String) -> Result<String, ApiError> {
+    let permitted = Ticket::check_ticket(&mut *conn, ticket_id.clone(), user.id, event_id).await?;
+    Ok(permitted.to_string())
+}
+
 #[get("/reader")]
 async fn ticket_reader(mut conn: Connection<Logs>, user: UserInfo, cur_uri: &rocket::http::uri::Origin<'_>) -> Result<Template, ApiError> {
     let mut ctx = Context::new();
@@ -1271,7 +1294,7 @@ async fn view_cart(mut conn: Connection<Logs>, user: UserInfo, cur_uri: &rocket:
 fn rocket() -> _ {
     rocket::build()
         .attach(Logs::init())
-        .mount("/", routes![ticket_reader, delete_from_cart, view_cart, add_to_cart, dashboard_tickets, /*like_listing, unlike_listing,*/ create_ticket, view_ticket, google_callback, google_login, google_logout, index, dashboard_venues, dashboard_events, get_venue, get_event, get_event_mini_listing, search_listings, edit_venue, delete_venue, delete_event, add_event, edit_event, add_listing, dashboard])
+        .mount("/", routes![ticket_reader, delete_from_cart, view_cart, add_to_cart, dashboard_tickets, /*like_listing, unlike_listing,*/ create_ticket, view_ticket, google_callback, google_login, google_logout, index, dashboard_venues, dashboard_events, get_venue, get_event, get_event_mini_listing, search_listings, edit_venue, delete_venue, delete_event, add_event, edit_event, add_listing, dashboard, check_ticket])
         .mount("/assets", FileServer::from("./assets"))
         .mount("/images", FileServer::from("./images"))
         .register("/", catchers![default_catcher, forbidden_catcher])
