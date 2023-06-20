@@ -41,7 +41,7 @@
         
         //let listings = document.querySelectorAll(".checkbox_listing")
 
-        fetch(f`/${event}/${ticket}`)
+        fetch(`/ticket/check/${event}/${ticket}`)
         .then(function (response) {
             switch (response.status) {
                 case 200:
