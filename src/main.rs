@@ -2,6 +2,7 @@
 extern crate chrono;
 
 use rocket::{post, response::content, response, routes, form::{self, Form}, serde::{Deserialize, Serialize, json::*}};
+use crate::rocket::form::validate::Len;
 use rocket::http::{Cookie, CookieJar, SameSite, ContentType, Status, uri::Uri};
 use rocket::response::{Responder};
 use rocket::Request;
@@ -285,6 +286,10 @@ struct EventFilterCriteria {
     text: Option<String>,
     venue_name: Option<String>, //UNIMPLEMENTED
     event_date: Option<NaiveDate>,
+    start_date: Option<NaiveDate>,
+    end_date: Option<NaiveDate>,
+    start_price: Option<f32>,
+    end_price: Option<f32>,
     venue_id: Option<String>,
     is_draft: bool, //UNIMPLEMENTED
     is_active: bool, //UNIMPLEMENTED
@@ -324,6 +329,13 @@ impl EventFilterCriteria {
         if(self.text.is_some()) { q.push(" AND lower(ev.name) LIKE '%' || "); q.push_bind(self.text.unwrap().to_lowercase()); q.push(" || '%'");};
         if(self.author.is_some()) { q.push(" AND ev.author = "); q.push_bind(self.author.unwrap());};
         if(self.event_date.is_some()) { q.push(" AND (ev.event_date - "); q.push_bind(self.event_date.unwrap()); q.push(") < interval '2 days'");};
+        
+        if(self.start_date.is_some()) { q.push(" AND (ev.event_date > "); q.push_bind(self.start_date.unwrap()); q.push(")");};
+        if(self.end_date.is_some()) { q.push(" AND (ev.event_date < "); q.push_bind(self.end_date.unwrap()); q.push(")");};
+
+        if(self.start_price.is_some()) { q.push(" AND ev.price > "); q.push_bind(self.start_price.unwrap());};
+        if(self.end_price.is_some()) { q.push(" AND ev.price < "); q.push_bind(self.end_price.unwrap());};
+
         if(self.price.is_some()) { q.push(" AND ev.price < "); q.push_bind(self.price.unwrap());};
         if(self.limit.is_some()) { q.push(" LIMIT "); q.push_bind(self.limit.unwrap());};
 
@@ -390,10 +402,16 @@ pub struct VenueSubmission<'r> {
 
 //thumbnail: rocket::fs::TempFile<'r>,
 fn validate_image<'v>(file: &Option<rocket::fs::TempFile<'_>>) -> form::Result<'v, ()> {
+    if <std::option::Option<rocket::fs::TempFile<'_>> as Len<u64>>::len(file) == 0 {
+        return Ok(())
+    }
+
     let tfile = match file {
         Some(f) => f,
         None => return Ok(()),
     };
+
+    if(tfile.content_type().is_none()) { return Ok(()) };
     let ctt = tfile.content_type().unwrap();
     match ctt == &ContentType::JPEG || ctt == &ContentType::PNG || ctt == &ContentType::WEBP
     {
@@ -402,6 +420,7 @@ fn validate_image<'v>(file: &Option<rocket::fs::TempFile<'_>>) -> form::Result<'
             "Unsupported image",
         ))),
     }
+
 }
 
 #[derive(Default, Debug)]
@@ -578,7 +597,7 @@ async fn add_event(mut data: rocket::form::Form<EventSubmission<'_>>, mut conn: 
     .bind(&data.price)
     .fetch_one(&mut *conn).await?;
 
-    if(data.thumbnail.is_some()) { 
+    if(<std::option::Option<rocket::fs::TempFile<'_>> as Len<u64>>::len(&data.thumbnail) > 0) { 
         
         let mut q = QueryBuilder::new("UPDATE events SET thumbnail_url = ");
 
@@ -628,7 +647,7 @@ async fn edit_event(mut data: rocket::form::Form<EventSubmission<'_>>, id: Strin
     q.push("event_date="); q.push_bind(NaiveDate::parse_from_str(&data.event_date.clone(),"%Y-%m-%d").unwrap()); q.push(", ");
     q.push("venue="); q.push_bind(data.venue.clone()); q.push(", ");
 
-    if(data.thumbnail.is_some()) { 
+    if(<std::option::Option<rocket::fs::TempFile<'_>> as Len<u64>>::len(&data.thumbnail) > 0) { 
         let mut thumb = data.thumbnail.as_mut().unwrap();
         let thumb_dir = persist_thumb(&mut thumb).await.unwrap();
         q.push("thumbnail_url="); q.push_bind(format!("{}",&thumb_dir)); q.push(", "); 
@@ -655,7 +674,7 @@ async fn add_listing(mut data: rocket::form::Form<VenueSubmission<'_>>, mut conn
     .bind(&user.id)
     .fetch_one(&mut *conn).await?;
 
-    if(data.thumbnail.is_some()) { 
+    if(<std::option::Option<rocket::fs::TempFile<'_>> as Len<u64>>::len(&data.thumbnail) > 0) { 
 
         let mut q = QueryBuilder::new("UPDATE venues SET thumbnail_url = ");
         
@@ -691,7 +710,7 @@ async fn edit_venue(mut data: rocket::form::Form<VenueSubmission<'_>>, id: Strin
 
     a.execute(&mut *conn).await?;
 
-    if(data.thumbnail.is_some()) { 
+    if(<std::option::Option<rocket::fs::TempFile<'_>> as Len<u64>>::len(&data.thumbnail) > 0) { 
 
         let mut q = QueryBuilder::new("UPDATE venues SET thumbnail_url = ");
         
@@ -747,8 +766,8 @@ async fn render_listings(events: Vec<Event>, venues: Vec<Venue>) -> Option<Templ
     Some(Template::render("results", ctx.into_json()))
 }
 
-#[get("/search?<query>&<date>&<price>")]
-async fn search_listings(mut conn: Connection<Logs>, user: Option<UserInfo>, query: Option<String>, date: Option<String>, price: Option<f32>) -> Option<Template> {
+#[get("/search?<query>&<date>&<start_date>&<end_date>&<price>&<start_price>&<end_price>")]
+async fn search_listings(mut conn: Connection<Logs>, user: Option<UserInfo>, query: Option<String>, date: Option<String>, start_date: Option<String>, end_date: Option<String>, price: Option<f32>, start_price: Option<f32>, end_price: Option<f32>) -> Option<Template> {
     //if(date.is_some()) { println!("Date: {:?}", NaiveDate::parse_from_str(&date.unwrap(),"%Y-%m-%d").ok()?) };
     //if(price.is_some()) { println!("Price: {:?}", price.unwrap()) };
 
@@ -761,17 +780,18 @@ async fn search_listings(mut conn: Connection<Logs>, user: Option<UserInfo>, que
     
     let mut ecriteria = EventFilterCriteria::new();
     ecriteria.text = query.clone(); 
-    if(date.is_some()) { ecriteria.event_date = Some(NaiveDate::parse_from_str(&date.clone().unwrap(),"%Y-%m-%d").unwrap()) };
-    ecriteria.price = price;
+    if(start_date.is_some()) { ecriteria.start_date = Some(NaiveDate::parse_from_str(&start_date.clone().unwrap(),"%Y-%m-%d").unwrap()) };
+    if(end_date.is_some()) { ecriteria.end_date = Some(NaiveDate::parse_from_str(&end_date.clone().unwrap(),"%Y-%m-%d").unwrap()) };
 
+    if(start_price.is_some()) { ecriteria.start_price = start_price; };
+    if(end_price.is_some()) { ecriteria.end_price = end_price; };
     
     let mut vcriteria: VenueFilterCriteria = VenueFilterCriteria::new();
     vcriteria.text = query; 
     
     let events = ecriteria.exec_query(&mut *conn).await.ok()?;
     let mut venues: Vec<Venue> = vec![];
-    if date.is_none() || price.is_none() { venues = vcriteria.exec_query(&mut *conn).await.ok()? };
-
+    if start_date.is_none() && end_date.is_none() && start_price.is_none() && end_price.is_none() { venues = vcriteria.exec_query(&mut *conn).await.ok()? };
 
     render_listings(events,venues).await
 }

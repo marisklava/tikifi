@@ -7,8 +7,12 @@
         <!--<a class="HSort"><i class="material-symbols-outlined HSortI"></i></a>-->
         <div id="search-menu">
             <div id="search-menu-filters">
-                <a class="elDate unedited"><i class="material-symbols-outlined filter_icon">schedule</i><input id="event_filter_date" class="custom_input" name="date" type="date" oninput="search()"></a>
-                <a class="elDate unedited"><i class="material-symbols-outlined filter_icon">euro</i><input id="event_filter_price" class="custom_input" pattern='[0-9]+(\\.[0-9][0-9]?)?' value=0.00 name="price" type="number" step="0.01" oninput="search()"></a>
+                <a class="elDate unedited"><i class="material-symbols-outlined filter_icon">schedule</i><input id="event_filter_date_from" class="custom_input" name="start_date" type="date" oninput="search()"></a>
+                <a class="material-symbols-outlined filter_icon" style="align-self: center; font-size: 24px">arrow_right_alt</a>
+                <a class="elDate unedited"><i class="material-symbols-outlined filter_icon">schedule</i><input id="event_filter_date_until" class="custom_input" name="end_date" type="date" oninput="search()"></a>
+                <a class="elDate unedited"><i class="material-symbols-outlined filter_icon">euro</i><input id="event_filter_price_from" class="custom_input" pattern='[0-9]+(\\.[0-9][0-9]?)?' value=0.00 name="start_price" type="number" step="0.01" oninput="search()"></a>
+                <a class="material-symbols-outlined filter_icon" style="align-self: center; font-size: 24px">arrow_right_alt</a>
+                <a class="elDate unedited"><i class="material-symbols-outlined filter_icon">euro</i><input id="event_filter_price_until" class="custom_input" pattern='[0-9]+(\\.[0-9][0-9]?)?' value=0.00 name="end_price" type="number" step="0.01" oninput="search()"></a>
             </div>
             <div id="search-results" style="flex-direction:column">
             </div>
@@ -27,14 +31,14 @@
             <div id="el_liked_menu_content"></div>
             <p style="text-align: center; font-size: 14px;"><a style="color:rgb(33, 156, 140); font-size: 14px" href="/login/google">log in</a> to keep your likes and make them public</p>
         </div>
-        <form id="el_cart_menu" action="/ticket/buy">
+        <div id="el_cart_menu" action="/ticket/buy">
             <div id="el_cart_menu_content"></div>
             {% if not user %}
                 <p style="text-align: center; font-size: 14px;"><a style="color:rgb(33, 156, 140); font-size: 14px" href="/login/google">log in</a> to use the cart feature</p>
             {% else %}
                 <button class="round_button buy_listing_button" style="margin-right: 10px; margin-bottom: 10px; text-align: center" type="submit">buy</button>
             {% endif %}
-        </form>
+        </div>
         {% if not user %}
             <a id="HLogin" href="/login/google"><img src="/assets/btn_google.png"/>Log in</a>
         {% else %}
@@ -66,13 +70,6 @@
         let content = JSON.parse(events);
 
         fill_with_mini_listings("el_cart_menu_content", content);
-    }
-
-    function show_cart() {
-        let cart_menu = document.getElementById("el_cart_menu");
-        cart_menu.classList.toggle("show");
-
-        fill_with_cart_items("el_cart_menu_content");
     }
 
     function fill_with_cart_items(div) {
@@ -125,8 +122,18 @@
         });
     }
 
+    function show_cart() {
+        let cart_menu = document.getElementById("el_cart_menu");
+        let profile_menu = document.getElementById("el_profile_menu");
+        if(profile_menu) profile_menu.classList.remove("show");
+        cart_menu.classList.toggle("show");
+
+        fill_with_cart_items("el_cart_menu_content");
+    }
+
     function show_profile() {
         document.getElementById("el_profile_menu").classList.toggle("show");
+        document.getElementById("el_cart_menu").classList.remove("show");
     }
 
     function show_search() {
@@ -161,9 +168,14 @@
         let search_results = document.getElementById("search-results");
 
         let search_filter_text = document.getElementById("search_bar").value;
-        let search_filter_date = document.getElementById("event_filter_date");
-        let search_filter_price = document.getElementById("event_filter_price");
 
+        let search_filter_date = document.getElementById("event_filter_date");
+        let search_filter_date_from = document.getElementById("event_filter_date_from");
+        let search_filter_date_until = document.getElementById("event_filter_date_until");
+
+        let search_filter_price = document.getElementById("event_filter_price");
+        let search_filter_price_from = document.getElementById("event_filter_price_from");
+        let search_filter_price_until = document.getElementById("event_filter_price_until");
 
         let filters="";
 
@@ -173,20 +185,48 @@
         
         }
 
-        if(event_filter_date.value != "") {
-            filters = filters + "&date=" + event_filter_date.value;
-            event_filter_date.parentNode.classList.remove("unedited");
+        /*if(search_filter_date.value != "") {
+            filters = filters + "&date=" + search_filter_date.value;
+            search_filter_date.parentNode.classList.remove("unedited");
         } else {
-            event_filter_date.parentNode.classList.add("unedited");
+            search_filter_date.parentNode.classList.add("unedited");
+        }*/
+
+        if(search_filter_date_from.value != "") {
+            filters = filters + "&start_date=" + search_filter_date_from.value;
+            search_filter_date_from.parentNode.classList.remove("unedited");
+        } else {
+            search_filter_date_from.parentNode.classList.add("unedited");
         }
-        
-        if(event_filter_price.value != 0.00)        
+
+        if(search_filter_date_until.value != "") {
+            filters = filters + "&end_date=" + search_filter_date_until.value;
+            search_filter_date_until.parentNode.classList.remove("unedited");
+        } else {
+            search_filter_date_until.parentNode.classList.add("unedited");
+        }
+
+        if(search_filter_price_from.value != 0.00) {
+            filters = filters + "&start_price=" + search_filter_price_from.value;
+            search_filter_price_from.parentNode.classList.remove("unedited");
+        } else {
+            search_filter_price_from.parentNode.classList.add("unedited");
+        }
+
+        if(search_filter_price_until.value != 0.00) {
+            filters = filters + "&end_price=" + search_filter_price_until.value;
+            search_filter_price_until.parentNode.classList.remove("unedited");
+        } else {
+            search_filter_price_until.parentNode.classList.add("unedited");
+        }
+
+        /*if(event_filter_price.value != 0.00)        
         {
             filters = filters + "&price=" + event_filter_price.value;
             event_filter_price.parentNode.classList.remove("unedited");
         } else {
             event_filter_price.parentNode.classList.add("unedited");
-        }
+        }*/
 
         if(filters == "") {
             search_results.style.display = 'none';
@@ -333,10 +373,8 @@
     <div class="lInfo">
         <div style="display: flex">
             <input oninput="this.style.width = Math.max(this.value.length, 10) + 'ch'" style="width: 10ch" class="lTitle custom_input" placeholder="Venue name" name="name" {% if listing %} value="{{ listing.name }}" {% endif %} required>
-            {% if listing %}<a style="vertical-align: middle; margin-left: 3px; align-self: center" href="/{{typestr}}s/{{ listing.uid }}/delete"><i class="material-symbols-outlined lAction">delete</i></a>{% endif %}
-            <!--<i class="material-symbols-outlined lAction">edit</i>-->
-            <button class="round_button save_listing_button" style="border: 0px; align-self: center; margin-bottom: 0" type="submit">save</button>
         </div>
+
         <div>
             <input oninput="this.style.width = Math.max(this.value.length, 15) + 'ch'" style="width: 15ch" class="lDesc custom_input" placeholder="Venue description" name="description" {% if listing %} value="{{ listing.description }}" {% endif %} required>
             <!--<input class="lDesc custom_input" placeholder="Venue thumbnail url" name="thumbnail_url" type="url" {% if listing %} value="{{ listing.thumbnail_url }}" {% endif %} required>-->
@@ -350,7 +388,11 @@
                         {% endfor %}
                     </select></a>
 
-                {% endif %}
+                {% endif %}       
+                <div class="flex_row" style="gap: 5px"> 
+                    {% if listing %}<a style="vertical-align: middle; align-self: center" href="/{{typestr}}s/{{ listing.uid }}/delete"><i class="material-symbols-outlined lAction">delete</i></a>{% endif %}
+                    <button class="round_button save_listing_button" style="border: 0px; align-self: center; margin-bottom: 0" type="submit">save</button>
+                </div>
         </div>
     </div>
 </form>
@@ -363,8 +405,9 @@
         <a class="esTitle" href="/events/{{ listing.uid }}">{{ listing.name }}</a>
         <a class="esLocation" href="/venues/{{ listing.venue_id }}"><i class="material-symbols-outlined eLTag">near_me</i>{{ listing.venue_name }}</a>
         <div class="esBRow">
-            {% if listing.event_date %}<a class="esPrice" onclick='update_price_filter("{{ listing.price }}")'><i class="material-symbols-outlined eLTag">euro</i>{% if listing.price==0 %}Free{% else %}{{listing.price}}{% endif %}</a>{% endif %}
-            {% if listing.event_date %}<a class="esDate" onclick='update_date_filter("{{ listing.event_date | date(format=`%Y-%m-%d`) }}")'><i class="material-symbols-outlined eLTag">schedule</i>{{ listing.event_date | date(format="%d. %b. %Y")}}</a>{% endif %}
+            {% if listing.event_date %}<a class="esPrice" style="margin-bottom: -6px; height: 22px;" onclick='update_price_filter("{{ listing.price }}")'><i class="material-symbols-outlined eLTag">euro</i>{% if listing.price==0 %}Free{% else %}{{listing.price}}{% endif %}</a>{% endif %}
+            {% if listing.event_date %}<a class="esDate" style="margin-bottom: -6px; height: 22px;" onclick='update_date_filter("{{ listing.event_date | date(format=`%Y-%m-%d`) }}")'><i class="material-symbols-outlined eLTag">schedule</i>{{ listing.event_date | date(format="%d. %b. %Y")}}</a>{% endif %}
+            <a class="material-symbols-outlined elBuy" style="margin-bottom: -10px; margin-left: -10px; position: relative" onclick="show_buy_ticket('{{ listing.uid }}',{{ listing.price }})">sell</a>
         </div>
     </div>
 </div>
@@ -377,24 +420,25 @@
 
       <a class="lDesc custom_input">Ticket type</a>
 
-      <div class="flex_row" style="gap: 15px">
-        <span class="ticket_type emoji"><a class="lDesc">Regular</a>
-            🚪
-            <input oninput="this.style.width = Math.max(this.value.length, 1) + 'ch'; update_prices()" style="width: 1ch;  max-width: 5ch" class="lDesc custom_input ticket_amount" placeholder=0 name="amount" data-price=0>
-        </span>
+      <div class="ticket_type">
+        <a class="ticket_emoji">🚪</a>
+        Entry fee
+        <input min=1 oninput="this.style.width = Math.max(this.value.length, 1) + 'ch'; update_prices()" style="width: 1ch; max-width: 5ch; font-size: 20px; margin-left: auto" class="custom_input ticket_amount" placeholder=0 name="amount" data-price=0>
+        <a style="margin-left: auto" class="ticket_amount_visible">25$</a>
       </div>
-
-      <div id="cartct"></div>
       
-      <a class="lDesc custom_input">Summary</a>
-      <a class="lDesc custom_input" id="buy_listing_total">Total:</a>
-      <a class="lDesc custom_input" id="buy_listing_withtax">With tax:</a>
+      <div class="flex_row" style="margin-top: auto;">
+        <div class="flex_row" style="flex-direction:column; gap: 5px">
+            <a style="font-size: 22px;">Summary</a>
+            <a id="buy_listing_total">Total:</a>
+            <a id="buy_listing_withtax">With tax:</a>
+        </div>
 
-      <div class="flex_row" style="margin-left: auto;">
-        <button name="event" id="add_to_cart_button" class="round_button buy_listing_button" type="submit">add to cart</button>
-        <button class="round_button buy_listing_button" type="submit">buy</button>
+        <div class="flex_row" style="margin-left: auto; gap: 10px">
+            <button name="event" id="add_to_cart_button" class="round_button buy_listing_button" type="submit">add to cart</button>
+            <button formaction="/ticket/buy" formmethod="get" class="round_button buy_listing_button">buy</button>
+        </div>
       </div>
-
     </form>
 </div>
 
@@ -406,6 +450,10 @@
         let amount_pickers = document.querySelectorAll(".ticket_amount");
         amount_pickers.forEach((idx) => {
             idx.dataset.price=price;
+        })
+        let visible_amounts = document.querySelectorAll(".ticket_amount_visible");
+        visible_amounts.forEach((idx) => {
+            idx.innerHTML=price+"€";
         })
     }
 
@@ -419,8 +467,8 @@
         amount_pickers.forEach((idx) => {
             price = price + idx.dataset.price*idx.value
         })
-        document.getElementById("buy_listing_total").innerHTML="Total: "+price;
-        document.getElementById("buy_listing_withtax").innerHTML="With tax: "+price*1.21;
+        document.getElementById("buy_listing_total").innerHTML="Total: "+price + "€";
+        document.getElementById("buy_listing_withtax").innerHTML="With tax: "+price*1.21 + "€";
     }
 
     function add_to_cart() {
@@ -444,7 +492,7 @@
     }
 
     window.onload = function() {
-        //fill_with_mini_listings("cartct")
+
     }
 </script>
 {% endmacro %}
@@ -461,15 +509,9 @@
 
 {% macro reader_settings(venue_names,event_names) %}
 <div id="qr_code_settings" class="show">
-    <label class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">near_me</i>
-        <select style="font-size: 18px" id="event_picker" class="custom_input" placeholder="Event venue" name="venue" type="dropdown" required>
-            {% for venue_name in venue_names %}
-                <option class="custom_input" style="font-size: 18px" value={{venue_name.uid}}>{{venue_name.name}}</option>
-            {% endfor %}
-        </select>
-    </label>
+    <a style="font-size: 32px; margin-bottom: -8px">Please select an event to start scanning tickets.</a>
 
-    <label class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">fort</i>
+    <label class="lDesc lTag" style="margin: 20px"><i class="material-symbols-outlined eLTag m4p_margin">fort</i>
         <select style="font-size: 18px" id="venue_picker" class="custom_input" placeholder="Event venue" name="event" type="dropdown" required>
             {% for event_name in event_names %}
                 <option class="custom_input" style="font-size: 18px" value={{event_name.uid}}>{{event_name.name}}</option>
@@ -477,6 +519,6 @@
         </select>
     </label>
 
-    <a class="round_button" id="start_scanning" onclick="show_qr_scanner()">Start scanning</a>
+    <a class="round_button" id="start_scanning" style="font-size: 16px" onclick="show_qr_scanner()">Start scanning</a>
 </div>
 {% endmacro %}

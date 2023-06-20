@@ -172,7 +172,7 @@ header {
     position: fixed;
     top: 54px;
     border-radius: 0px 0px 5px 5px;
-    width: 352px;
+    width: 412px;
     max-width: 100%;
     flex-direction: column;
     background-color: white;
@@ -218,15 +218,17 @@ header {
     top: 0;
     z-index: 2;
     background-color: white;
-    display: fixed;
+    display: flex;
     /*background-image: linear-gradient(0deg, rgba(255, 255, 255, 0.5) 0%, rgba(111, 161, 154, 0.65) 100%);*/
     background-size: calc(100%) calc(100%);
     background-repeat: no-repeat;
     background-position: center;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     padding: 15px;
     padding-left: 10px;
-
+    justify-content: left;
+    gap: 10px;
     border-bottom: 5px solid;
     border-image: 
     linear-gradient(
@@ -239,7 +241,7 @@ header {
 #event_filter_price {
     width: 45px;
     text-align: center;
-    font-size: 15px;
+    font-size: 14px;
 }
 
 #event_filter_date {
@@ -282,7 +284,7 @@ header {
     -webkit-backdrop-filter: blur(6.2px);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     padding: 24px;
-    width: 240px;
+    width: 300px;
     height: 64px;
     font-size: 14px;
 }
@@ -381,7 +383,7 @@ input:focus, textarea:focus {
 .material-symbols-outlined.fill {font-variation-settings: "FILL" 1}
 .material-symbols-outlined {user-select: none;}
 .material-symbols-outlined.HFavoritesI {color: rgb(33, 156, 140); font-size: 32px; vertical-align: middle; margin-right: 8px; content: "favorite"; cursor: pointer}
-.material-symbols-outlined.HSearchI { line-height: 64px; z-index: 1; height: 64px; width: 64px; text-align: center; vertical-align: middle; background-color: rgb(49, 233, 208); cursor: pointer;}
+.material-symbols-outlined.HSearchI { line-height: 64px; z-index: 1; height: 64px; width: 64px; text-align: center; vertical-align: middle; background-color: rgb(49, 233, 208); cursor: pointer; border-radius: 5px;}
 .material-symbols-outlined.HSortI { vertical-align: middle; color: rgb(33, 156, 140); }
 .material-symbols-outlined.HSortI::before { content: "sort"; }
 .material-symbols-outlined.HSortI:hover::before { content: "menu"; }
@@ -432,17 +434,22 @@ input:focus, textarea:focus {
     justify-content: left;
     flex-direction: row;
     color: white;
+    align-items: center;
 }
 
 .elPrice, .elDate, .esPrice, .esDate {
     cursor: pointer;
-    flex-basis: 1;
     color: white;
     background-color: rgb(33, 156, 140);
     padding: 5px;
     border-radius: 5px;
     font-size: 14px;
     vertical-align: middle;
+    display: inline-block;
+}
+
+#event_filter_price_from, #event_filter_price_until {
+    max-width: 64px;
 }
 
 .elBuy {
@@ -540,6 +547,7 @@ input:focus, textarea:focus {
     flex-wrap: wrap;
     justify-content: left;
     margin-left: 32px;
+    gap: 20px;
 }
 
 .block-wrapper {
@@ -708,7 +716,7 @@ input.lTag:focus, input.lDesc:focus, input.lTitle:focus {
     background-color: none !important;
 }
 
-.material-symbols-outlined.lAction { font-size: 22px; fill:0; vertical-align: middle; margin-left: 3px; align-self: center}
+.material-symbols-outlined.lAction { font-size: 22px; fill:0; vertical-align: middle; align-self: center}
 .material-symbols-outlined.m4p_margin {
     margin-top: -4px;
 }
@@ -749,12 +757,13 @@ input[type=number] {
 .modalContent {
     display: flex;
     flex-direction: column;
-    background-color: rgb(196, 255, 246);
+    background-color: rgb(253, 242, 250);
     margin: auto auto; 
     padding: 20px;
     min-width: 20%;
     min-height: 30%;
-    border-radius: 12px;
+    border-radius: 20px;
+    font-size: 18px;
 }
 
 .round_button {
@@ -813,21 +822,32 @@ input[type=number] {
 }
 
 .ticket_type {
-    margin-bottom: 10px;
-    width: 100px;
-    height: 120px;
-    padding-top: 20px;
-    text-align: center;
-    font-size: 36px;
-    background-color: rgb(75, 255, 195);
-    border-radius: 10px;
+    display: flex;
+    background: linear-gradient(90deg,rgb(114,216,182,1) 0%, rgba(190,247,239,1) 17.5%, rgba(114,216,182,1) 100%); 
+    padding: 6px;
+    border-radius: 20px;
+    padding-right: 16px;
+    cursor: pointer;
+    color: black;
+    font-size: 20px;
+    line-height: 24px;
+    align-items: center;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    gap: 10px;
+    justify-content: left;
 }
 
-.ticket_type input {
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 10px;
-}
+.ticket_emoji {
+    background-color: #ede8e6;
+    padding: 6px;
+    border-radius: 20px;
+    font-size: 22px;
+}  
 
 .flex_row {
     display: flex;
@@ -940,6 +960,7 @@ input[type=number] {
 #qr_code_settings {
     display: none;
     flex-direction: column;
+    text-align: center;
 }
 
 #qr_code_scanner_preview.failure ~ #qr_code_scanner_preview_overlay div {

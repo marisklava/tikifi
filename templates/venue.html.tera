@@ -13,6 +13,7 @@
 </head>
 <body>
     {{ macros::header(user=user, path=path) }}
+    {{ macros::buy_ticket() }}
 
     <div class="eventShowcase">
         <img class="esThumb" src="{{ venue.thumbnail_url }}"/>

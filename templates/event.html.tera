@@ -12,7 +12,7 @@
 </head>
 <body>
     {{ macros::header(user=user, path=path) }}
-
+    {{ macros::buy_ticket() }}
     {{ macros::featured(listing=event) }}
 
     <div class="contentWrapper">
