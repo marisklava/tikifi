@@ -1,4 +1,4 @@
-{% macro header(user) %}
+{% macro header(user, path) %}
 <header>
     <a class="HLogo" href="/">Tikifi</a>
     <div class="searchToolbar">
@@ -15,6 +15,8 @@
         </div>
     </div>
     <div class="HRMenu">
+        {% set path_arr = path | split(pat="/") %}
+        
         <!--<label class="toggle" onclick="show_favorites()">
             <i class="material-symbols-outlined HFavoritesI fill">favorite</i>
         </label>-->
@@ -39,15 +41,16 @@
         <label class="toggle" onclick="show_profile()">
             <img class="material-symbols-outlined HFavoritesI fill" style="margin-left: 0; height: 32px; width: 32px; border-radius:16px" src="{{user.avatar}}"/>
         </label>
-        <div id="el_profile_menu">
+        <div id="el_profile_menu" {% if path_arr[1] == "dashboard" %} class="permanently_visible" {% endif %}>
             <div id="el_profile_menu-header" style="background-image: url({{user.avatar}})"></div>
             <img id="el_profile_menu-header-pfp" src="{{user.avatar}}"/>
             <div id="el_profile_menu-links">
                 <a class="menuLink" href="/dashboard"><i class="material-symbols-outlined">home</i>Dashboard</a>
                 <a class="menuLink" href="/dashboard/events"><i class="material-symbols-outlined">celebration</i>Events</a>
                 <a class="menuLink" href="/dashboard/venues"><i class="material-symbols-outlined">fort</i>Venues</a>
-                <a class="menuLink" href="/dashboard/tickets"><i class="material-symbols-outlined">play_pass</i>Tickets</a>
+                <a class="menuLink" href="/dashboard/tickets"><i class="material-symbols-outlined">confirmation_number</i>Tickets</a>
                 <a class="menuLink" href="/logout"><i class="material-symbols-outlined">logout</i>Log out</a>
+                <a class="menuLink" href="/reader"><i class="material-symbols-outlined">camera</i>Ticket scanner</a>
             </div>
         </div>
         {% endif %}
@@ -457,6 +460,24 @@
 </tr>
 {% endmacro %}
 
-{% macro reader_settings() %}
-    <a class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">near_me</i><select style="font-size: 18px" class="custom_input" placeholder="Event venue" name="venue" type="dropdown" required>
+{% macro reader_settings(venue_names,event_names) %}
+<div id="qr_code_settings" class="show">
+    <label class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">near_me</i>
+        <select style="font-size: 18px" class="custom_input" placeholder="Event venue" name="venue" type="dropdown" required>
+            {% for venue_name in venue_names %}
+                <option class="custom_input" style="font-size: 18px" value={{venue_name.uid}}>{{venue_name.name}}</option>
+            {% endfor %}
+        </select>
+    </label>
+
+    <label class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">fort</i>
+        <select style="font-size: 18px" class="custom_input" placeholder="Event venue" name="event" type="dropdown" required>
+            {% for event_name in event_names %}
+                <option class="custom_input" style="font-size: 18px" value={{event_name.uid}}>{{event_name.name}}</option>
+            {% endfor %}
+        </select>
+    </label>
+
+    <a class="round_button" id="start_scanning" onclick="show_qr_scanner()">Start scanning</a>
+</div>
 {% endmacro %}

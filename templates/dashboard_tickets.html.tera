@@ -12,7 +12,7 @@
     <title>Tikifi</title>
 </head>
 <body>
-    {{ macros::header(user=user) }}
+    {{ macros::header(user=user, path=path) }}
 
         <div class="section_divider" style="color: black; margin-left: 0px; flex-basis: inherit; margin-top: 72px; text-align: center;">Your tickets</div>
         <table class="ticket_list_table">

@@ -12,13 +12,13 @@
     <title>Tikifi</title>
 </head>
 <body>
-    {{ macros::header(user=user) }}
+    {{ macros::header(user=user, path=path) }}
 
     {% if not venues is undefined %}{% set typestr = "venue" %}{% set type = 1 %}{% endif %}
     {% if not events is undefined %}{% set typestr = "event" %}{% set type = 2 %}{% endif %}
 
     {% if not venues and not events %}
-    <div class="empty_placeholder">
+    <div class="center_abs" style="text-align: center">
         <span class="material-symbols-outlined big_placeholder_icon">
             {% if typestr == "event" %}
               celebration

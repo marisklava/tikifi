@@ -11,7 +11,7 @@
     <title>Tikifi</title>
 </head>
 <body>
-    {{ macros::header(user=user) }}
+    {{ macros::header(user=user, path=path) }}
 
     {{ macros::featured(listing=event) }}
 

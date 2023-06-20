@@ -12,11 +12,11 @@
 </head>
 <body>
 
-    {{ macros::header(user=user) }}
+    {{ macros::header(user=user, path=path) }}
     {{ macros::buy_ticket() }}
 
     {% if not featured[0] and not events and not listings %}
-        <div class="empty_placeholder">
+        <div class="center_abs" style="text-align: center">
             <span class="material-symbols-outlined big_placeholder_icon">
                 empty_dashboard
             </span>

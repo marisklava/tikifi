@@ -2,7 +2,7 @@
 extern crate chrono;
 
 use rocket::{post, response::content, response, routes, form::{self, Form}, serde::{Deserialize, Serialize, json::*}};
-use rocket::http::{Cookie, CookieJar, SameSite, ContentType, Status};
+use rocket::http::{Cookie, CookieJar, SameSite, ContentType, Status, uri::Uri};
 use rocket::response::{Responder};
 use rocket::Request;
 use rocket::request::{self, FromRequest};
@@ -210,7 +210,7 @@ impl Ticket {
         }).fetch_one(&mut *conn).await?;
         Ok(result)
     }
-    async fn check_ticket(mut conn: &mut PoolConnection<Postgres>, ticket_id: String, user_id: String, ) -> Result<bool, ApiError> { // Going to add a sort of "doors open" datetime functionality later on
+    async fn check_ticket(mut conn: &mut PoolConnection<Postgres>, ticket_id: String, user_id: String, event_id: String,) -> Result<bool, ApiError> { // Going to add a sort of "doors open" datetime functionality later on
         //sqlx::query("CASE WHEN EXISTS (SELECT FROM tickets WHERE uid = $1 AND purchaser = $2 AND event = $3)");
 
 
@@ -328,6 +328,18 @@ impl EventFilterCriteria {
         
         Ok(result)
     }
+    async fn get_names(self, mut conn: &mut PoolConnection<Postgres>) -> Result<Vec<ListingName>, ApiError> {
+        let mut q = QueryBuilder::new("SELECT ev.uid, ev.name FROM events AS ev WHERE true");
+        
+        if(self.author.is_some()) { q.push(" AND \"author\" = "); q.push_bind(self.author.unwrap());};
+
+        let result = q.build().map(|row: PgRow| ListingName {
+            uid: row.get("uid"),
+            name: row.get("name"),
+        }).fetch_all(&mut *conn).await?;
+
+        Ok(result)
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, FromRow)]
@@ -343,7 +355,7 @@ pub struct Venue {
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(crate = "rocket::serde")]
-pub struct VenueName {
+pub struct ListingName {
     uid: String,
     name: String,
 }
@@ -414,17 +426,12 @@ impl VenueFilterCriteria {
         Ok(result)
     }
 
-    async fn venue_names(self, mut conn: &mut PoolConnection<Postgres>) -> Result<Vec<VenueName>, ApiError> {
-        fn sep(c: i32) -> String {
-            if(c==1) { return " WHERE ".to_string() }
-            else { return " AND ".to_string() }
-        } // remove
-
+    async fn get_names(self, mut conn: &mut PoolConnection<Postgres>) -> Result<Vec<ListingName>, ApiError> {
         let mut q = QueryBuilder::new("SELECT ven.uid, ven.name FROM venues AS ven WHERE true");
         
         if(self.owner.is_some()) { q.push(" AND \"owner\" = "); q.push_bind(self.owner.unwrap());};
 
-        let result = q.build().map(|row: PgRow| VenueName {
+        let result = q.build().map(|row: PgRow| ListingName {
             uid: row.get("uid"),
             name: row.get("name"),
         }).fetch_all(&mut *conn).await?;
@@ -753,8 +760,9 @@ async fn search_listings(mut conn: Connection<Logs>, user: Option<UserInfo>, que
 }
 
 #[get("/events/<id>")] // insecure
-async fn get_event(mut conn: Connection<Logs>, id: String, user: Option<UserInfo>) -> Result<Template, ApiError> {
+async fn get_event(mut conn: Connection<Logs>, id: String, user: Option<UserInfo>, cur_uri: &rocket::http::uri::Origin<'_>) -> Result<Template, ApiError> {
     let mut ctx = Context::new();
+    ctx.insert("path", &cur_uri.path().as_str());
 
     match user {
         Some(c) => ctx.insert("user", &c),
@@ -771,10 +779,11 @@ async fn get_event(mut conn: Connection<Logs>, id: String, user: Option<UserInfo
 }
 
 #[get("/events/<id>/mini_listing")] // insecure
-async fn get_event_mini_listing(mut conn: Connection<Logs>, id: String, user: Option<UserInfo>) -> Result<Template, ApiError> {
+async fn get_event_mini_listing(mut conn: Connection<Logs>, id: String, user: Option<UserInfo>, cur_uri: &rocket::http::uri::Origin<'_>) -> Result<Template, ApiError> {
     let regex = Regex::new(r"(?m)^[0-9A-Za-z\-]+(,[0-9A-Za-z\-]+)*$").unwrap();
 
     let mut ctx = Context::new();
+    ctx.insert("path", &cur_uri.path().as_str());
 
     match user {
         Some(c) => ctx.insert("user", &c),
@@ -797,8 +806,9 @@ async fn get_event_mini_listing(mut conn: Connection<Logs>, id: String, user: Op
 }
 
 #[get("/venues/<id>")]
-async fn get_venue(mut conn: Connection<Logs>, id: String, user: Option<UserInfo>) -> Result<Template, ApiError> {
+async fn get_venue(mut conn: Connection<Logs>, id: String, user: Option<UserInfo>, cur_uri: &rocket::http::uri::Origin<'_>) -> Result<Template, ApiError> {
     let mut ctx = Context::new();
+    ctx.insert("path", &cur_uri.path().as_str());
 
     match user {
         Some(c) => ctx.insert("user", &c),
@@ -835,8 +845,9 @@ async fn get_venue(mut conn: Connection<Logs>, id: String, user: Option<UserInfo
 }
 
 #[get("/")]
-async fn index(mut conn: Connection<Logs>, cookies: &CookieJar<'_>, user: Option<UserInfo>) -> Result<Template, ApiError> {
+async fn index(mut conn: Connection<Logs>, cookies: &CookieJar<'_>, user: Option<UserInfo>, cur_uri: &rocket::http::uri::Origin<'_>) -> Result<Template, ApiError> {
     let mut ctx = Context::new();
+    ctx.insert("path", &cur_uri.path().as_str());
 
     match user {
         Some(c) => ctx.insert("user", &c),
@@ -889,8 +900,9 @@ async fn dashboard() -> Redirect {
 }
 
 #[get("/dashboard/venues")]
-async fn dashboard_venues(mut conn: Connection<Logs>, user: UserInfo) -> Result<Template, ApiError> {
+async fn dashboard_venues(mut conn: Connection<Logs>, user: UserInfo, cur_uri: &rocket::http::uri::Origin<'_>) -> Result<Template, ApiError> {
     let mut ctx = Context::new();
+    ctx.insert("path", &cur_uri.path().as_str());
     ctx.insert("user", &user);
 
     let mut criteria = VenueFilterCriteria::new();
@@ -911,8 +923,9 @@ async fn dashboard_venues(mut conn: Connection<Logs>, user: UserInfo) -> Result<
 }
 
 #[get("/dashboard/tickets")]
-async fn dashboard_tickets(mut conn: Connection<Logs>, user: UserInfo) -> Result<Template, ApiError> {
+async fn dashboard_tickets(mut conn: Connection<Logs>, user: UserInfo, cur_uri: &rocket::http::uri::Origin<'_>) -> Result<Template, ApiError> {
     let mut ctx = Context::new();
+    ctx.insert("path", &cur_uri.path().as_str());
     ctx.insert("user", &user);
 
     let mut criteria = TicketFilterCriteria::new();
@@ -933,18 +946,18 @@ async fn dashboard_tickets(mut conn: Connection<Logs>, user: UserInfo) -> Result
 }
 
 #[get("/dashboard/events")] // arguably insecure
-async fn dashboard_events(mut conn: Connection<Logs>, user: UserInfo) -> Option<Template> {
+async fn dashboard_events(mut conn: Connection<Logs>, user: UserInfo, cur_uri: &rocket::http::uri::Origin<'_>) -> Option<Template> {
     let mut ctx = Context::new();
+    ctx.insert("path", &cur_uri.path().as_str());
     ctx.insert("user", &user);
 
     let mut criteria = EventFilterCriteria::new();
     criteria.author = Some(user.id.clone());
+    let events: Option<Vec<Event>> = criteria.exec_query(&mut *conn).await.ok(); 
 
     let mut dropdown_criteria = VenueFilterCriteria::new();
     dropdown_criteria.owner = Some(user.id.clone());
-
-    let events: Option<Vec<Event>> = criteria.exec_query(&mut *conn).await.ok(); 
-    let venue_names: Option<Vec<VenueName>> = dropdown_criteria.venue_names(&mut *conn).await.ok(); 
+    let venue_names: Option<Vec<ListingName>> = dropdown_criteria.get_names(&mut *conn).await.ok(); 
 
     match events {
         Some(e) => {
@@ -1113,8 +1126,38 @@ async fn view_ticket(mut conn: Connection<Logs>, user: UserInfo, ticket_id: Stri
 }
 
 #[get("/reader")]
-async fn ticket_reader(mut conn: Connection<Logs>, user: UserInfo,) -> Result<Template, ApiError> {
+async fn ticket_reader(mut conn: Connection<Logs>, user: UserInfo, cur_uri: &rocket::http::uri::Origin<'_>) -> Result<Template, ApiError> {
     let mut ctx = Context::new();
+    ctx.insert("path", &cur_uri.path().as_str());
+    ctx.insert("user", &user);
+    //ctx.insert("path", &cur_uri.path().as_str());
+
+    let mut venue_dropdown_criteria = VenueFilterCriteria::new();
+    venue_dropdown_criteria.owner = Some(user.id.clone());
+    let venue_names: Option<Vec<ListingName>> = venue_dropdown_criteria.get_names(&mut *conn).await.ok(); 
+
+    let mut event_dropdown_criteria = EventFilterCriteria::new();
+    event_dropdown_criteria.author = Some(user.id.clone());
+    let event_names: Option<Vec<ListingName>> = event_dropdown_criteria.get_names(&mut *conn).await.ok(); 
+
+    match venue_names {
+        Some(e) => {
+            ctx.insert("venue_names", &e);
+        }
+        None => {
+            ctx.insert("venue_names", &false);
+        }
+    }
+
+    match event_names {
+        Some(e) => {
+            ctx.insert("event_names", &e);
+        }
+        None => {
+            ctx.insert("event_names", &false);
+        }
+    }
+
     Ok(Template::render("reader", ctx.into_json()))
 }
 
@@ -1209,9 +1252,10 @@ async fn delete_from_cart(mut data: rocket::form::Form<CartSubmission>, mut conn
 }
 
 #[get("/cart/view")]
-async fn view_cart(mut conn: Connection<Logs>, user: UserInfo) -> Result<Template, ApiError> {
+async fn view_cart(mut conn: Connection<Logs>, user: UserInfo, cur_uri: &rocket::http::uri::Origin<'_>) -> Result<Template, ApiError> {
     
     let mut ctx = Context::new();
+    ctx.insert("path", &cur_uri.path().as_str());
 
     ctx.insert("user", &user);
     

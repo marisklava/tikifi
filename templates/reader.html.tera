@@ -12,13 +12,17 @@
     <title>Tikifi</title>
 </head>
 <body>
+    {{ macros::header(user=user, path=path) }}
     <!--<div id="reader"></div>-->
-    {{ macros::reader_settings() }}
-
+    <div class="center_abs">
+        {{ macros::reader_settings(venue_names=venue_names,event_names=event_names) }}
+        <div id="qr_code_scanner_preview"></div>
+        <a id="qr_code_settings_button" class="material-symbols-outlined HFavoritesI fill" style="padding:10px; display:none" onclick="show_qr_settings()">settings</a>
+    </div>
 </body>
 </html>
 
-<script>
+<!--<script>
     function onScanSuccess(decodedText, decodedResult) {
         // handle the scanned code as you like, for example:
         console.log(`Code matched = ${decodedText}`, decodedResult);
@@ -33,4 +37,38 @@
         { fps: 10, qrbox: {width: 250, height: 250} },
         false);
     html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+</script>-->
+
+<script>
+
+    const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+    };
+
+    function show_qr_settings() {
+        let qr_code_scanner = document.getElementById("qr_code_scanner_preview");
+        let qr_code_settings_button = document.getElementById("qr_code_settings_button");
+        let qr_code_settings = document.getElementById("qr_code_settings");
+        qr_code_settings.classList.toggle("show");
+        qr_code_scanner.classList.toggle("show");
+        qr_code_settings_button.classList.toggle("show");
+    }
+
+    function show_qr_scanner() {
+        let qr_code_scanner = document.getElementById("qr_code_scanner_preview");
+        let qr_code_settings_button = document.getElementById("qr_code_settings_button");
+        let qr_code_settings = document.getElementById("qr_code_settings");
+        qr_code_settings.classList.toggle("show");
+        qr_code_scanner.classList.toggle("show");
+        qr_code_settings_button.classList.toggle("show");
+
+        const html5QrCode = new Html5Qrcode("qr_code_scanner_preview", { });
+
+        const config = { 
+            fps: 10,
+            aspectRatio: 0,
+        };
+        
+        html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback);
+    }
+
 </script>
