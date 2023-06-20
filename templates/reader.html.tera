@@ -113,7 +113,7 @@
             },
         };
         
-        html5QrCode.start({ facingMode: "environment" }, aconfig, on_scan);
+        html5QrCode.start({ facingMode: { exact: "environment"} }, aconfig, on_scan);
     
     }
 
