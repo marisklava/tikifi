@@ -36,7 +36,7 @@
     let qr_code_message = document.getElementById("qr_code_scanner_preview_message");
     let qr_code_message_title = document.getElementById("qr_code_scanner_preview_message_title");
 
-    function check_ticket(event, ticket) {
+    function check_ticket(event, ticket, camera) {
         console.log("test" + event)
         
         //let listings = document.querySelectorAll(".checkbox_listing")
@@ -55,45 +55,44 @@
         .then(function (res) {
             switch (res) {
                 case "true":
-                    on_success()
+                    on_success(camera)
                 break
                 case "false":
-                    on_failure()
+                    on_failure(camera)
                 break
                 default: 
                 throw res 
             }
         })
         .catch(function (err) {
-            on_failure();
+            on_failure(camera);
             console.err(err);
         });
     }
 
-    function on_success() {
+    function on_success(camera) {
         qr_code_message_title.innerHTML = "Valid ticket"
         qr_code_scanner.classList.add("success");
         qr_code_overlay.classList.add("show");
+        camera.pause(true)
         setTimeout(() => {
             qr_code_scanner.classList.remove("success");
             qr_code_overlay.classList.remove("show");
-        }, 1000)
+            camera.resume()
+        }, 5000)
     }
 
-    function on_failure() {
+    function on_failure(camera) {
         qr_code_message_title.innerHTML = "Invalid ticket"
         qr_code_scanner.classList.add("failure");
         qr_code_overlay.classList.add("show");
+        camera.pause(true)
         setTimeout(() => {
             qr_code_scanner.classList.remove("failure");
             qr_code_overlay.classList.remove("show");
-        }, 1000)
+            camera.resume()
+        }, 5000)
     }
-
-    function on_scan(decodedText, decodedResult) {
-        console.log(decodedText)
-        check_ticket(event_picker.value, decodedText)
-    };
 
     function show_qr_settings() {
         qr_code_settings.classList.toggle("show");
@@ -116,7 +115,10 @@
             },
         };
         
-        html5QrCode.start({ facingMode: { exact: "environment"} }, aconfig, on_scan);
+        html5QrCode.start({ facingMode: { exact: "environment"} }, aconfig, (decodedText, decodedResult) => {
+            console.log(decodedText)
+            check_ticket(event_picker.value, decodedText, html5QrCode)
+        });
     
     }
 
