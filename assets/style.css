@@ -785,7 +785,6 @@ input[type=number] {
     display: block;
     align-self: flex-end;
     justify-self: flex-end;
-    margin-bottom: 16px;
 }
 
 .buy_listing_button {
