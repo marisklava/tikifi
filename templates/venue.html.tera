@@ -21,10 +21,6 @@
             <i class="material-symbols-outlined md-64 elFavorite"></i>
             <a class="esTitle">{{ venue.name }}</a>
             <a class="esLocation"><i class="material-symbols-outlined eLTag">near_me</i>{{ venue.address }}</a>
-            <div class="esBRow">
-                <a class="esPrice"><i class="material-symbols-outlined eLTag">person</i>{{ venue.capacity }}</a>
-                <a class="esDate"><i class="material-symbols-outlined eLTag">favorite</i>99999</a>
-            </div>
         </div>
     </div>
 
