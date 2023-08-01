@@ -69,6 +69,7 @@ impl<'r, 'o: 'r> Responder<'r, 'o> for ApiError {
     fn respond_to(self, req: &'r Request<'_>) -> response::Result<'o> {
         println!{"Error: {:?}", self};
         match self {
+            ApiError::JwksClient { source: _ } => Redirect::to("/login/google").respond_to(req),
             ApiError::ResourceNotFound => Status::NotFound.respond_to(req),
             ApiError::Sqlx { source: rocket_db_pools::sqlx::Error::RowNotFound } => Status::NotFound.respond_to(req),
             _ => Status::InternalServerError.respond_to(req)
@@ -330,11 +331,11 @@ impl EventFilterCriteria {
         if(self.author.is_some()) { q.push(" AND ev.author = "); q.push_bind(self.author.unwrap());};
         if(self.event_date.is_some()) { q.push(" AND (ev.event_date - "); q.push_bind(self.event_date.unwrap()); q.push(") < interval '2 days'");};
         
-        if(self.start_date.is_some()) { q.push(" AND (ev.event_date > "); q.push_bind(self.start_date.unwrap()); q.push(")");};
-        if(self.end_date.is_some()) { q.push(" AND (ev.event_date < "); q.push_bind(self.end_date.unwrap()); q.push(")");};
+        if(self.start_date.is_some()) { q.push(" AND (ev.event_date >= "); q.push_bind(self.start_date.unwrap()); q.push(")");};
+        if(self.end_date.is_some()) { q.push(" AND (ev.event_date <= "); q.push_bind(self.end_date.unwrap()); q.push(")");};
 
-        if(self.start_price.is_some()) { q.push(" AND ev.price > "); q.push_bind(self.start_price.unwrap());};
-        if(self.end_price.is_some()) { q.push(" AND ev.price < "); q.push_bind(self.end_price.unwrap());};
+        if(self.start_price.is_some()) { q.push(" AND ev.price >= "); q.push_bind(self.start_price.unwrap());};
+        if(self.end_price.is_some()) { q.push(" AND ev.price <= "); q.push_bind(self.end_price.unwrap());};
 
         if(self.price.is_some()) { q.push(" AND ev.price < "); q.push_bind(self.price.unwrap());};
         if(self.limit.is_some()) { q.push(" LIMIT "); q.push_bind(self.limit.unwrap());};

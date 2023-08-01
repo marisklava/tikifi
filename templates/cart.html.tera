@@ -4,6 +4,10 @@
     {% for cart_item in cart %}
         {{ macros::cart_item(listing=cart_item.event, amount=cart_item.amount) }}
     {% endfor %}
+    <button class="round_button buy_listing_button" style="margin-right: 10px; margin-bottom: 10px; text-align: center" type="submit">buy</button>
 {% else %}
-    <p style="text-align: center; font-size: 14px;">Your cart is empty</p>
+    <span class="material-symbols-outlined big_placeholder_icon" style="align-self: center; padding-top: 10px">
+        shopping_cart
+    </span>
+    <p style="text-align: center; font-size: 18px;">Your cart is empty</p>
 {% endif %}

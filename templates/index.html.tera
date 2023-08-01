@@ -6,61 +6,47 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="assets/style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@3.2.1/dist/full.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/assets/tailwind.config.js"></script>
+
     <title>Tikifi</title>
 </head>
 <body>
 
     {{ macros::header(user=user, path=path) }}
-    {{ macros::buy_ticket() }}
 
-    {% if not featured[0] and not events and not listings %}
-        <div class="center_abs" style="text-align: center">
-            <span class="material-symbols-outlined big_placeholder_icon">
-                empty_dashboard
-            </span>
-            This site currently has no content. Add venues and events using the dashboard.
-        </div>
-    {% endif %}
-
-
-    {% if featured[0] %}
-    	{{ macros::featured(listing=featured[0]) }}
-    {% endif %}
-    {% if events %}
-
-    <div class="contentWrapper">
-        <div class="block-wrapper">
-            <div class="section_divider" id="featuredEvents">Featured events</div>
-            <div>
-                <!--<a id="f_ev_co_fw" class="material-symbols-outlined carousel_button">navigate_before</a>-->
-                <div id="f_ev_co" class="eventCarousel">
-                    {% for event in events %}
-                        {{ macros::event(event=event) }}
-                    {% endfor %}
-		        </div>
-                <!--<a id="f_ev_co_bw" class="material-symbols-outlined carousel_button">navigate_next</a>-->
-            </div>  
-        </div>
-        {% endif %}
-        {% if venues %}
-        <div class="block-wrapper" id="featuredVenues">
-            <div class="section_divider">Featured venues</div>
-            <div>
-                <!--<a class="material-symbols-outlined carousel_button">navigate_before</a>-->
-                <div class="eventCarousel">
-                    {% for venue in venues %}
-                        {{ macros::venue(venue=venue) }}
-                    {% endfor %}
-                </div>
-                <!--<a class="material-symbols-outlined carousel_button">navigate_next</a>-->
+    <div class="carousel w-full h-[30rem]">
+        <div id="item1" class="flex relative carousel-item w-full image-full items-center justify-items-end overflow-visible z-10">
+          <img src="https://daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.jpg" class="w-full bg-none" />
+          <div class="w-full bg-gradient-to-t from-base-100 to-15% via-base-100 to-25% absolute flex bottom-0 items-left">
+            <div class="flex flex-col gap-2 p-5 ml-10 pb-5 bg-base-300 grow-0">
+              <h2 class="text-white">Shoes!</h2>
+              <p class="text-white">If a dog chews shoes whose shoes does he choose?</p>
+              <div class>
+                <button class="btn btn-primary text-white">Buy Now</button>
+              </div>
             </div>
+          </div>
+        </div> 
+        <div id="item2" class="carousel-item w-full image-full">
+          <img src="https://daisyui.com/images/stock/photo-1609621838510-5ad474b7d25d.jpg" class="w-full" />
+        </div> 
+        <div id="item3" class="carousel-item w-full">
+          <img src="https://daisyui.com/images/stock/photo-1414694762283-acccc27bca85.jpg" class="w-full" />
+        </div> 
+        <div id="item4" class="carousel-item w-full">
+          <img src="https://daisyui.com/images/stock/photo-1665553365602-b2fb8e5d1707.jpg" class="w-full" />
         </div>
-        {% endif %}
-    </div>
-    
-    
+      </div> 
+      <div class="flex justify-center w-full py-2 gap-2">
+        <a href="#item1" class="btn btn-xs">1</a> 
+        <a href="#item2" class="btn btn-xs">2</a> 
+        <a href="#item3" class="btn btn-xs">3</a> 
+        <a href="#item4" class="btn btn-xs">4</a>
+      </div>
 </body>
 </html>
 

@@ -1,64 +1,64 @@
 {% macro header(user, path) %}
-<header>
-    <a class="HLogo" href="/">Tikifi</a>
-    <div class="searchToolbar">
-        <input type="text" placeholder="Search for events and venues" id="search_bar" onfocus="show_search()" oninput="search()">
-        <i class="material-symbols-outlined HSearchI">search</i>
-        <!--<a class="HSort"><i class="material-symbols-outlined HSortI"></i></a>-->
-        <div id="search-menu">
-            <div id="search-menu-filters">
-                <a class="elDate unedited"><i class="material-symbols-outlined filter_icon">schedule</i><input id="event_filter_date_from" class="custom_input" name="start_date" type="date" oninput="search()"></a>
-                <a class="material-symbols-outlined filter_icon" style="align-self: center; font-size: 24px">arrow_right_alt</a>
-                <a class="elDate unedited"><i class="material-symbols-outlined filter_icon">schedule</i><input id="event_filter_date_until" class="custom_input" name="end_date" type="date" oninput="search()"></a>
-                <a class="elDate unedited"><i class="material-symbols-outlined filter_icon">euro</i><input id="event_filter_price_from" class="custom_input" pattern='[0-9]+(\\.[0-9][0-9]?)?' value=0.00 name="start_price" type="number" step="0.01" oninput="search()"></a>
-                <a class="material-symbols-outlined filter_icon" style="align-self: center; font-size: 24px">arrow_right_alt</a>
-                <a class="elDate unedited"><i class="material-symbols-outlined filter_icon">euro</i><input id="event_filter_price_until" class="custom_input" pattern='[0-9]+(\\.[0-9][0-9]?)?' value=0.00 name="end_price" type="number" step="0.01" oninput="search()"></a>
-            </div>
-            <div id="search-results" style="flex-direction:column">
-            </div>
-        </div>
+{% set path_arr = path | split(pat="/") %}
+{% set path_page = path_arr | last() %}
+
+<div class="navbar bg-base-100">
+  <div class="navbar-start">
+    <a class="pl-5 normal-case text-2xl text-accent" href="/">Tikifi</a>
+  </div>
+  <div class="navbar-center">
+    <div class="form-control">
+      <input type="text" placeholder="Search" class="input input-bordered w-96 placeholder-base-100 text-base-100 bg-accent" />
     </div>
-    <div class="HRMenu">
-        {% set path_arr = path | split(pat="/") %}
-        
-        <!--<label class="toggle" onclick="show_favorites()">
-            <i class="material-symbols-outlined HFavoritesI fill">favorite</i>
-        </label>-->
-        <label class="toggle" onclick="show_cart()">
-            <i class="material-symbols-outlined HFavoritesI fill">shopping_cart</i>
+  </div>
+  <div class="navbar-end gap-2">
+    <button class="btn rounded-full btn-sm bg-accent text-base-100 h-10 pr-4 pl-4 normal-case">Log in</button>
+    <div class="dropdown dropdown-end">
+        <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+          <div class="w-10 rounded-full">
+            <img src="/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+          </div>
         </label>
-        <div id="el_liked_menu">
-            <div id="el_liked_menu_content"></div>
-            <p style="text-align: center; font-size: 14px;"><a style="color:rgb(33, 156, 140); font-size: 14px" href="/login/google">log in</a> to keep your likes and make them public</p>
-        </div>
-        <div id="el_cart_menu" action="/ticket/buy">
-            <div id="el_cart_menu_content"></div>
-            {% if not user %}
-                <p style="text-align: center; font-size: 14px;"><a style="color:rgb(33, 156, 140); font-size: 14px" href="/login/google">log in</a> to use the cart feature</p>
-            {% else %}
-                <button class="round_button buy_listing_button" style="margin-right: 10px; margin-bottom: 10px; text-align: center" type="submit">buy</button>
-            {% endif %}
-        </div>
-        {% if not user %}
-            <a id="HLogin" href="/login/google"><img src="/assets/btn_google.png"/>Log in</a>
-        {% else %}
-        <label class="toggle" onclick="show_profile()">
-            <img class="material-symbols-outlined HFavoritesI fill" style="margin-left: 0; height: 32px; width: 32px; border-radius:16px" src="{{user.avatar}}"/>
-        </label>
-        <div id="el_profile_menu" {% if path_arr[1] == "dashboard" %} class="permanently_visible" {% endif %}>
-            <div id="el_profile_menu-header" style="background-image: url({{user.avatar}})"></div>
-            <img id="el_profile_menu-header-pfp" src="{{user.avatar}}"/>
-            <div id="el_profile_menu-links">
-                <a class='menu_link' href="/dashboard/events"><i class="material-symbols-outlined">celebration</i>Events</a>
-                <a class='menu_link' href="/dashboard/venues"><i class="material-symbols-outlined">fort</i>Venues</a>
-                <a class='menu_link' href="/dashboard/tickets"><i class="material-symbols-outlined">confirmation_number</i>Tickets</a>
-                <a class='menu_link' href="/logout"><i class="material-symbols-outlined">logout</i>Log out</a>
-                <a class='menu_link' href="/reader"><i class="material-symbols-outlined">camera</i>Ticket scanner</a>
+        <ul tabindex=0 class="menu menu-sm dropdown-content bg-base-200 w-56 rounded-box z-[1] p-0 shadow mt-4">
+            <img class="rounded-box h-28 brightness-50" src="https://daisyui.com/images/stock/photo-1665553365602-b2fb8e5d1707.jpg" class="w-full"/>
+            <img class="self-center w-20 h-20 -mt-24 mb-2 z-[1] btn-circle" src="https://daisyui.com/images/stock/photo-1665553365602-b2fb8e5d1707.jpg"/>
+
+            <div class="p-3">
+            <li>
+              <a class="pl-0" href="/dashboard/events">
+                <i class="material-symbols-outlined {% if path_page == 'events' %} text-accent {% endif %}">celebration</i>
+                Events
+              </a>
+            </li>
+            <li>
+              <a class="pl-0" href="/dashboard/venues">
+                <i class="material-symbols-outlined {% if path_page == 'venues' %} text-accent {% endif %}">fort</i>
+                Venues
+              </a>
+            </li>
+            <li>
+              <a class="pl-0" href="/dashboard/tickets">
+                <i class="material-symbols-outlined {% if path_page == 'tickets' %} text-accent {% endif %}">confirmation_number</i>
+                Tickets
+              </a>
+            </li>
+            <li>
+              <a class="pl-0" href="/logout">
+                <i class="material-symbols-outlined">logout</i>
+                Log out
+              </a>
+            </li>            
+            <li>
+              <a class="pl-0 {% if path_page == 'reader' %} highlighted {% endif %}" href="/reader">
+                <i class="material-symbols-outlined">camera</i>
+                Ticket scanner
+              </a>
+            </li>            
             </div>
-        </div>
-        {% endif %}
-    </div>
-</header>
+          </ul>      
+    </div>  
+  </div>
+</div>
 
 <script>
 
@@ -75,7 +75,7 @@
     function fill_with_cart_items(div) {
         document.getElementById(div).innerHTML="" 
 
-        let liked_menu_content = document.getElementById(div);
+        let cart_content = document.getElementById(div);
         let listings = document.querySelectorAll(".checkbox_listing")
 
         fetch("/cart/view")
@@ -90,7 +90,7 @@
             }
         })
         .then(function (template) {
-            liked_menu_content.innerHTML=liked_menu_content.innerHTML+template
+            cart_content.innerHTML=template
         })
         .catch(function (response) {
             console.log(listing.dataset.event);
@@ -126,9 +126,8 @@
         let cart_menu = document.getElementById("el_cart_menu");
         let profile_menu = document.getElementById("el_profile_menu");
         if(profile_menu) profile_menu.classList.remove("show");
+        fill_with_cart_items("el_cart_menu_content")
         cart_menu.classList.toggle("show");
-
-        fill_with_cart_items("el_cart_menu_content");
     }
 
     function show_profile() {
@@ -137,12 +136,13 @@
     }
 
     function show_search() {
+        document.getElementById("search_toolbar").style.display = 'flex';
         document.getElementById("search-menu").style.display = 'flex';
         document.getElementById("search-results").style.display = 'none';
     }
 
     function update_date_filter(value) {
-        document.getElementById("event_filter_price_until").value = value;
+        document.getElementById("event_filter_date_until").value = value;
         search()
     }
 
@@ -301,7 +301,7 @@
         <a class="elTitle" href="/events/{{ event.uid }}">{{ event.name }}</a>
         <a class="elLocation" href="/venues/{{ event.venue_id }}"><i class="material-symbols-outlined eLTag">near_me</i>{{ event.venue_name }}</a>
         <div class="elBRow"> 
-            <a class="elPrice"><i class="material-symbols-outlined eLTag">euro</i>{% if not event.price %}Free{% else %}{{event.price | round(method="ceil", precision=4)}}{% endif %}</a>
+            <a class="elPrice" onclick='update_price_filter("{{ event.price }}")'><i class="material-symbols-outlined eLTag">euro</i>{% if not event.price %}Free{% else %}{{event.price | round(method="ceil", precision=4)}}{% endif %}</a>
             {% if event.event_date %}<a class="elDate" onclick='update_date_filter("{{ event.event_date | date(format=`%Y-%m-%d`) }}")'><i class="material-symbols-outlined eLTag">schedule</i>{{ event.event_date | date(format="%d. %b. %Y")}}</a>{% endif %}
         </div>
         <a class="material-symbols-outlined elBuy" onclick="show_buy_ticket('{{ event.uid }}',{{ event.price }})">sell</a>
@@ -376,11 +376,11 @@
         </div>
 
         <div>
-            <input class="lDesc custom_input" placeholder="Venue description" name="description" {% if listing %} value="{{ listing.description }}" {% endif %} required>
+            <textarea oninput='this.style.height = this.value.split(/\r\n|\r|\n/).length*22 + "px";' class="lDesc custom_input" placeholder="Venue description" name="description" {% if listing %} value="{{ listing.description }}" {% endif %} required style="height: 22px; position: absolute;"></textarea>
             <!--<input class="lDesc custom_input" placeholder="Venue thumbnail url" name="thumbnail_url" type="url" {% if listing %} value="{{ listing.thumbnail_url }}" {% endif %} required>-->
-                {% if type==1 %}<a class="lDesc lTag m4p_margin"><i class="material-symbols-outlined eLTag">near_me</i><input oninput="this.style.width = Math.max(this.value.length, 15) + 'ch'" style="width: 15ch" class="custom_input" placeholder="Venue address" name="address" {% if listing %} value="{{ listing.address }}" {% endif %} required></a>{% endif %}
+                {% if type==1 %}<a class="lDesc lTag m4p_margin" style="margin-top: 34px"><i class="material-symbols-outlined eLTag">near_me</i><input oninput="this.style.width = Math.max(this.value.length, 15) + 'ch'" style="width: 15ch" class="custom_input" placeholder="Venue address" name="address" {% if listing %} value="{{ listing.address }}" {% endif %} required></a>{% endif %}
                 {% if type==2 %}
-                    <a class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">euro</i><input type="number" oninput="this.style.width = Math.max(this.value.length, 10) + 'ch'" class="custom_input" placeholder="Event price" name="price" {% if listing %} value="{{ listing.price }}" {% endif %} required></a>
+                    <a class="lDesc lTag" style="margin-top: 34px"><i class="material-symbols-outlined eLTag m4p_margin">euro</i><input type="number" oninput="this.style.width = Math.max(this.value.length, 10) + 'ch'" class="custom_input" placeholder="Event price" name="price" {% if listing %} value="{{ listing.price }}" {% endif %} required></a>
                     <a class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">schedule</i><input oninput="this.style.width = Math.max(this.value.length, 15) + 'ch'" style="margin-left: -2px;" class="custom_input" placeholder="Event date" name="event_date" type="date" {% if listing %} value='{{ listing.event_date | date(format="%Y-%m-%d")}}' {% endif %} required></a>
                     <a class="lDesc lTag"><i class="material-symbols-outlined eLTag m4p_margin">near_me</i><select style="font-size: 18px" class="custom_input" placeholder="Event venue" name="venue" type="dropdown" required>
                         {% for venue_name in venue_names %}
@@ -413,6 +413,26 @@
 </div>
 {% endmacro featured %}
 
+{% macro upload_images() %}
+<div id="upload_images_modal" class="modal" style="display: none">
+    <form id="upload_images_form" class="modalContent" action="/cart/add" method="post" enctype="multipart/form-data">
+      <div class="modalHeaderText">Upload images<span onclick="hide_buy_ticket()" class="close">&times;</span></div>
+
+      <div class="upload_images_thumbnail">
+        <span class="material-symbols-outlined big_placeholder_icon" style="align-self: center; padding-top: 10px">
+            add_a_photo
+        </span>
+        <p style="text-align: center; font-size: 18px;">drag and drop or click to add your photos here</p>
+      </div>
+      
+        <div class="flex_row" style="margin-top: auto; margin-left: auto; gap: 10px">
+            <button name="event" id="add_to_cart_button" class="round_button buy_listing_button" type="submit">upload images</button>
+        </div>
+
+    </form>
+</div>
+{% endmacro upload_images %}
+
 {% macro buy_ticket() %}
 <div id="buy_ticket_modal" class="modal" style="display: none">
     <form id="buy_ticket_form" class="modalContent" action="/cart/add" method="post" enctype="multipart/form-data">
@@ -428,7 +448,7 @@
       </div>
       
       <div class="flex_row" style="margin-top: auto;">
-        <div class="flex_row" style="flex-direction:column; gap: 5px">
+        <div class="flex_row" style="flex-direction:column; gap: 5px; margin-top: 15px">
             <a style="font-size: 22px;">Summary</a>
             <a id="buy_listing_total">Total:</a>
             <a id="buy_listing_withtax">With tax:</a>

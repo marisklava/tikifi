@@ -134,14 +134,14 @@ header {
 }
 
 
-#el_profile_menu.permanently_visible {
+#el_profile_menu.side_menu {
     display: flex !important;
     top: 54px;
     right: 0px;
     height: 100%;
 }
 
-#el_profile_menu.permanently_visible > #el_profile_menu-header {
+#el_profile_menu.side_menu > #el_profile_menu-header {
     border-radius: 0px;
 }
 
@@ -223,7 +223,7 @@ header {
     background-size: calc(100%) calc(100%);
     background-repeat: no-repeat;
     background-position: center;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: wrap;
     padding: 15px;
     padding-left: 10px;
@@ -268,16 +268,16 @@ header {
 
 /* Search Toolbar Styling */
 
-.searchToolbar {
-    /*position: fixed;
+#search_toolbar {
+    position: fixed;
     left: 50%;
-    transform: translate(-50%, -50%);*/
+    transform: translate(-50%, 0%);
     border-radius: 0px 0px 5px 5px;
     display: flex;
     align-items: center;
 }
 
-.searchToolbar>input {
+#search_toolbar>input {
     border: none;
     background: rgb(142, 248, 234);
     backdrop-filter: blur(6.2px);
@@ -285,8 +285,12 @@ header {
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
     padding: 24px;
     width: 300px;
-    height: 64px;
+    height: 6px;
     font-size: 14px;
+}
+
+#search_btn_mobile {
+    display: none;
 }
 
 input:focus, textarea:focus {
@@ -298,29 +302,35 @@ input:focus, textarea:focus {
     font-size: 16px;
 }
 
-@media only screen and (max-width: 560px) { 
-    .searchToolbar { 
+@media only screen and (max-width: 716px) { 
+    #search_toolbar { 
         display: none; 
     } 
+    #search_btn_mobile {
+        display: block;    
+    }
+    #search-menu, #search_bar, #search_toolbar > input, #search_toolbar {
+        width: 100%;
+    }
 }
 
 
 
 
 .eventCarousel {
-    grid-template-columns: repeat(3);
-
     display: flex;
-    height: 172px;
-    max-width: 824px;
     padding-right: 20px;
-    
+
     -ms-overflow-style: none;
     scrollbar-width: none;
     
     /*scroll-snap-type: x mandatory;*/
-    gap: 20px;
     overflow-x: scroll;
+    flex-wrap: wrap;
+    align-items: left;
+
+    max-width: 813.6px;
+    gap: 20px;
 }
 
 .eventCarousel::-webkit-scrollbar {
@@ -339,6 +349,8 @@ input:focus, textarea:focus {
     height: 172px;
     width: 256px !important;
     scroll-snap-align: start;
+    flex-basis: 30%;
+    margin-bottom: 20px;
 }
 
 .elThumb {
@@ -383,7 +395,7 @@ input:focus, textarea:focus {
 .material-symbols-outlined.fill {font-variation-settings: "FILL" 1}
 .material-symbols-outlined {user-select: none;}
 .material-symbols-outlined.HFavoritesI {color: rgb(33, 156, 140); font-size: 32px; vertical-align: middle; margin-right: 8px; content: "favorite"; cursor: pointer}
-.material-symbols-outlined.HSearchI { line-height: 64px; z-index: 1; height: 64px; width: 64px; text-align: center; vertical-align: middle; background-color: rgb(49, 233, 208); cursor: pointer; border-radius: 5px;}
+.material-symbols-outlined.HSearchI { line-height: 54px; z-index: 1; height: 54px; width: 64px; text-align: center; vertical-align: middle; background-color: rgb(49, 233, 208); cursor: pointer}
 .material-symbols-outlined.HSortI { vertical-align: middle; color: rgb(33, 156, 140); }
 .material-symbols-outlined.HSortI::before { content: "sort"; }
 .material-symbols-outlined.HSortI:hover::before { content: "menu"; }
@@ -638,6 +650,7 @@ input:focus, textarea:focus {
     font-size: 18px;
     margin: 0px;
     margin-left: 2.5px;
+    color: black !important;
 }
 
 .listing_info.mini {
@@ -671,16 +684,18 @@ input:focus, textarea:focus {
     flex-direction: column;
     padding-bottom: 0px;
     padding-left: 16px;
+    padding-top: 8px;
 }
 
 .lInfo.mini {
+    padding-top: 0px;
     padding-left: 10px;
     justify-content: start;
-    color: black;
+    color: black !important;
 }
 
 .lInfo.mini a:visited {
-    color: black;
+    color: black !important;
 }
 
 .lBRow {
@@ -695,13 +710,13 @@ input:focus, textarea:focus {
 }
 
 /* hover selection logic */
-input.lTag:hover, input.lDesc:hover, input.lTitle:hover,
-input.lTag:focus, input.lDesc:focus, input.lTitle:focus {
-    background-color: rgba(0,0,0,0.1);
-    box-shadow: 0px 0px 0px 2px rgba(0,0,0,0.1);
-    -webkit-box-shadow: 0px 0px 0px 2px rgba(0,0,0,0.1);
-    -moz-box-shadow: 0px 0px 0px 2px rgba(0,0,0,0.1);
-    border-radius: 2.5px;
+input.lTag:hover, input.lDesc:hover, textarea.lDesc:hover, input.lTitle:hover,
+input.lTag:focus, input.lDesc:focus, textarea.lDesc:focus, input.lTitle:focus {
+    background-color: #E6E6E6;
+    box-shadow: 0px 0px 0px 2px #E6E6E6;
+    -webkit-box-shadow: 0px 0px 0px 2px #E6E6E6;
+    -moz-box-shadow: 0px 0px 0px 2px #E6E6E6;
+    border-radius: 1.25px;
 }
 
 .listing.mini:hover {
@@ -761,7 +776,6 @@ input[type=number] {
     margin: auto auto; 
     padding: 20px;
     min-width: 20%;
-    min-height: 30%;
     border-radius: 20px;
     font-size: 18px;
 }
@@ -964,4 +978,27 @@ input[type=number] {
 
 #qr_code_scanner_preview.failure ~ #qr_code_scanner_preview_overlay div {
     background-color: red;
+}
+
+.upload_images_thumbnail {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    border: 5px dotted;
+    border-radius: 30px;
+    margin-bottom: 15px;
+    padding-left: 25px;
+    padding-right: 25px;
+    height: 220px;
+}
+
+
+/* general application classes */
+
+.r_ma {
+    margin-right: auto;
+}
+
+.l_ma {
+    margin-left: auto;
 }
