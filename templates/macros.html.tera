@@ -2,58 +2,92 @@
 {% set path_arr = path | split(pat="/") %}
 {% set path_page = path_arr | last() %}
 
-<div class="navbar bg-base-100">
+<div class="navbar">
   <div class="navbar-start">
-    <a class="pl-5 normal-case text-2xl text-accent" href="/">Tikifi</a>
+    <a class="pl-5 text-2xl text-white normal-case" href="/">Tikifi</a>
   </div>
   <div class="navbar-center">
-    <div class="form-control">
-      <input type="text" placeholder="Search" class="input input-bordered w-96 placeholder-base-100 text-base-100 bg-accent" />
+    <div class="form-control sm:w-96">
+      <input type="text" placeholder="Search events and venues" class="hidden placeholder-purple-200 text-purple-100 input bg-base-100 sm:block" onfocus="show_search()" oninput="search()" id="search-bar"/>
+      <div class="fixed w-full sm:w-96 bg-black rounded-md top-[64px] max-sm:left-0 max-sm:right-0 max-sm:bottom-0 sm:top-[70px] z-[20] hidden" id="search-menu">
+        <div id="search-filters" class="flex flex-col gap-2 p-3 pl-2 select-none">
+            <div class="flex gap-2 pt-1 pb-1">
+                <li class="inline">
+                    <input class="sr-only peer" type="checkbox" value="all" name="all" id="answer_all">
+                    <label class="p-3 py-1 text-white rounded-full border-2 border-purple-500 cursor-pointer peer-checked:bg-purple-500" for="answer_all">All</label>
+                </li>
+                <li class="inline">
+                    <input class="sr-only peer" type="checkbox" value="yes" name="answer" id="answer_yes">
+                    <label class="p-3 py-1 text-white rounded-full border-2 border-purple-500 cursor-pointer peer-checked:bg-purple-500" for="answer_yes">Events</label>
+                </li>
+                <li class="inline">
+                    <input class="sr-only peer" type="checkbox" value="yess" name="lol" id="answer_lol">
+                    <label class="p-3 py-1 text-white rounded-full border-2 border-purple-500 cursor-pointer peer-checked:bg-purple-500" for="answer_lol">Venues</label>
+                </li>
+            </div>
+            <div class="flex hidden gap-2 justify-center">
+                <input class="px-2 text-white uppercase border-none text-md input input-sm input-accent join-item" type="date"/>
+                <input class="px-2 text-white uppercase border-none text-md input input-sm input-accent join-item" type="date"/>
+            </div>
+            <div class="flex hidden gap-2 justify-center">
+                <input class="input input-sm border-none input-accent text-white join-item px-2 w-[8ch]" type="number" placeholder="min"/>
+                <input class="input input-sm border-none input-accent text-white join-item px-2 w-[8ch]" type="number" placeholder="max"/>
+            </div>
+        </div>
+        <div id="search-results"></div>
+      </div>
     </div>
   </div>
-  <div class="navbar-end gap-2">
-    <button class="btn rounded-full btn-sm bg-accent text-base-100 h-10 pr-4 pl-4 normal-case">Log in</button>
+  <div class="navbar-end">
+    <a class="flex items-center mr-2 w-10 rounded-full cursor-pointer">
+        <i class="m-auto text-3xl text-white material-symbols-outlined sm:hidden">search</i>
+    </a>
+    {% if not user %}
+        <a class="pr-4 pl-4 h-10 normal-case bg-purple-500 rounded-full btn btn-sm hover:bg-purple-300 text-base-100" href="/login/google">Log in</a>
+    {% endif %}
     <div class="dropdown dropdown-end">
-        <label tabindex="0" class="btn btn-ghost btn-circle avatar">
-          <div class="w-10 rounded-full">
-            <img src="/images/stock/photo-1534528741775-53994a69daeb.jpg" />
-          </div>
-        </label>
-        <ul tabindex=0 class="menu menu-sm dropdown-content bg-base-200 w-56 rounded-box z-[1] p-0 shadow mt-4">
-            <img class="rounded-box h-28 brightness-50" src="https://daisyui.com/images/stock/photo-1665553365602-b2fb8e5d1707.jpg" class="w-full"/>
+        {% if user %}
+            <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+                <div class="w-10 rounded-full">
+                    <img src="/images/stock/photo-1534528741775-53994a69daeb.jpg" />
+                </div>
+            </label>
+        {% endif %}
+        <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-200 w-56 rounded-box z-[20] p-0 shadow mt-2">
+            <img class="h-28 brightness-50 rounded-box" src="https://daisyui.com/images/stock/photo-1665553365602-b2fb8e5d1707.jpg" class="w-full"/>
             <img class="self-center w-20 h-20 -mt-24 mb-2 z-[1] btn-circle" src="https://daisyui.com/images/stock/photo-1665553365602-b2fb8e5d1707.jpg"/>
 
             <div class="p-3">
-            <li>
-              <a class="pl-0" href="/dashboard/events">
-                <i class="material-symbols-outlined {% if path_page == 'events' %} text-accent {% endif %}">celebration</i>
-                Events
-              </a>
-            </li>
-            <li>
-              <a class="pl-0" href="/dashboard/venues">
-                <i class="material-symbols-outlined {% if path_page == 'venues' %} text-accent {% endif %}">fort</i>
-                Venues
-              </a>
-            </li>
-            <li>
-              <a class="pl-0" href="/dashboard/tickets">
-                <i class="material-symbols-outlined {% if path_page == 'tickets' %} text-accent {% endif %}">confirmation_number</i>
-                Tickets
-              </a>
-            </li>
-            <li>
-              <a class="pl-0" href="/logout">
-                <i class="material-symbols-outlined">logout</i>
-                Log out
-              </a>
-            </li>            
-            <li>
-              <a class="pl-0 {% if path_page == 'reader' %} highlighted {% endif %}" href="/reader">
-                <i class="material-symbols-outlined">camera</i>
-                Ticket scanner
-              </a>
-            </li>            
+                <li>
+                <a class="pl-0 text-lg" href="/dashboard/events">
+                    <i class="material-symbols-outlined {% if path_page == 'events' %} text-accent {% endif %}">celebration</i>
+                    Events
+                </a>
+                </li>
+                <li>
+                <a class="pl-0 text-lg" href="/dashboard/venues">
+                    <i class="material-symbols-outlined {% if path_page == 'venues' %} text-accent {% endif %}">fort</i>
+                    Venues
+                </a>
+                </li>
+                <li>
+                <a class="pl-0 text-lg" href="/dashboard/tickets">
+                    <i class="material-symbols-outlined {% if path_page == 'tickets' %} text-accent {% endif %}">confirmation_number</i>
+                    Tickets
+                </a>
+                </li>
+                <li>
+                <a class="pl-0 text-lg" href="/logout">
+                    <i class="material-symbols-outlined">logout</i>
+                    Log out
+                </a>
+                </li>            
+                <li>
+                <a class="pl-0 text-lg {% if path_page == 'reader' %} highlighted {% endif %}" href="/reader">
+                    <i class="material-symbols-outlined">camera</i>
+                    Ticket scanner
+                </a>
+                </li>            
             </div>
           </ul>      
     </div>  
@@ -136,9 +170,9 @@
     }
 
     function show_search() {
-        document.getElementById("search_toolbar").style.display = 'flex';
-        document.getElementById("search-menu").style.display = 'flex';
-        document.getElementById("search-results").style.display = 'none';
+        //document.getElementById("search_toolbar").style.display = 'flex';
+        document.getElementById("search-menu").classList.remove("hidden");
+        //document.getElementById("search-results").style.display = 'none';
     }
 
     function update_date_filter(value) {
@@ -154,28 +188,29 @@
     let search_bar = document.getElementById("search_bar");
     let search_menu = document.getElementById("search-menu");
 
-    window.onclick = function() {
+    /*window.onclick = function() {
         let hover = search_menu.parentNode.querySelector(":hover");
         if(hover != search_menu && hover != search_bar)
         {
             document.getElementById('search-menu').style.display = 'none';
         }
-    }
+    }*/
 
     //Search function might need a rework in my opinion
     function search() {
+
         let search_menu = document.getElementById("search-menu");
         let search_results = document.getElementById("search-results");
 
-        let search_filter_text = document.getElementById("search_bar").value;
+        let search_filter_text = document.getElementById("search-bar").value;
 
-        let search_filter_date = document.getElementById("event_filter_date");
-        let search_filter_date_from = document.getElementById("event_filter_date_from");
-        let search_filter_date_until = document.getElementById("event_filter_date_until");
+        /*let search_filter_date = document.getElementById("event-filter-date");
+        let search_filter_date_from = document.getElementById("event-filter-date-from");
+        let search_filter_date_until = document.getElementById("event-filter-date-until");
 
-        let search_filter_price = document.getElementById("event_filter_price");
-        let search_filter_price_from = document.getElementById("event_filter_price_from");
-        let search_filter_price_until = document.getElementById("event_filter_price_until");
+        let search_filter_price = document.getElementById("event-filter-price");
+        let search_filter_price_from = document.getElementById("event-filter-price-from");
+        let search_filter_price_until = document.getElementById("event-filter-price-until");*/
 
         let filters="";
 
@@ -192,7 +227,7 @@
             search_filter_date.parentNode.classList.add("unedited");
         }*/
 
-        if(search_filter_date_from.value != "") {
+        /*if(search_filter_date_from.value != "") {
             filters = filters + "&start_date=" + search_filter_date_from.value;
             search_filter_date_from.parentNode.classList.remove("unedited");
         } else {
@@ -218,7 +253,7 @@
             search_filter_price_until.parentNode.classList.remove("unedited");
         } else {
             search_filter_price_until.parentNode.classList.add("unedited");
-        }
+        }*/
 
         /*if(event_filter_price.value != 0.00)        
         {
@@ -229,7 +264,7 @@
         }*/
 
         if(filters == "") {
-            search_results.style.display = 'none';
+            search_results.classList.add("hidden")
             return;
         }
 
@@ -237,25 +272,26 @@
         .then(function (response) {
             switch (response.status) {
                 case 200:
-                    search_menu.style.display = "inherit";
-                    search_results.style.display = "inherit";
+                    search_menu.classList.remove("hidden")
+                    search_results.classList.remove("hidden")
                     return response.text();
                 case 404:
-                    search_menu.style.display = "none";
+                    search_menu.classList.add("hidden")
                     return;
                 default:
                     throw response;
             }
         })
         .then(function (template) {
-            if(search_results.innerHTML) search_results.innerHTML=template;
+            search_results.innerHTML=template;
+            console.log(template)
         })
         .catch(function (response) {
             console.log(response);
         });
     }
 
-    function set_liked(type, uid, state) {
+    /*function set_liked(type, uid, state) {
         let type_storage = (type==2) ? "liked_events" : "liked_venues"
         let liked_listings = (localStorage.getItem(type_storage) == null) ? [] : JSON.parse(localStorage.getItem(type_storage));
         if(liked_listings.includes(uid) && state == false) { 
@@ -267,9 +303,9 @@
             fetch("/like/"+uid);
         }
         localStorage.setItem(type_storage,JSON.stringify(liked_listings))
-    }
+    }*/
 
-    window.onload = function () {
+    /*window.onload = function () {
         let listings = document.querySelectorAll(".checkbox_listing")
         let events = localStorage.getItem("liked_events")
         let venues = localStorage.getItem("liked_venues")
@@ -281,9 +317,7 @@
                 if(JSON.parse(events).includes(listing.dataset.event)) listing.checked = true;
             }
         }))
-    }
-
-    // cart logic
+    }*/
 
 </script>
 {% endmacro header %}
@@ -331,17 +365,34 @@
 {% macro mini_listing(listing, type) %}
     {% if type == 1 %}{% set typestr = "venue" %}
     {% elif type == 2 %}{% set typestr = "event" %}{% endif %}
-    <div class="listing mini">
-        <div class="lThumbWrapper mini">
-            <img href="/{{typestr}}s/{{ listing.uid }}" class="elThumb mini" src="{% if listing.thumbnail_url %}{{ listing.thumbnail_url }}{% else %}https://media.istockphoto.com/id/1296521436/vector/abstract-geometric-vector-pattern-in-scandinavian-style-green-agriculture-harvest-symbol.jpg?s=612x612&w=0&k=20&c=9qFmXI2T-el0oBD9rwc-ZG5pykoKu_ZVYD2FZw6-xQc={% endif %}">
+    <div class="flex p-2 pt-0 rounded-md join-horizontal">
+        {% if type == 2 %}
+            <div class="flex justify-center items-center px-2 w-16 h-16 text-lg font-bold text-center text-purple-500 whitespace-normal rounded-md">
+                {{ listing.event_date | date(format="%h %d") | upper}}
+            </div>
+        {% endif %}
+        {% if type == 1 %}
+            <div class="flex justify-center items-center px-2 w-16 h-16 font-bold text-center text-purple-500 whitespace-normal rounded-md">
+                <i class="mr-1 text-3xl material-symbols-outlined" style="font-variation-settings: 'FILL' 0">fort</i>
+            </div>
+        {% endif %}
+        <!--<img class="object-cover w-24 h-24 bg-none rounded-md" href="/{{typestr}}s/{{ listing.uid }}" src="{% if listing.thumbnail_url %}{{ listing.thumbnail_url }}{% else %}https://media.istockphoto.com/id/1296521436/vector/abstract-geometric-vector-pattern-in-scandinavian-style-green-agriculture-harvest-symbol.jpg?s=612x612&w=0&k=20&c=9qFmXI2T-el0oBD9rwc-ZG5pykoKu_ZVYD2FZw6-xQc={% endif %}"/>-->
+        <div class="p-2 pt-0">
+          <a class="text-lg font-bold text-white" href="/{{typestr}}s/{{ listing.uid }}">{{ listing.name }}</a>
+          <!--<a class="flex items-center text-white join-horizontal">
+            <i class="mr-1 text-xl material-symbols-outlined" style="font-variation-settings: 'FILL' 1">calendar_month</i>
+          </a>-->
+          {% if type == 2 %}<a class="flex items-center text-white join-horizontal" href="/venues/{{ listing.venue_id }}">
+              <i class="mr-1 text-xl material-symbols-outlined" style="font-variation-settings: 'FILL' 1">fort</i>
+              {{ listing.venue_name }}
+            </a>{% endif %}
+          {% if type == 1 %}<a class="flex items-center text-white join-horizontal">
+              <i class="mr-1 text-xl material-symbols-outlined" style="font-variation-settings: 'FILL' 1">near_me</i>
+              {{ listing.address }}
+            </a>{% endif %}
+          </div>
         </div>
-        <div class="lInfo mini">
-            <a href="/{{typestr}}s/{{ listing.uid }}" class="lTitle mini">{{ listing.name }}</a>
-            {% if type == 2 %}<a class="listing_info mini" onclick='update_date_filter("{{ listing.event_date | date(format=`%Y-%m-%d`) }}")'><i class="material-symbols-outlined filter_icon outline">schedule</i>{{ listing.event_date | date(format="%Y-%m-%d")}}</a>{% endif %}
-            {% if type == 2 %}<a class="listing_info mini" href="/venues/{{ listing.venue_id }}"><i class="material-symbols-outlined filter_icon outline">near_me</i>{{ listing.venue_name }}</a>{% endif %}
-            {% if type == 1 %}<a class="listing_info mini"><i class="material-symbols-outlined filter_icon outline">near_me</i>{{ listing.address }}</a>{% endif %}
-        </div>
-    </div>
+    </div>        
 {% endmacro mini_listing %}
 
 {% macro cart_item(listing, amount) %}
@@ -540,5 +591,22 @@
     </label>
 
     <a class="round_button" id="start_scanning" style="font-size: 16px" onclick="show_qr_scanner()">Start scanning</a>
+</div>
+{% endmacro %}
+
+{% macro ticket_type() %}
+<div class="h-12 w-full pl-2 rounded-md bg-base-100 bg-gradient-to-l from-blue-500/50 to-100% flex items-center editable_ticket_type" id=editable_ticket_type_${ticket_id}>
+    <a class="mr-2 text-2xl ticket_emoji">🎟️</a>
+    <input class="pr-2 w-44 text-lg bg-transparent outline-none" placeholder="Ticket name"/>
+    <a class="flex items-center mr-2 ml-auto">
+        <i class="mr-1 text-xl material-symbols-outlined" style="font-variation-settings: 'FILL' 1">euro</i>
+        <input class="w-10 text-lg bg-transparent outline-none" placeholder="Price" id="preview_price"/>
+    </a>
+    <a class="flex items-center px-3 ml-4 h-full rounded-none bg-base-200 btn btn-square" onclick=deleteTicketType(${ticket_id})>
+        <i class="text-xl cursor-pointer material-symbols-outlined" style="font-variation-settings: 'FILL' 1">delete</i>
+    </a>
+    <a class="flex items-center px-3 h-full rounded-r-md rounded-l-none bg-base-200 btn btn-square" onclick=editTicketType(${ticket_id}) id=editable_ticket_type_${ticket_id}_editbtn>
+        <i class="text-xl cursor-pointer material-symbols-outlined" style="font-variation-settings: 'FILL' 1">edit</i>
+    </a>
 </div>
 {% endmacro %}

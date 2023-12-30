@@ -797,7 +797,7 @@ async fn search_listings(mut conn: Connection<Logs>, user: Option<UserInfo>, que
     render_listings(events,venues).await
 }
 
-#[get("/events/<id>")] // insecure
+#[get("/events/<id>")] // insecure, no privacy or access controls
 async fn get_event(mut conn: Connection<Logs>, id: String, user: Option<UserInfo>, cur_uri: &rocket::http::uri::Origin<'_>) -> Result<Template, ApiError> {
     let mut ctx = Context::new();
     ctx.insert("path", &cur_uri.path().as_str());

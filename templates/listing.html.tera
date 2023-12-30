@@ -1,0 +1,126 @@
+{% macro listing() %}
+<div class="flex flex-col grow-0 max-w-lg w-72 h-56">
+
+
+  <div class="flex w-72 gap-1 pb-2">
+
+    <a class="flex items-center text-white rounded-md  font-bold">
+      <i class="material-symbols-outlined text-xl mr-2">schedule</i>
+      JUL 26
+    </a>
+
+    <a class="flex items-center text-white px-3 py-1 ml-auto bg-black rounded-full">
+      <i class="material-symbols-outlined text-xl mr-2" style="font-variation-settings: 'FILL' 1">fort</i>
+      Near you
+    </a>
+
+  </div>
+
+  <img src="https://daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.jpg" class="h-28 w-72 bg-none rounded-md"/>
+
+  <div class="p-3 pl-0 pb-0 rounded-b-md flex flex-col mt-auto">
+    <div class="flex">
+      <div class="flex flex-col">
+        <h2 class="text-white text-xl font-bold">Aikko concert</h2>
+        <div class="flex items-center text-white gap-2">
+          <a class="flex items-center">
+            <i class="material-symbols-outlined text-xl mr-2">fort</i>
+            Venue
+          </a>
+          <a class="flex items-center">
+            <i class="material-symbols-outlined text-xl mr-1" style="font-variation-settings: 'FILL' 1">euro</i>
+            10 - 15
+          </a>
+        </div>
+      </div>
+      <button class="btn btn-circle rounded-full hover:bg-accent bg-accent text-white ml-auto mt-2 -mb-6 -mr-4"><i class="material-symbols-outlined">confirmation_number</i></button>
+    </div>
+  </div>
+
+</div>
+{% endmacro listing %}
+
+{% macro event(event) %}
+<div class="flex flex-col grow-0 max-w-lg w-72 h-56">
+
+
+  <div class="flex w-72 gap-1 pb-2">
+
+    <a class="flex items-center text-white rounded-md  font-bold">
+      <i class="material-symbols-outlined text-xl mr-2">schedule</i>
+      JUL 26
+    </a>
+
+    <a class="flex items-center text-white px-3 py-1 ml-auto bg-black rounded-full">
+      <i class="material-symbols-outlined text-xl mr-2" style="font-variation-settings: 'FILL' 1">fort</i>
+      Near you
+    </a>
+
+  </div>
+
+  <img src="https://daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.jpg" class="h-28 w-72 bg-none rounded-md"/>
+
+  <div class="p-3 pl-0 pb-0 rounded-b-md flex flex-col mt-auto">
+    <div class="flex">
+      <div class="flex flex-col">
+        <h2 class="text-white text-xl font-bold" href="/events/{{ event.uid }}">{{ event.name }}</h2>
+        <div class="flex items-center text-white gap-2">
+          <a class="flex items-center">
+            <i class="material-symbols-outlined text-xl mr-2">fort</i>
+            {{ event.venue_name }}
+          </a>
+          <a class="flex items-center">
+            <i class="material-symbols-outlined text-xl mr-1" style="font-variation-settings: 'FILL' 1">euro</i>
+            10 - 15
+          </a>
+        </div>
+      </div>
+      <button class="btn btn-circle rounded-full hover:bg-accent bg-accent text-white ml-auto mt-2 -mb-6 -mr-4"><i class="material-symbols-outlined">confirmation_number</i></button>
+    </div>
+  </div>
+
+</div>
+{% endmacro listing %}
+
+
+{% macro preview() %}
+<div class="flex flex-col grow-0 max-w-lg w-72 h-56">
+
+
+  <div class="flex w-72 gap-1 pb-2">
+
+    <a class="flex items-center text-white rounded-md font-bold">
+      <i class="material-symbols-outlined text-xl mr-2">schedule</i>
+      <span id="preview_date">JUN 26</span>
+    </a>
+
+    <a class="flex items-center text-white px-3 py-1 ml-auto bg-black rounded-full">
+      <i class="material-symbols-outlined text-xl mr-2" style="font-variation-settings: 'FILL' 1">fort</i>
+      Near you
+    </a>
+
+  </div>
+
+  <img id="preview_thumbnail" src="https://daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.jpg" class="h-28 w-72 bg-none rounded-md" />
+
+  <div class="p-3 pl-0 pb-0 rounded-b-md flex flex-col mt-auto">
+    <div class="flex">
+      <div class="flex flex-col">
+        <h2 class="text-white text-xl font-bold" id="preview_title">Aikko concert</h2>
+        <div class="flex items-center text-white gap-2">
+          <a class="flex items-center">
+            <i class="material-symbols-outlined text-xl mr-2">fort</i>
+            <span id="preview_venue">Venue</span>
+          </a>
+          <a class="flex items-center">
+            <i class="material-symbols-outlined text-xl mr-1" style="font-variation-settings: 'FILL' 1">euro</i>
+            <span id="preview_price">10 - 15</span>
+          </a>
+        </div>
+      </div>
+      <button class="btn btn-circle rounded-full hover:bg-accent bg-accent text-white ml-auto mt-2 -mb-6 -mr-4"><i class="material-symbols-outlined">confirmation_number</i></button>
+    </div>
+  </div>
+
+</div>
+{% endmacro preview %}

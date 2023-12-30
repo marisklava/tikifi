@@ -1,7 +1,8 @@
 {% import "macros" as macros %}
+{% import "listing" as listing %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark" class="h-full bg-black bg-gradient-to-b from-purple-400/30 to-50% to-black bg-no-repeat">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -17,45 +18,392 @@
 <body>
 
     {{ macros::header(user=user, path=path) }}
+    
+    <!-- 72/28 -->
 
-    <div class="carousel w-full h-[30rem]">
-        <div id="item1" class="flex relative carousel-item w-full image-full items-center justify-items-end overflow-visible z-10">
-          <img src="https://daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.jpg" class="w-full bg-none" />
-          <div class="w-full bg-gradient-to-t from-base-100 to-15% via-base-100 to-25% absolute flex bottom-0 items-left">
-            <div class="flex flex-col gap-2 p-5 ml-10 pb-5 bg-base-300 grow-0">
-              <h2 class="text-white">Shoes!</h2>
-              <p class="text-white">If a dog chews shoes whose shoes does he choose?</p>
-              <div class>
-                <button class="btn btn-primary text-white">Buy Now</button>
+    <div class="p-5">
+      <img src="https://daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.jpg" class="dbg-none rounded-lg aspect-[72/28] h-auto w-full sm:h-[28rem] sm:w-[72rem] m-auto" />
+    </div>
+
+    <div class="flex flex-col px-5 pb-5 rounded-b-md">
+      <div class="flex">
+        <div class="flex flex-col">
+          <h2 class="text-xl font-bold text-white">Aikko concert</h2>
+          <div class="flex gap-2 items-center text-white">
+            <a class="flex items-center">
+              <i class="mr-2 text-xl material-symbols-outlined">fort</i>
+              Venue
+            </a>
+            <a class="flex items-center">
+              <i class="mr-1 text-xl material-symbols-outlined" style="font-variation-settings: 'FILL' 1">euro</i>
+              10 - 15
+            </a>
+          </div>
+        </div>
+        <button class="ml-auto text-black bg-purple-500 rounded-full btn btn-circle hover:bg-purple-400"><i class="material-symbols-outlined">confirmation_number</i></button>
+      </div>
+    </div>
+
+
+    
+    <!-- w-[98vw] mx-[1vw] h-[50vh] my-[1vh] -->
+    <!--<div class="carousel w-full h-[28rem]">
+        <div id="item1" class="flex overflow-visible relative z-10 justify-items-end items-center w-full carousel-item">
+          <img src="https://daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.jpg" class="dbg-none rounded-lg aspect-[16/9] h-auto w-auto sm:h-[28rem] sm:w-[72rem] m-auto" />
+          <div class="flex absolute bottom-0 h-full items-left">
+            <div class="flex flex-col mb-3 ml-10 w-72 max-w-lg rounded-lg">
+
+              <div class="m-5 ml-0 w-full h-full text-lg text-white truncate whitespace-normal ...">
+            
               </div>
+
+              <div class="flex gap-1">
+        
+                <a class="flex items-center font-bold text-white rounded-md">
+                  <i class="mr-2 text-xl material-symbols-outlined">schedule</i>
+                  JUL 26
+                </a>
+        
+                <a class="flex items-center px-3 py-1 -mr-1 ml-auto text-white bg-black rounded-full">
+                  <i class="mr-1 text-xl material-symbols-outlined" style="font-variation-settings: 'FILL' 1">radar</i>
+                  Nearby
+                </a>
+        
+              </div>
+        
+              <div class="flex flex-col p-3 pb-0 pl-0 rounded-b-md">
+                <div class="flex">
+                  <div class="flex flex-col">
+                    <h2 class="text-xl font-bold text-white">Aikko concert</h2>
+                    <div class="flex gap-2 items-center text-white">
+                      <a class="flex items-center">
+                        <i class="mr-2 text-xl material-symbols-outlined">fort</i>
+                        Venue
+                      </a>
+                      <a class="flex items-center">
+                        <i class="mr-1 text-xl material-symbols-outlined" style="font-variation-settings: 'FILL' 1">euro</i>
+                        10 - 15
+                      </a>
+                    </div>
+                  </div>
+                  <button class="mt-2 -mr-4 -mb-6 ml-auto text-black bg-purple-500 rounded-full btn btn-circle hover:bg-purple-400"><i class="material-symbols-outlined">confirmation_number</i></button>
+                </div>
+              </div>
+        
             </div>
+        
           </div>
         </div> 
-        <div id="item2" class="carousel-item w-full image-full">
+        <div id="item2" class="w-full carousel-item image-full">
           <img src="https://daisyui.com/images/stock/photo-1609621838510-5ad474b7d25d.jpg" class="w-full" />
         </div> 
-        <div id="item3" class="carousel-item w-full">
+        <div id="item3" class="w-full carousel-item">
           <img src="https://daisyui.com/images/stock/photo-1414694762283-acccc27bca85.jpg" class="w-full" />
         </div> 
-        <div id="item4" class="carousel-item w-full">
+        <div id="item4" class="w-full carousel-item">
           <img src="https://daisyui.com/images/stock/photo-1665553365602-b2fb8e5d1707.jpg" class="w-full" />
         </div>
-      </div> 
-      <div class="flex justify-center w-full py-2 gap-2">
-        <a href="#item1" class="btn btn-xs">1</a> 
-        <a href="#item2" class="btn btn-xs">2</a> 
-        <a href="#item3" class="btn btn-xs">3</a> 
-        <a href="#item4" class="btn btn-xs">4</a>
+    </div> 
+    <div class="flex gap-2 justify-center py-2 w-full">
+      <a href="#item1" class="btn btn-xs">1</a> 
+      <a href="#item2" class="btn btn-xs">2</a> 
+      <a href="#item3" class="btn btn-xs">3</a> 
+      <a href="#item4" class="btn btn-xs">4</a>
+    </div>
+    -->
+
+    <div class="flex items-end mb-3 ml-5 align-bottom">
+      <h1 class="text-xl font-bold text-white">📍 Concerts near you</h1>
+      <a class="ml-5 text-lg text-purple-500 align-bottom cursor-pointer select-none">All ></a>
+    </div>
+
+    <div class="ml-5">
+      {{ listing::listing() }}
+    </div>
+
+    <!-- abab -->
+
+    <dialog id="add_event_modal" class="modal">
+
+      <div class="w-11/12 max-w-4xl modal-box bg-base-300">
+
+        <!--why a form-->
+        <form method="dialog">
+          <h1 class="text-2xl font-bold text-white">Add event</h1>
+          <button class="absolute top-2 right-2 btn btn-sm btn-circle btn-ghost">✕</button>
+        </form>
+
+        <div class="flex py-2 -mt-10 mb-6 w-full">
+          <ul class="mx-auto steps" id="aem_steps" data-current_step=1>
+            <li class="cursor-pointer step step-accent" data-step=1 onClick="switchStep(this.dataset.step)">Basic info</li>
+            <li class="cursor-pointer step" data-step=2 onClick="switchStep(this.dataset.step)">Pictures</li>
+            <li class="cursor-pointer step" data-step=3 onClick="switchStep(this.dataset.step)">Ticket types</li>
+            <li class="cursor-pointer step" data-step=4 onClick="switchStep(this.dataset.step)">Publish</li>
+          </ul>
+        </div>
+
+        <div class="flex mt-[16px] gap-5 justify-between">
+
+          <div class="flex w-[400px] flex-col flex-no-wrap gap-2 mx-auto mr-0 justify-between" id="aem_step_1">
+
+            <input type="text" placeholder="Title" name="preview_title" class="w-full text-lg input invalid:text-pink-500 invalid:outline-pink-500" pattern='[A-Za-z0-9._%+\-]+' oninput="updatePreviewField(this)"/>
+            <textarea placeholder="Description" name="preview_description" class="w-full text-lg textarea invalid:text-pink-500" oninput="updatePreviewField(this)"></textarea>
+            <!--<input type="number" placeholder="Price" class="w-full max-w-xs input input-bordered input-accent" />-->
+            <input type="date" placeholder="Event date" name="preview_date" class="w-full text-lg input invalid:text-pink-500" oninput="updatePreviewField(this)"/>
+            <select type="dropdown" placeholder="Venue" name="preview_venue" class="w-full text-lg input invalid:text-pink-500" oninput="updatePreviewField(this)">
+
+            </select>
+            
+          </div>
+
+          <!--<div class="flex w-[400px] flex-col flex-no-wrap gap-2 m-auto mt-0 mr-0 hidden" id="aem_step_2">
+
+            <label class="grid grid-rows-1 w-full h-40">
+              <input name="thumbnail" type="file" accept="image/*" style="display:none" onchange="updatePreviewImage(this.files[0])"/>
+              <div class="flex col-span-1 row-span-1 w-full h-40 rounded-md cursor-pointer bg-accent hover:brightness-50 z-2">
+                <i class="material-symbols-outlined text-[6rem] text-black select-none m-auto" style="font-variation-settings: 'FILL' 1">upload</i>
+              </div>
+              <img id="aem_step_3_image_preview" class="col-span-1 row-span-1 w-full h-40 rounded-md cursor-pointer hover:brightness-50" class="h-full" src="https://daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.jpg"/>
+            </label>
+
+            <div class="flex items-center pl-2 w-full h-12 rounded-md bg-base-100">
+              <a class="mr-2 text-2xl ticket_emoji">📷</a>
+              <input class="text-lg outline-none bg-base-100" placeholder="Image 1"/>
+              <a class="flex items-center px-3 ml-auto h-full rounded-l-none bg-base-200 btn btn-square">
+                <i class="text-xl cursor-pointer material-symbols-outlined" style="font-variation-settings: 'FILL' 1">edit</i>
+              </a>
+            </div>
+
+          </div>-->
+
+          <div class="flex hidden flex-row gap-5 m-auto mt-0 mr-0 w-full flex-no-wrap" id="aem_step_2" data-preview_hidden>
+
+            <div class="flex w-[400px] flex-col flex-no-wrap gap-2 m-auto mt-0 mr-0">
+              <label class="grid grid-rows-1 w-full h-40">
+                <input name="thumbnail" type="file" accept="image/*" style="display:none" onchange="updatePreviewImage(this.files[0])"/>
+                <div class="flex col-span-1 row-span-1 w-full h-40 rounded-md cursor-pointer bg-accent hover:brightness-50 z-2">
+                  <i class="material-symbols-outlined text-[6rem] text-black select-none m-auto" style="font-variation-settings: 'FILL' 1">upload</i>
+                </div>
+                <img id="aem_step_3_image_preview" class="col-span-1 row-span-1 w-full h-40 rounded-md cursor-pointer hover:brightness-50" class="h-full" src="https://daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.jpg"/>
+              </label>            
+            </div>
+
+            <div class="m-auto ml-0 flex flex-col w-[20.5rem] h-[16.5rem]"> 
+              <div class="flex items-center pl-2 w-full h-12 rounded-md bg-base-100">
+                <a class="mr-2 text-2xl ticket_emoji">📷</a>
+                <input class="text-lg outline-none bg-base-100" placeholder="Image 1"/>
+                <a class="flex items-center px-3 ml-auto h-full rounded-l-none bg-base-200 btn btn-square">
+                  <i class="text-xl cursor-pointer material-symbols-outlined" style="font-variation-settings: 'FILL' 1">edit</i>
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="flex hidden flex-row gap-5 m-auto mt-0 mr-0 w-full flex-no-wrap" id="aem_step_3" data-preview_hidden>
+
+            <div class="flex w-[400px] flex-col flex-no-wrap gap-2 m-auto mt-0 mr-0">
+              <span id="aem_step_3_ticket_types" class="flex flex-col gap-2" data-id_iterator=0>
+              </span>
+
+              <div class="flex items-center pl-2 w-full h-12 rounded-md cursor-pointer" onclick="addTicketType()">
+                <a class="flex items-center mr-2 h-full rounded-r-md">
+                  <i class="text-2xl cursor-pointer material-symbols-outlined" style="font-variation-settings: 'FILL' 1">add</i>
+                </a>
+        
+                <a class="text-lg outline-none">Add a ticket</a>
+              </div>
+            </div>
+
+            <div class=" rounded-lg m-auto ml-0 flex flex-col w-[20.5rem] h-[16.5rem]" id="aem_step_3_editor"> 
+              <textarea id="aem_step_3_textarea" disabled class="w-full max-w-lg h-full text-lg textarea bg-base-100" placeholder="Tip: use - to add a list of perks for the ticket type!" oninput="inputTicketTypeDescription(this.value)"></textarea>
+              <div class="flex flex-row gap-1 mt-4">
+                <input disabled type="radio" name="ticket_color" class="bg-red-500 radio checked:bg-red-500" data-color=0 onclick="changeTicketTypeColor(this.dataset.color)"/>
+                <input disabled type="radio" name="ticket_color" class="bg-blue-500 radio checked:bg-blue-500" data-color=1 onclick="changeTicketTypeColor(this.dataset.color)"/>
+                <input disabled type="radio" name="ticket_color" class="bg-yellow-500 radio checked:bg-yellow-500" data-color=2 onclick="changeTicketTypeColor(this.dataset.color)"/>
+                <input disabled type="radio" name="ticket_color" class="bg-green-500 radio checked:bg-green-500" data-color=3 onclick="changeTicketTypeColor(this.dataset.color)"/>
+                <input disabled type="radio" name="ticket_color" class="bg-pink-500 radio checked:bg-pink-500" data-color=4 onclick="changeTicketTypeColor(this.dataset.color)"/>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="flex w-[400px] flex-col flex-no-wrap gap-2 m-auto mr-0 hidden" id="aem_step_4">
+            <!-- 4 tailwind textboxes styled same as previous -->
+
+          </div>
+
+          <div class="p-5 m-auto ml-0 rounded-lg bg-base-100 h-min" id="aem_preview"> 
+            {{ listing::preview() }}
+          </div>
+
+        </div>
+
+        <div class="flex pt-6">
+          <button class="pr-4 pl-4 ml-auto h-10 normal-case rounded-full btn btn-sm bg-accent text-base-100" onclick="nextStep()">Next -></button>
+        </div>
       </div>
+
+    </dialog>
+
 </body>
 </html>
 
+
+
 <script>
-    /*
-    document.getElementById('f_ev_co_fw').onclick = () => {
-        document.getElementById('f_ev_co').scrollLeft =- 172;
-    };
-    document.getElementById('f_ev_co_bw').onclick = () => {
-        document.getElementById('f_ev_co').scrollLeft =+ 172;
-    };*/
+
+  const COLORS =  [
+    "from-red-500/50",
+    "from-blue-500/50",
+    "from-yellow-500/50",
+    "from-green-500/50",
+    "from-pink-500/50"
+  ]
+
+  function addTicketType() {
+    let ticket_types = document.getElementById("aem_step_3_ticket_types");
+    ticket_id = ++ticket_types.dataset.id_iterator;
+    
+    var editable_ticket_type = `{{ macros::ticket_type() }}`
+    ticket_types.insertAdjacentHTML('beforeend', editable_ticket_type)
+  }
+
+  addTicketType()
+
+  function deleteTicketType(ticket_id) {
+    document.getElementById("editable_ticket_type_"+ticket_id).remove();
+    if(document.getElementById("aem_step_3_editor").dataset.current_ticket_type_id == ticket_id) ticketTypeEditorDisabled(true);
+  }
+
+  function ticketTypeEditorDisabled(is_disabled) {
+    document.getElementById("aem_step_3_textarea").disabled = is_disabled;
+    var colors = document.getElementsByName("ticket_color");
+    for( i = 0; i < colors.length; i++ ) {
+        colors[i].disabled = is_disabled;
+        //if(!is_disabled && colos[i].dataset.color ==) 
+    }
+  }
+
+  function editTicketType(ticket_id) {
+    clearTicketEditStyles();
+    ticketTypeEditorDisabled(false);
+
+    var ticket = document.getElementById("editable_ticket_type_"+ticket_id);
+
+    var ticket_editor = document.getElementById("aem_step_3_editor");
+    ticket_editor.dataset.current_ticket_type_id = ticket_id;
+
+    ticket_editor.getElementsByTagName("textarea")[0].value = (ticket.dataset.description == undefined) ? "" : ticket.dataset.description;
+  
+    var ticket_edit_button = document.getElementById("editable_ticket_type_"+ticket_id+"_editbtn");
+    ticket_edit_button.classList.remove("bg-base-200");
+    ticket_edit_button.classList.add("bg-accent");
+    ticket_edit_button.classList.add("hover:bg-accent");
+    ticket_edit_button.classList.add("text-black");
+  }
+
+  function inputTicketTypeDescription(value) {
+    var ticket_id = document.getElementById("aem_step_3_editor").dataset.current_ticket_type_id;
+    var ticket = document.getElementById("editable_ticket_type_"+ticket_id);
+    ticket.dataset.description = value;
+  }
+
+  function clearTicketEditStyles() {
+    for (const li of document.querySelectorAll('.editable_ticket_type')) {
+      var ticket_edit_button = document.getElementById(li.id+"_editbtn");
+      ticket_edit_button.classList.add("bg-base-200");
+      ticket_edit_button.classList.remove("bg-accent");
+      ticket_edit_button.classList.remove("hover:bg-accent");
+      ticket_edit_button.classList.remove("text-black");
+    }
+  }
+
+  function clearTicketTypeColors(ticket_id) {
+    var ticket = document.getElementById("editable_ticket_type_"+ticket_id);
+    ticket.classList.remove(...COLORS);
+  }
+
+  function changeTicketTypeColor(color_idx) {
+    var ticket_editor = document.getElementById("aem_step_3_editor");
+    let ticket_id = ticket_editor.dataset.current_ticket_type_id;
+    var ticket = document.getElementById("editable_ticket_type_"+ticket_id);
+
+    clearTicketTypeColors(ticket_id);
+    ticket.classList.add(COLORS[color_idx]);
+    ticket.dataset.color = color_idx;
+  }
+  
+  function updatePreviewField(inputElement) {
+    var field = document.getElementById(inputElement.name);
+    if(inputElement.checkValidity() == false) return;
+
+    if (inputElement.value.length == 0) {
+      switch (inputElement.name) {
+        case "preview_title":
+          field.textContent = "Event title"
+        break;
+        case "preview_description":
+          field.textContent = "Description"
+        break;
+        /*case "preview_date":
+          field.textContent = "JAN 1"
+        break;*/
+        case "preview_venue":
+          field.textContent = "Venue"
+        break;
+      }
+
+      return;
+    }
+
+    field.textContent = inputElement.value;
+    return;
+  }
+
+  function updatePreviewImage(image) {
+    document.getElementById("preview_thumbnail").src = window.URL.createObjectURL(image);
+    document.getElementById("aem_step_3_image_preview").src = window.URL.createObjectURL(image);
+  }
+
+  function validatePreviewField(textContent) {
+    return /^[A-Za-z0-9\s,.-]+$/gm.test(textContent)
+  }
+
+  function nextStep() {
+    var steps = document.getElementById("aem_steps");
+    var current_step = steps.dataset.current_step;
+    //if(current_step => 4) return; ///
+    switchStep(++current_step)
+  }
+
+  function switchStep(step) {
+    var steps = document.getElementById("aem_steps");
+    steps.dataset.current_step = step;
+    
+    for (const li of document.querySelectorAll('#aem_steps>li')) {
+      if(li.dataset.step == step) {
+
+        var step_div = document.getElementById(`aem_step_${li.dataset.step}`);
+        step_div.classList.remove("hidden");
+        
+        if(step_div.dataset.preview_hidden !== undefined) {
+          document.getElementById("aem_preview").classList.add("hidden")
+        } else {
+          document.getElementById("aem_preview").classList.remove("hidden")
+        }
+
+      } else {
+        document.getElementById(`aem_step_${li.dataset.step}`).classList.add("hidden");
+      }
+
+      if(li.dataset.step <= step) {
+        li.classList.add("step-accent")
+      } else {
+        li.classList.remove("step-accent")
+      }
+
+    }
+  }
+
 </script>
